@@ -5,8 +5,8 @@ const db = require('./config/database');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
-  'https://https://crm-repair-node.onrender.com/api',
-  'https://localhost:5000',
+  'https://crm-remont.vercel.app',
+  'http://localhost:5173',
  
 ];
 app.use(cors({
