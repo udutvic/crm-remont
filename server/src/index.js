@@ -5,7 +5,7 @@ const db = require('./config/database');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
-  'https://https://crm-repair-node.onrender.com',
+  'https://https://crm-repair-node.onrender.com/api',
   'https://localhost:5000',
  
 ];
