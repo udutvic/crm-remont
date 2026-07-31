@@ -145,34 +145,37 @@ export default function useCrud<
     }
   }, [getAll, itemToDelete, remove]);
 
-  const handleSubmit = useCallback(
-    async (data: TPayload): Promise<void> => {
-      setLoading(true);
-
-      try {
-        if (selectedItem?.id !== undefined) {
-          await update(selectedItem.id, data);
-        } else {
-          await create(data);
-        }
-
-        const updatedItems = await getAll();
-
-        setItems(updatedItems);
-        setOpenForm(false);
-        setSelectedItem(undefined);
-        setError(null);
-      } catch (submitError: unknown) {
-        console.error("Error saving item:", submitError);
-        setError("Failed to save item");
-
-        throw submitError;
-      } finally {
-        setLoading(false);
+const handleSubmit = useCallback(
+  async (data: TPayload): Promise<void> => {
+    try {
+      if (selectedItem?.id !== undefined) {
+        await update(selectedItem.id, data);
+      } else {
+        await create(data);
       }
-    },
-    [create, getAll, selectedItem, update]
-  );
+
+      const updatedItems = await getAll();
+
+      setItems(updatedItems);
+      setOpenForm(false);
+      setSelectedItem(undefined);
+      setError(null);
+    } catch (submitError: unknown) {
+      console.error(
+        "Error saving item:",
+        submitError
+      );
+
+      throw submitError;
+    }
+  },
+  [
+    create,
+    getAll,
+    selectedItem,
+    update,
+  ]
+);
 
   const handleCloseForm = useCallback((): void => {
     setOpenForm(false);
