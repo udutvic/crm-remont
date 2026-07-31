@@ -1,12 +1,12 @@
-import React from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Typography,
 } from "@mui/material";
+
 interface ConfirmDeleteDialogProps {
   open: boolean;
   message: string;
@@ -14,38 +14,50 @@ interface ConfirmDeleteDialogProps {
   onConfirm: () => void;
   isConfirmEnabled?: boolean;
 }
-const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
+
+const ConfirmDeleteDialog = ({
   open,
   message,
   onClose,
   onConfirm,
   isConfirmEnabled = true,
-}) => {
-  const hasErrorMessage = 
-    message.toLowerCase().includes('cannot delete') || 
-    message.toLowerCase().includes('open orders') ||
-    message.toLowerCase().includes('confirm deletion') && message.toLowerCase().includes('cannot');
-  const showDeleteButton = isConfirmEnabled && !hasErrorMessage;
+}: ConfirmDeleteDialogProps) => {
+  const normalizedMessage = message.toLowerCase();
+
+  const hasErrorMessage =
+    normalizedMessage.includes("cannot delete") ||
+    normalizedMessage.includes("open orders") ||
+    (normalizedMessage.includes("confirm deletion") &&
+      normalizedMessage.includes("cannot"));
+
+  const showDeleteButton =
+    isConfirmEnabled && !hasErrorMessage;
+
   return (
     <Dialog
       open={open}
       onClose={onClose}
+      maxWidth="sm"
+      fullWidth
     >
-      <DialogTitle>
-        <Typography variant="h6">Confirm Deletion</Typography>
-      </DialogTitle>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+
       <DialogContent>
-        <Typography
-          component="div"
-          dangerouslySetInnerHTML={{ __html: message }}
-        />
+        <Typography>
+          {message}
+        </Typography>
       </DialogContent>
+
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>
+          Cancel
+        </Button>
+
         {showDeleteButton && (
           <Button
             onClick={onConfirm}
             color="error"
+            variant="contained"
           >
             Delete
           </Button>
@@ -54,4 +66,5 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
     </Dialog>
   );
 };
+
 export default ConfirmDeleteDialog;

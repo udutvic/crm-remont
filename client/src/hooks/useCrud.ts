@@ -88,7 +88,7 @@ export default function useCrud<T extends Entity>({
             : `item #${item.id}`;
 
         setDeleteDialogMessage(
-          `Are you sure you want to delete <b>${itemName}</b>?`
+          `Are you sure you want to delete "${itemName}"?`
         );
       }
 
