@@ -2,7 +2,11 @@ export interface Client {
   id?: number;
   name: string;
   phone: string;
-  email: string;
+  phoneNormalized?: string;
+  secondaryPhone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  note?: string | null;
   avatarUrl?: string;
   createdAt?: string;
   updatedAt?: string;
