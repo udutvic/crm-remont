@@ -1,105 +1,211 @@
-import axios from 'axios';
-import { Client, Device, Order, OrderStatus } from 'types';
-import {API_URL} from 'api';
-export const getClients = async (): Promise<Client[]> => {
-  const response = await axios.get(`${API_URL}/clients`);
-  return response.data;
-};
-export const getClient = async (id: number): Promise<Client> => {
-  const response = await axios.get(`${API_URL}/clients/${id}`);
-  return response.data;
-};
-export const createClient = async (client: Client): Promise<Client> => {
-  const response = await axios.post(`${API_URL}/clients`, client);
-  return response.data;
-};
-export const updateClient = async (id: number, client: Client): Promise<Client> => {
-  const response = await axios.put(`${API_URL}/clients/${id}`, client);
-  return response.data;
-};
-export const deleteClient = async (id: number): Promise<void> => {
-  await axios.delete(`${API_URL}/clients/${id}`);
-};
-export const getDevices = async (): Promise<Device[]> => {
-  const response = await axios.get(`${API_URL}/devices`);
-  return response.data;
-};
-export const getDevice = async (id: number): Promise<Device> => {
-  const response = await axios.get(`${API_URL}/devices/${id}`);
-  return response.data;
-};
-export const getDevicesByClient = async (clientId: number): Promise<Device[]> => {
-  const response = await axios.get(`${API_URL}/devices?clientId=${clientId}`);
-  return response.data;
-};
-export const createDevice = async (device: Device): Promise<Device> => {
-  const response = await axios.post(`${API_URL}/devices`, device);
-  return response.data;
-};
-export const updateDevice = async (id: number, device: Device): Promise<Device> => {
-  const response = await axios.put(`${API_URL}/devices/${id}`, device);
-  return response.data;
-};
-export const deleteDevice = async (id: number): Promise<void> => {
-  await axios.delete(`${API_URL}/devices/${id}`);
-};
-export const getOrders = async (): Promise<Order[]> => {
-  const response = await axios.get(`${API_URL}/orders`);
-<<<<<<< HEAD
+import { apiClient } from "api";
+import { Client, Device, Order, OrderStatus } from "types";
 
-  console.log("orders response:", response.data);
-  console.log("is array:", Array.isArray(response.data));
-=======
->>>>>>> 647724de4edd4a608cbb3601a1a46f696ce924df
-  return response.data;
-};
-export const getOrder = async (id: number): Promise<Order> => {
-  const response = await axios.get(`${API_URL}/orders/${id}`);
-  return response.data;
-};
-export const getOrdersByStatus = async (status: OrderStatus): Promise<Order[]> => {
-  const response = await axios.get(`${API_URL}/orders?status=${status}`);
-  return response.data;
-};
-export const createOrder = async (order: Order): Promise<Order> => {
-  const response = await axios.post(`${API_URL}/orders`, order);
-  return response.data;
-};
-export const updateOrder = async (id: number, order: Order): Promise<Order> => {
-  const response = await axios.put(`${API_URL}/orders/${id}`, order);
-  return response.data;
-};
-export const updateOrderStatus = async (id: number, status: OrderStatus): Promise<Order> => {
-  const response = await axios.patch(`${API_URL}/orders/${id}`, { status });
-  return response.data;
-};
-export const deleteOrder = async (id: number): Promise<void> => {
-  await axios.delete(`${API_URL}/orders/${id}`);
-};
-export const getDashboardStats = async (): Promise<{
+export interface DashboardStats {
   clientCount: number;
   deviceCount: number;
   orderCount: number;
   totalIncome: number;
-}> => {
-  const response = await axios.get(`${API_URL}/stats/dashboard`);
+}
+
+export interface HealthResponse {
+  status: "ok" | "error";
+  api: "running";
+  database: "connected" | "disconnected";
+  timestamp: string;
+  error?: string;
+}
+
+// Health
+
+export const getHealth = async (): Promise<HealthResponse> => {
+  const response = await apiClient.get<HealthResponse>("/health");
+
   return response.data;
 };
-export const getOrdersByDate = async (startDate: string, endDate: string): Promise<Order[]> => {
-  const response = await axios.get(
-    `${API_URL}/orders?startDate=${startDate}&endDate=${endDate}`
-  );
+
+// Clients
+
+export const getClients = async (): Promise<Client[]> => {
+  const response = await apiClient.get<Client[]>("/clients");
+
   return response.data;
 };
+
+export const getClient = async (id: number): Promise<Client> => {
+  const response = await apiClient.get<Client>(`/clients/${id}`);
+
+  return response.data;
+};
+
+export const createClient = async (client: Client): Promise<Client> => {
+  const response = await apiClient.post<Client>("/clients", client);
+
+  return response.data;
+};
+
+export const updateClient = async (
+  id: number,
+  client: Client
+): Promise<Client> => {
+  const response = await apiClient.put<Client>(`/clients/${id}`, client);
+
+  return response.data;
+};
+
+export const deleteClient = async (id: number): Promise<void> => {
+  await apiClient.delete(`/clients/${id}`);
+};
+
 export const searchClients = async (query: string): Promise<Client[]> => {
-  const response = await axios.get(`${API_URL}/clients/search?q=${query}`);
+  const response = await apiClient.get<Client[]>("/clients/search", {
+    params: {
+      q: query,
+    },
+  });
+
   return response.data;
 };
+
+// Devices
+
+export const getDevices = async (): Promise<Device[]> => {
+  const response = await apiClient.get<Device[]>("/devices");
+
+  return response.data;
+};
+
+export const getDevice = async (id: number): Promise<Device> => {
+  const response = await apiClient.get<Device>(`/devices/${id}`);
+
+  return response.data;
+};
+
+export const getDevicesByClient = async (
+  clientId: number
+): Promise<Device[]> => {
+  const response = await apiClient.get<Device[]>("/devices", {
+    params: {
+      clientId,
+    },
+  });
+
+  return response.data;
+};
+
+export const createDevice = async (device: Device): Promise<Device> => {
+  const response = await apiClient.post<Device>("/devices", device);
+
+  return response.data;
+};
+
+export const updateDevice = async (
+  id: number,
+  device: Device
+): Promise<Device> => {
+  const response = await apiClient.put<Device>(`/devices/${id}`, device);
+
+  return response.data;
+};
+
+export const deleteDevice = async (id: number): Promise<void> => {
+  await apiClient.delete(`/devices/${id}`);
+};
+
 export const searchDevices = async (query: string): Promise<Device[]> => {
-  const response = await axios.get(`${API_URL}/devices/search?q=${query}`);
+  const response = await apiClient.get<Device[]>("/devices/search", {
+    params: {
+      q: query,
+    },
+  });
+
   return response.data;
 };
+
+// Orders
+
+export const getOrders = async (): Promise<Order[]> => {
+  const response = await apiClient.get<Order[]>("/orders");
+
+  return response.data;
+};
+
+export const getOrder = async (id: number): Promise<Order> => {
+  const response = await apiClient.get<Order>(`/orders/${id}`);
+
+  return response.data;
+};
+
+export const getOrdersByStatus = async (
+  status: OrderStatus
+): Promise<Order[]> => {
+  const response = await apiClient.get<Order[]>("/orders", {
+    params: {
+      status,
+    },
+  });
+
+  return response.data;
+};
+
+export const getOrdersByDate = async (
+  startDate: string,
+  endDate: string
+): Promise<Order[]> => {
+  const response = await apiClient.get<Order[]>("/orders", {
+    params: {
+      startDate,
+      endDate,
+    },
+  });
+
+  return response.data;
+};
+
+export const createOrder = async (order: Order): Promise<Order> => {
+  const response = await apiClient.post<Order>("/orders", order);
+
+  return response.data;
+};
+
+export const updateOrder = async (
+  id: number,
+  order: Order
+): Promise<Order> => {
+  const response = await apiClient.put<Order>(`/orders/${id}`, order);
+
+  return response.data;
+};
+
+export const updateOrderStatus = async (
+  id: number,
+  status: OrderStatus
+): Promise<Order> => {
+  const response = await apiClient.patch<Order>(`/orders/${id}`, {
+    status,
+  });
+
+  return response.data;
+};
+
+export const deleteOrder = async (id: number): Promise<void> => {
+  await apiClient.delete(`/orders/${id}`);
+};
+
 export const searchOrders = async (query: string): Promise<Order[]> => {
-  const response = await axios.get(`${API_URL}/orders/search?q=${query}`);
+  const response = await apiClient.get<Order[]>("/orders/search", {
+    params: {
+      q: query,
+    },
+  });
+
+  return response.data;
+};
+
+// Dashboard
+
+export const getDashboardStats = async (): Promise<DashboardStats> => {
+  const response = await apiClient.get<DashboardStats>("/stats/dashboard");
+
   return response.data;
 };
