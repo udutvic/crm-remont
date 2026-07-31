@@ -16,8 +16,12 @@
     "express": "^5.1.0",
     "pg": "^8.15.6",
     "pg-hstore": "^2.3.4",
+<<<<<<< HEAD
     "sequelize": "^6.37.8",
     "sqlite3": "^6.0.1"
+=======
+    "sequelize": "^6.37.7"
+>>>>>>> 647724de4edd4a608cbb3601a1a46f696ce924df
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

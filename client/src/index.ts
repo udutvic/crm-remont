@@ -45,9 +45,12 @@ export const deleteDevice = async (id: number): Promise<void> => {
 };
 export const getOrders = async (): Promise<Order[]> => {
   const response = await axios.get(`${API_URL}/orders`);
+<<<<<<< HEAD
 
   console.log("orders response:", response.data);
   console.log("is array:", Array.isArray(response.data));
+=======
+>>>>>>> 647724de4edd4a608cbb3601a1a46f696ce924df
   return response.data;
 };
 export const getOrder = async (id: number): Promise<Order> => {
