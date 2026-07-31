@@ -1,0 +1,11 @@
+const express = require('express');
+const router = express.Router();
+const clientController = require('../controllers/clientController');
+router.get('/remove-duplicates', clientController.removeClientDuplicates);
+router.get('/', clientController.getAllClients);
+router.get('/:id', clientController.getClient);
+router.post('/', clientController.createClient);
+router.put('/:id', clientController.updateClient);
+router.delete('/:id', clientController.deleteClient);
+router.get('/search', clientController.searchClients);
+module.exports = router;
