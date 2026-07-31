@@ -10,9 +10,6 @@ const startServer = async () => {
     await db.authenticate();
     console.log("✅ Database connected...");
 
-    await db.sync();
-    console.log("✅ Database synchronized...");
-
     app.listen(PORT, () => {
       console.log(`🚀 Server started on port ${PORT}`);
     });
