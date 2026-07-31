@@ -1,92 +1,375 @@
-const Client = require('../models/Client');
-const Device = require('../models/Device');
-const Order = require('../models/Order');
-exports.getAllClients = async (req, res) => {
+const { Op } = require("sequelize");
+
+const Client = require("../models/Client");
+const Device = require("../models/Device");
+const Order = require("../models/Order");
+const normalizePhone = require(
+  "../utils/normalizePhone"
+);
+const {
+  validateClientPayload,
+} = require("../validators/clientValidator");
+
+const clientIncludes = [
+  {
+    model: Device,
+    as: "devices",
+  },
+];
+
+const parseClientId = (value) => {
+  const id = Number(value);
+
+  return Number.isInteger(id) && id > 0
+    ? id
+    : null;
+};
+
+const sendValidationError = (
+  res,
+  errors
+) => {
+  return res.status(400).json({
+    error: "Client validation failed.",
+    details: errors,
+  });
+};
+
+const handleClientError = (
+  res,
+  error,
+  operation
+) => {
+  if (
+    error.name ===
+    "SequelizeUniqueConstraintError"
+  ) {
+    const fields = Object.keys(
+      error.fields ?? {}
+    );
+
+    if (
+      fields.includes("phone") ||
+      fields.includes("phoneNormalized")
+    ) {
+      return res.status(409).json({
+        error:
+          "Клієнт з таким номером телефону вже існує.",
+      });
+    }
+
+    if (fields.includes("email")) {
+      return res.status(409).json({
+        error:
+          "Клієнт з таким email вже існує.",
+      });
+    }
+
+    return res.status(409).json({
+      error:
+        "Client with these details already exists.",
+    });
+  }
+
+  if (
+    error.name ===
+    "SequelizeValidationError"
+  ) {
+    return res.status(400).json({
+      error: "Client validation failed.",
+      details: error.errors.map(
+        (validationError) => ({
+          field: validationError.path,
+          message: validationError.message,
+        })
+      ),
+    });
+  }
+
+  console.error(
+    `Client ${operation} failed:`,
+    error
+  );
+
+  return res.status(500).json({
+    error: "Internal server error.",
+  });
+};
+
+exports.getAllClients = async (
+  req,
+  res
+) => {
   try {
-    const clients = await Client.findAll({ include: [{ model: Device, as: 'devices' }] });
-    res.json(clients);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const clients = await Client.findAll({
+      include: clientIncludes,
+      order: [
+        ["name", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
+
+    return res.status(200).json(clients);
+  } catch (error) {
+    return handleClientError(
+      res,
+      error,
+      "list"
+    );
   }
 };
+
 exports.getClient = async (req, res) => {
-  try {
-    const client = await Client.findByPk(req.params.id, { include: [{ model: Device, as: 'devices' }] });
-    if (!client) return res.status(404).json({ error: 'Client not found' });
-    res.json(client);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  const clientId = parseClientId(
+    req.params.id
+  );
+
+  if (!clientId) {
+    return res.status(400).json({
+      error: "Invalid client ID.",
+    });
   }
-};
-exports.createClient = async (req, res) => {
+
   try {
-    console.log('CREATE CLIENT BODY:', req.body);
-    const client = await Client.create(req.body);
-    res.status(201).json(client);
-  } catch (err) {
-    console.error('CREATE CLIENT ERROR:', err);
-    if (err.name === 'SequelizeUniqueConstraintError') {
-      return res.status(400).json({ error: 'Клієнт з таким телефоном або email вже існує.' });
+    const client = await Client.findByPk(
+      clientId,
+      {
+        include: clientIncludes,
+      }
+    );
+
+    if (!client) {
+      return res.status(404).json({
+        error: "Client not found.",
+      });
     }
-    res.status(500).json({ error: err.message });
+
+    return res.status(200).json(client);
+  } catch (error) {
+    return handleClientError(
+      res,
+      error,
+      "read"
+    );
   }
 };
-exports.updateClient = async (req, res) => {
+
+exports.createClient = async (
+  req,
+  res
+) => {
+  const validation =
+    validateClientPayload(req.body);
+
+  if (!validation.isValid) {
+    return sendValidationError(
+      res,
+      validation.errors
+    );
+  }
+
   try {
-    const [updated] = await Client.update(req.body, { where: { id: req.params.id } });
-    if (!updated) return res.status(404).json({ error: 'Client not found' });
-    const client = await Client.findByPk(req.params.id);
-    res.json(client);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const client = await Client.create(
+      validation.payload
+    );
+
+    return res.status(201).json(client);
+  } catch (error) {
+    return handleClientError(
+      res,
+      error,
+      "create"
+    );
   }
 };
-exports.deleteClient = async (req, res) => {
+
+exports.updateClient = async (
+  req,
+  res
+) => {
+  const clientId = parseClientId(
+    req.params.id
+  );
+
+  if (!clientId) {
+    return res.status(400).json({
+      error: "Invalid client ID.",
+    });
+  }
+
+  const validation =
+    validateClientPayload(req.body);
+
+  if (!validation.isValid) {
+    return sendValidationError(
+      res,
+      validation.errors
+    );
+  }
+
   try {
-    const ordersCount = await Order.count({ where: { clientId: req.params.id } });
+    const client = await Client.findByPk(
+      clientId
+    );
+
+    if (!client) {
+      return res.status(404).json({
+        error: "Client not found.",
+      });
+    }
+
+    await client.update(
+      validation.payload
+    );
+
+    return res.status(200).json(client);
+  } catch (error) {
+    return handleClientError(
+      res,
+      error,
+      "update"
+    );
+  }
+};
+
+exports.deleteClient = async (
+  req,
+  res
+) => {
+  const clientId = parseClientId(
+    req.params.id
+  );
+
+  if (!clientId) {
+    return res.status(400).json({
+      error: "Invalid client ID.",
+    });
+  }
+
+  try {
+    const client = await Client.findByPk(
+      clientId
+    );
+
+    if (!client) {
+      return res.status(404).json({
+        error: "Client not found.",
+      });
+    }
+
+    const [ordersCount, devicesCount] =
+      await Promise.all([
+        Order.count({
+          where: {
+            clientId,
+          },
+        }),
+
+        Device.count({
+          where: {
+            clientId,
+          },
+        }),
+      ]);
+
     if (ordersCount > 0) {
-      return res.status(400).json({ error: 'Cannot delete client because there are open orders associated with this client.' });
+      return res.status(409).json({
+        error:
+          "Cannot delete client because repair orders are associated with this client.",
+      });
     }
-    const deleted = await Client.destroy({ where: { id: req.params.id } });
-    if (!deleted) return res.status(404).json({ error: 'Client not found' });
-    res.json({ message: 'Client deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+
+    if (devicesCount > 0) {
+      return res.status(409).json({
+        error:
+          "Cannot delete client because devices are associated with this client.",
+      });
+    }
+
+    await client.destroy();
+
+    return res.status(204).send();
+  } catch (error) {
+    return handleClientError(
+      res,
+      error,
+      "delete"
+    );
   }
 };
-exports.searchClients = async (req, res) => {
+
+exports.searchClients = async (
+  req,
+  res
+) => {
+  const query = String(
+    req.query.q ?? ""
+  ).trim();
+
+  if (!query) {
+    return res.status(200).json([]);
+  }
+
+  if (query.length > 100) {
+    return res.status(400).json({
+      error:
+        "Search query cannot exceed 100 characters.",
+    });
+  }
+
+  const normalizedQuery =
+    normalizePhone(query);
+
+  const searchConditions = [
+    {
+      name: {
+        [Op.iLike]: `%${query}%`,
+      },
+    },
+    {
+      phone: {
+        [Op.iLike]: `%${query}%`,
+      },
+    },
+    {
+      secondaryPhone: {
+        [Op.iLike]: `%${query}%`,
+      },
+    },
+    {
+      email: {
+        [Op.iLike]: `%${query}%`,
+      },
+    },
+  ];
+
+  if (normalizedQuery) {
+    searchConditions.push({
+      phoneNormalized: {
+        [Op.like]: `%${normalizedQuery}%`,
+      },
+    });
+  }
+
   try {
-    const { q } = req.query;
     const clients = await Client.findAll({
       where: {
-        name: { [require('sequelize').Op.iLike]: `%${q}%` }
-      }
+        [Op.or]: searchConditions,
+      },
+      include: clientIncludes,
+      order: [
+        ["name", "ASC"],
+        ["id", "ASC"],
+      ],
+      limit: 50,
     });
-    res.json(clients);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-exports.removeClientDuplicates = async (req, res) => {
-  try {
-    const [resultsEmail] = await Client.sequelize.query(`
-      DELETE FROM clients
-      WHERE id NOT IN (
-        SELECT MIN(id)
-        FROM clients
-        GROUP BY email
-      );
-    `);
-    const [resultsPhone] = await Client.sequelize.query(`
-      DELETE FROM clients
-      WHERE id NOT IN (
-        SELECT MIN(id)
-        FROM clients
-        GROUP BY phone
-      );
-    `);
-    res.json({ message: 'Дублікати email та phone видалено.' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+
+    return res.status(200).json(clients);
+  } catch (error) {
+    return handleClientError(
+      res,
+      error,
+      "search"
+    );
   }
 };
