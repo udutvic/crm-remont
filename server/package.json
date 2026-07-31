@@ -12,7 +12,9 @@
   "db:migrate:undo": "sequelize-cli db:migrate:undo",
   "db:seed": "sequelize-cli db:seed:all",
   "audit": "npm audit --omit=dev",
-  "audit:fix": "npm audit fix --omit=dev"
+  "audit:fix": "npm audit fix --omit=dev",
+  "db:backup": "node src/scripts/backupDatabase.js",
+"db:inspect": "node src/scripts/inspectDatabase.js"
 },
   "dependencies": {
     "cors": "^2.8.5",
