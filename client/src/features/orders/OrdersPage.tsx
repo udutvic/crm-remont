@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Container, SelectChangeEvent } from "@mui/material";
-import { Order, OrderStatus, Client } from "types";
+import {
+  Client,
+  Order,
+  OrderPayload,
+  OrderStatus,
+} from "types";
 import {
   getOrders,
   createOrder,
@@ -39,7 +44,7 @@ const OrdersPage: React.FC = () => {
     handleSubmit,
     handleCloseForm,
     handleCloseDeleteDialog,
-  } = useCrud<Order>({
+  } = useCrud<Order, OrderPayload>({
     getAll: getOrders,
     create: createOrder,
     update: updateOrder,

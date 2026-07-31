@@ -10,21 +10,30 @@ interface Entity {
   _deleteMessage?: string;
 }
 
-interface CrudFunctions<T extends Entity> {
-  getAll: () => Promise<T[]>;
-  create: (data: T) => Promise<T>;
-  update: (id: number, data: T) => Promise<T>;
+interface CrudFunctions<
+  TEntity extends Entity,
+  TPayload = TEntity
+> {
+  getAll: () => Promise<TEntity[]>;
+  create: (data: TPayload) => Promise<TEntity>;
+  update: (
+    id: number,
+    data: TPayload
+  ) => Promise<TEntity>;
   remove: (id: number) => Promise<void>;
 }
 
-export default function useCrud<T extends Entity>({
+export default function useCrud<
+  TEntity extends Entity,
+  TPayload = TEntity
+>({
   getAll,
   create,
   update,
   remove,
-}: CrudFunctions<T>) {
-  const [items, setItems] = useState<T[]>([]);
-  const [selectedItem, setSelectedItem] = useState<T | undefined>();
+}: CrudFunctions<TEntity, TPayload>) {
+  const [items, setItems] = useState<TEntity[]>([]);
+  const [selectedItem, setSelectedItem] = useState<TEntity | undefined>();
   const [openForm, setOpenForm] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +41,7 @@ export default function useCrud<T extends Entity>({
   const [deleteDialogOpen, setDeleteDialogOpen] =
     useState<boolean>(false);
 
-  const [itemToDelete, setItemToDelete] = useState<T | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<TEntity | null>(null);
 
   const [deleteDialogMessage, setDeleteDialogMessage] = useState<string>(
     "Are you sure you want to delete this item?"
@@ -66,13 +75,16 @@ export default function useCrud<T extends Entity>({
     setOpenForm(true);
   }, []);
 
-  const handleEdit = useCallback((item: T): void => {
+  const handleEdit = useCallback((item: TEntity): void => {
     setSelectedItem(item);
     setOpenForm(true);
   }, []);
 
   const handleDelete = useCallback(
-    (item: T, nameField?: keyof T): void => {
+    (
+  item: TEntity,
+  nameField?: keyof TEntity
+): void => {
       setItemToDelete(item);
 
       const customMessage = item._deleteMessage ?? "";
@@ -134,7 +146,7 @@ export default function useCrud<T extends Entity>({
   }, [getAll, itemToDelete, remove]);
 
   const handleSubmit = useCallback(
-    async (data: T): Promise<void> => {
+    async (data: TPayload): Promise<void> => {
       setLoading(true);
 
       try {

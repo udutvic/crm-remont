@@ -70,7 +70,7 @@ const OrderTableRow: React.FC<OrderTableRowProps> = ({
               const formattedId = formatOrderId(order);
               const orderWithCustomMessage = {
                 ...order,
-                _deleteMessage: `Are you sure you want to delete order <b>${formattedId}</b>?`
+                _deleteMessage: `Are you sure you want to delete order "${formattedId}"?`
               };
               onDelete(orderWithCustomMessage);
             }}

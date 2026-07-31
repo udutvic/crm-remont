@@ -7,24 +7,41 @@ export interface Client {
   createdAt?: string;
   updatedAt?: string;
 }
+
 export interface Device {
   id?: number;
+  clientId: number;
   brand: string;
   model: string;
   serial?: string;
-  clientId: number;
+  client?: Client;
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type OrderStatus =
+  | "pending"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+
 export interface Order {
   id?: number;
   clientId: number;
-  device: Device;
-  description: string;
+  deviceId: number;
+  problem: string;
   status: OrderStatus;
   price: number;
-  date: string;
-  problem: string;
+  client?: Client;
+  device: Device;
   createdAt?: string;
+  updatedAt?: string;
 }
-export type OrderStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+export interface OrderPayload {
+  clientId: number;
+  deviceId: number;
+  problem: string;
+  status: OrderStatus;
+  price: number;
+}

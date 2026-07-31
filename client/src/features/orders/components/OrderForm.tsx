@@ -1,104 +1,183 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  TextField,
+  Alert,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
   FormControl,
+  Grid,
   InputLabel,
-  Select,
   MenuItem,
+  Select,
+  TextField,
 } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
-import { Order, Device, OrderStatus, Client } from "types";
+import { Controller, useForm } from "react-hook-form";
+
 import { getDevices } from "index";
+import {
+  Client,
+  Device,
+  Order,
+  OrderPayload,
+  OrderStatus,
+} from "types";
+
 interface OrderFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: Order) => void;
+  onSubmit: (data: OrderPayload) => Promise<void>;
   order?: Order;
   clients: Client[];
 }
-const defaultValues = {
-  device: {},
+
+interface OrderFormValues {
+  clientId: number | "";
+  deviceId: number | "";
+  problem: string;
+  status: OrderStatus;
+  price: number;
+}
+
+const defaultValues: OrderFormValues = {
+  clientId: "",
+  deviceId: "",
   problem: "",
-  status: "pending" as OrderStatus,
+  status: "pending",
   price: 0,
-  clientId: undefined as number | undefined,
 };
-const OrderForm: React.FC<OrderFormProps> = ({
+
+const statusOptions: Array<{
+  value: OrderStatus;
+  label: string;
+}> = [
+  {
+    value: "pending",
+    label: "Pending",
+  },
+  {
+    value: "in_progress",
+    label: "In Progress",
+  },
+  {
+    value: "completed",
+    label: "Completed",
+  },
+  {
+    value: "cancelled",
+    label: "Cancelled",
+  },
+];
+
+const OrderForm = ({
   open,
   onClose,
   onSubmit,
   order,
   clients,
-}) => {
+}: OrderFormProps) => {
   const [devices, setDevices] = useState<Device[]>([]);
-  const { control, handleSubmit, reset, watch } = useForm<Order & { clientId?: number }>({
+  const [serverError, setServerError] =
+    useState<string | null>(null);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+  } = useForm<OrderFormValues>({
     defaultValues,
   });
+
   const selectedClientId = watch("clientId");
+
   const filteredDevices = devices.filter(
     (device) => device.clientId === selectedClientId
   );
+
   useEffect(() => {
-    if (open) {
-      if (order) {
-        reset(order);
-      } else {
-        reset(defaultValues);
-      }
+    if (!open) {
+      return;
     }
-  }, [order, reset, open]);
+
+    setServerError(null);
+
+    if (order) {
+      reset({
+        clientId: order.clientId,
+        deviceId: order.deviceId,
+        problem: order.problem,
+        status: order.status,
+        price: order.price,
+      });
+
+      return;
+    }
+
+    reset(defaultValues);
+  }, [open, order, reset]);
+
   useEffect(() => {
-    const fetchDevices = async () => {
+    if (!open) {
+      return;
+    }
+
+    const loadDevices = async (): Promise<void> => {
       try {
         const data = await getDevices();
+
         setDevices(data);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error loading devices:", error);
+        setServerError("Failed to load devices.");
       }
     };
-    if (open) {
-      fetchDevices();
-    }
+
+    void loadDevices();
   }, [open]);
-  const submitHandler = (data: Order & { clientId?: number }): void => {
-    if (!data.device || !data.device.id) {
+
+  const handleFormSubmit = async (
+    values: OrderFormValues
+  ): Promise<void> => {
+    if (
+      values.clientId === "" ||
+      values.deviceId === ""
+    ) {
+      setServerError(
+        "Client and device must be selected."
+      );
+
       return;
     }
-    if (!data.problem) {
-      return;
-    }
-    if (!data.clientId) {
-      alert("Please select a client!");
-      return;
-    }
-    const payload = {
-      ...data,
-      deviceId: data.device.id,
-      clientId: data.clientId,
-      status: data.status,
-      price: data.price,
-      problem: data.problem,
+
+    const payload: OrderPayload = {
+      clientId: values.clientId,
+      deviceId: values.deviceId,
+      problem: values.problem.trim(),
+      status: values.status,
+      price: Number(values.price),
     };
-    onSubmit(payload);
+
+    try {
+      setServerError(null);
+
+      await onSubmit(payload);
+
+      reset(defaultValues);
+    } catch (error: unknown) {
+      console.error("Error saving order:", error);
+      setServerError("Failed to save order.");
+    }
+  };
+
+  const handleCancel = (): void => {
     reset(defaultValues);
+    setServerError(null);
     onClose();
   };
-  const handleCancel = () => {
-    reset(defaultValues);
-    onClose();
-  };
-  const statusOptions: { value: OrderStatus; label: string }[] = [
-    { value: "pending", label: "Pending" },
-    { value: "in_progress", label: "In Progress" },
-    { value: "completed", label: "Completed" },
-    { value: "cancelled", label: "Cancelled" },
-  ];
+
   return (
     <Dialog
       open={open}
@@ -109,124 +188,188 @@ const OrderForm: React.FC<OrderFormProps> = ({
       <DialogTitle>
         {order ? "Edit Order" : "Create New Order"}
       </DialogTitle>
-      <form onSubmit={handleSubmit(submitHandler)}>
+
+      <form
+        onSubmit={handleSubmit(handleFormSubmit)}
+      >
         <DialogContent>
+          {serverError && (
+            <Alert
+              severity="error"
+              sx={{ mb: 2 }}
+            >
+              {serverError}
+            </Alert>
+          )}
+
           <Grid
             container
             spacing={2}
           >
-            {}
             <Grid size={{ xs: 12 }}>
               <FormControl
                 fullWidth
                 margin="normal"
               >
-                <InputLabel id="client-label">Client</InputLabel>
+                <InputLabel id="client-label">
+                  Client
+                </InputLabel>
+
                 <Controller
                   name="clientId"
                   control={control}
-                  defaultValue={undefined}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      labelId="client-label"
-                      label="Client"
-                      required
-                      displayEmpty
-                      value={field.value || ""}
-                    >
-                      {clients.map((client) => (
-                        <MenuItem
-                          key={client.id}
-                          value={client.id}
+                  rules={{
+                    validate: (value) =>
+                      value !== "" ||
+                      "Client is required",
+                  }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <Select
+                        {...field}
+                        labelId="client-label"
+                        label="Client"
+                        error={Boolean(fieldState.error)}
+                        onChange={(event) => {
+                          const clientId = Number(
+                            event.target.value
+                          );
+
+                          field.onChange(clientId);
+                          setValue("deviceId", "");
+                        }}
+                      >
+                        {clients.map((client) => (
+                          <MenuItem
+                            key={client.id}
+                            value={client.id}
+                          >
+                            {client.name} ({client.phone})
+                          </MenuItem>
+                        ))}
+                      </Select>
+
+                      {fieldState.error && (
+                        <Alert
+                          severity="error"
+                          sx={{ mt: 1 }}
                         >
-                          {client.name} ({client.phone})
-                        </MenuItem>
-                      ))}
-                    </Select>
+                          {fieldState.error.message}
+                        </Alert>
+                      )}
+                    </>
                   )}
                 />
               </FormControl>
             </Grid>
-            {}
+
             <Grid size={{ xs: 12 }}>
               <FormControl
                 fullWidth
                 margin="normal"
+                disabled={selectedClientId === ""}
               >
-                <InputLabel id="device-label">Device</InputLabel>
+                <InputLabel id="device-label">
+                  Device
+                </InputLabel>
+
                 <Controller
-                  name="device"
+                  name="deviceId"
                   control={control}
-                  defaultValue={undefined}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      labelId="device-label"
-                      label="Device"
-                      required
-                      value={field.value && field.value.id ? field.value.id : ""}
-                      onChange={(e) => {
-                        const selectedDevice = devices.find(
-                          (device) => device.id === Number(e.target.value)
-                        );
-                        field.onChange(selectedDevice || {});
-                      }}
-                    >
-                      {selectedClientId ? (
-                        filteredDevices.length === 0 ? (
-                          <MenuItem disabled>This client has no devices</MenuItem>
+                  rules={{
+                    validate: (value) =>
+                      value !== "" ||
+                      "Device is required",
+                  }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <Select
+                        {...field}
+                        labelId="device-label"
+                        label="Device"
+                        error={Boolean(fieldState.error)}
+                        onChange={(event) => {
+                          field.onChange(
+                            Number(event.target.value)
+                          );
+                        }}
+                      >
+                        {filteredDevices.length === 0 ? (
+                          <MenuItem disabled>
+                            This client has no devices
+                          </MenuItem>
                         ) : (
                           filteredDevices.map((device) => (
                             <MenuItem
                               key={device.id}
                               value={device.id}
                             >
-                              {device.brand} {device.model} ({device.serial})
+                              {device.brand} {device.model}
+                              {device.serial
+                                ? ` (${device.serial})`
+                                : ""}
                             </MenuItem>
                           ))
-                        )
-                      ) : (
-                        <MenuItem disabled>Select a client first</MenuItem>
+                        )}
+                      </Select>
+
+                      {fieldState.error && (
+                        <Alert
+                          severity="error"
+                          sx={{ mt: 1 }}
+                        >
+                          {fieldState.error.message}
+                        </Alert>
                       )}
-                    </Select>
+                    </>
                   )}
                 />
               </FormControl>
             </Grid>
-            {}
+
             <Grid size={{ xs: 12 }}>
               <Controller
                 name="problem"
                 control={control}
-                defaultValue=""
-                render={({ field }) => (
+                rules={{
+                  required: "Problem is required",
+                  validate: (value) =>
+                    value.trim().length > 0 ||
+                    "Problem is required",
+                }}
+                render={({ field, fieldState }) => (
                   <TextField
                     {...field}
                     label="Problem"
                     fullWidth
-                    required
+                    multiline
+                    minRows={3}
+                    error={Boolean(fieldState.error)}
+                    helperText={
+                      fieldState.error?.message
+                    }
                   />
                 )}
               />
             </Grid>
-            {}
+
             <Grid size={{ xs: 12 }}>
               <FormControl
                 fullWidth
                 margin="normal"
               >
-                <InputLabel id="status-label">Status</InputLabel>
+                <InputLabel id="status-label">
+                  Status
+                </InputLabel>
+
                 <Controller
                   name="status"
                   control={control}
-                  defaultValue="pending"
                   render={({ field }) => (
                     <Select
                       {...field}
                       labelId="status-label"
                       label="Status"
-                      required
                     >
                       {statusOptions.map((option) => (
                         <MenuItem
@@ -241,31 +384,54 @@ const OrderForm: React.FC<OrderFormProps> = ({
                 />
               </FormControl>
             </Grid>
-            {}
+
             <Grid size={{ xs: 12 }}>
               <Controller
                 name="price"
                 control={control}
-                defaultValue={0}
-                render={({ field }) => (
+                rules={{
+                  min: {
+                    value: 0,
+                    message:
+                      "Price cannot be negative",
+                  },
+                }}
+                render={({ field, fieldState }) => (
                   <TextField
                     {...field}
                     label="Price"
                     type="number"
                     fullWidth
-                    required
+                    error={Boolean(fieldState.error)}
+                    helperText={
+                      fieldState.error?.message
+                    }
+                    slotProps={{
+                      htmlInput: {
+                        min: 0,
+                        step: 1,
+                      },
+                    }}
+                    onChange={(event) => {
+                      field.onChange(
+                        Number(event.target.value)
+                      );
+                    }}
                   />
                 )}
               />
             </Grid>
           </Grid>
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={handleCancel}>Cancel</Button>
+          <Button onClick={handleCancel}>
+            Cancel
+          </Button>
+
           <Button
             type="submit"
             variant="contained"
-            color="primary"
           >
             {order ? "Update" : "Add"}
           </Button>
@@ -274,4 +440,5 @@ const OrderForm: React.FC<OrderFormProps> = ({
     </Dialog>
   );
 };
+
 export default OrderForm;

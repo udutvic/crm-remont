@@ -1,5 +1,11 @@
 import { apiClient } from "api";
-import { Client, Device, Order, OrderStatus } from "types";
+import {
+  Client,
+  Device,
+  Order,
+  OrderPayload,
+  OrderStatus,
+} from "types";
 
 export interface DashboardStats {
   clientCount: number;
@@ -162,17 +168,25 @@ export const getOrdersByDate = async (
   return response.data;
 };
 
-export const createOrder = async (order: Order): Promise<Order> => {
-  const response = await apiClient.post<Order>("/orders", order);
+export const createOrder = async (
+  order: OrderPayload
+): Promise<Order> => {
+  const response = await apiClient.post<Order>(
+    "/orders",
+    order
+  );
 
   return response.data;
 };
 
 export const updateOrder = async (
   id: number,
-  order: Order
+  order: OrderPayload
 ): Promise<Order> => {
-  const response = await apiClient.put<Order>(`/orders/${id}`, order);
+  const response = await apiClient.put<Order>(
+    `/orders/${id}`,
+    order
+  );
 
   return response.data;
 };
