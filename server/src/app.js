@@ -8,6 +8,9 @@ const deviceRoutes = require("./routes/deviceRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 
+const notFound = require("./middleware/notFound");
+const errorHandler = require("./middleware/errorHandler");
+
 const app = express();
 
 const allowedOrigins = [
@@ -57,5 +60,8 @@ app.use("/api/clients", clientRoutes);
 app.use("/api/devices", deviceRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/stats", statsRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 module.exports = app;
