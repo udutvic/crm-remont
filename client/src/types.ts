@@ -75,15 +75,49 @@ export type OrderStatus =
   | "completed"
   | "cancelled";
 
+  export type OrderAccessType =
+  | "none"
+  | "pin"
+  | "password"
+  | "pattern"
+  | "unknown";
+
 export interface Order {
   id?: number;
+
   clientId: number;
   deviceId: number;
+
   problem: string;
   status: OrderStatus;
+
+  /*
+   * Temporary field used by the
+   * current order form.
+   */
   price: number;
+
+  deviceCondition?: string | null;
+  accessories?: string | null;
+
+  accessType?: OrderAccessType;
+  hasAccessCode?: boolean;
+
+  diagnosis?: string | null;
+  workPerformed?: string | null;
+  internalNote?: string | null;
+
+  estimatedPrice?: number | null;
+  finalPrice?: number | null;
+
+  receivedAt?: string;
+  dueAt?: string | null;
+  completedAt?: string | null;
+  deliveredAt?: string | null;
+
   client?: Client;
   device: Device;
+
   createdAt?: string;
   updatedAt?: string;
 }
