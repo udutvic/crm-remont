@@ -75,7 +75,7 @@ export type OrderStatus =
   | "completed"
   | "cancelled";
 
-  export type OrderAccessType =
+export type OrderAccessType =
   | "none"
   | "pin"
   | "password"
@@ -125,7 +125,30 @@ export interface Order {
 export interface OrderPayload {
   clientId: number;
   deviceId: number;
+
   problem: string;
   status: OrderStatus;
+
+  /*
+   * Temporary compatibility field.
+   * It will be removed after the order UI
+   * fully switches to estimatedPrice.
+   */
   price: number;
+
+  deviceCondition?: string | null;
+  accessories?: string | null;
+
+  accessType?: OrderAccessType;
+  accessCode?: string;
+
+  diagnosis?: string | null;
+  workPerformed?: string | null;
+  internalNote?: string | null;
+
+  estimatedPrice?: number | null;
+  finalPrice?: number | null;
+
+  receivedAt?: string;
+  dueAt?: string | null;
 }
