@@ -14,6 +14,7 @@ const ORDER_STATUSES = [
   "in_progress",
   "completed",
   "cancelled",
+  "unrepairable",
 ];
 
 const ACCESS_TYPES = [

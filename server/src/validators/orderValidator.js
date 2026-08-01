@@ -2,7 +2,8 @@ const ORDER_STATUSES = new Set([
   "pending",
   "in_progress",
   "completed",
-  "cancelled",
+  "cancelled",  "unrepairable",
+
 ]);
 
 const ACCESS_TYPES = new Set([

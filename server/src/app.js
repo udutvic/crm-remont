@@ -5,6 +5,7 @@ const db = require("./config/database");
 
 const clientRoutes = require("./routes/clientRoutes");
 const deviceRoutes = require("./routes/deviceRoutes");
+const intakeRoutes = require("./routes/intakeRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 
@@ -58,6 +59,7 @@ app.get("/api/health", async (req, res) => {
 
 app.use("/api/clients", clientRoutes);
 app.use("/api/devices", deviceRoutes);
+app.use("/api/intake", intakeRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/stats", statsRoutes);
 

@@ -8,7 +8,7 @@ import {
   useTranslation,
 } from "react-i18next";
 
-import {
+import type {
   OrderStatus,
 } from "types";
 
@@ -23,6 +23,41 @@ interface StatusSelectProps {
   id: number;
   isMobileView?: boolean;
 }
+
+const statusColors: Record<
+  OrderStatus,
+  string
+> = {
+  pending: "#ed6c02",
+  in_progress: "#0288d1",
+  completed: "#2e7d32",
+  cancelled: "#d32f2f",
+  unrepairable: "#9c27b0",
+};
+
+const statusTranslationKeys: Record<
+  OrderStatus,
+  string
+> = {
+  pending:
+    "statuses.pending",
+  in_progress:
+    "statuses.inProgress",
+  completed:
+    "statuses.completed",
+  cancelled:
+    "statuses.cancelled",
+  unrepairable:
+    "statuses.unrepairable",
+};
+
+const statusOptions: OrderStatus[] = [
+  "pending",
+  "in_progress",
+  "completed",
+  "unrepairable",
+  "cancelled",
+];
 
 const StatusSelect = ({
   status,
@@ -40,10 +75,10 @@ const StatusSelect = ({
       sx={{
         minWidth:
           isMobileView
-            ? 120
-            : "auto",
+            ? 150
+            : 175,
+        maxWidth: 210,
       }}
-      fullWidth={!isMobileView}
     >
       <Select
         value={status}
@@ -59,15 +94,9 @@ const StatusSelect = ({
         size="small"
         sx={{
           backgroundColor:
-            status === "pending"
-              ? "#ed6c02"
-              : status ===
-                  "in_progress"
-                ? "#0288d1"
-                : status ===
-                    "completed"
-                  ? "#2e7d32"
-                  : "#d32f2f",
+            statusColors[
+              status
+            ],
 
           color: "white",
 
@@ -82,62 +111,38 @@ const StatusSelect = ({
                 xs: "4px 8px",
                 sm: "8px 14px",
               },
+
+              overflow:
+                "hidden",
+
+              textOverflow:
+                "ellipsis",
+
+              whiteSpace:
+                "nowrap",
             },
         }}
       >
-        <MenuItem
-          value="pending"
-          sx={{
-            fontSize: {
-              xs: "0.7rem",
-              sm: "0.75rem",
-            },
-          }}
-        >
-          {t("statuses.pending")}
-        </MenuItem>
-
-        <MenuItem
-          value="in_progress"
-          sx={{
-            fontSize: {
-              xs: "0.7rem",
-              sm: "0.75rem",
-            },
-          }}
-        >
-          {t(
-            "statuses.inProgress"
-          )}
-        </MenuItem>
-
-        <MenuItem
-          value="completed"
-          sx={{
-            fontSize: {
-              xs: "0.7rem",
-              sm: "0.75rem",
-            },
-          }}
-        >
-          {t(
-            "statuses.completed"
-          )}
-        </MenuItem>
-
-        <MenuItem
-          value="cancelled"
-          sx={{
-            fontSize: {
-              xs: "0.7rem",
-              sm: "0.75rem",
-            },
-          }}
-        >
-          {t(
-            "statuses.cancelled"
-          )}
-        </MenuItem>
+        {statusOptions.map(
+          (option) => (
+            <MenuItem
+              key={option}
+              value={option}
+              sx={{
+                fontSize: {
+                  xs: "0.7rem",
+                  sm: "0.75rem",
+                },
+              }}
+            >
+              {t(
+                statusTranslationKeys[
+                  option
+                ]
+              )}
+            </MenuItem>
+          )
+        )}
       </Select>
     </FormControl>
   );

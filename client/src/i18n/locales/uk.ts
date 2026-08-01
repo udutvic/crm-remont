@@ -34,6 +34,7 @@ const uk = {
       inProgress: "У роботі",
       completed: "Завершено",
       cancelled: "Скасовано",
+      unrepairable: "Не підлягає ремонту",
     },
 
     delivery: {
@@ -43,6 +44,10 @@ const uk = {
       deliver: "Видати",
       delivering: "Видача...",
       error: "Не вдалося позначити замовлення як видане.",
+      readyWithoutRepair: "Без ремонту",
+      returnedWithoutRepair: "Видано без ремонту",
+      deliverWithoutRepair: "Видати",
+      returningWithoutRepair: "Видача...",
     },
 
     ordersPage: {
@@ -50,6 +55,9 @@ const uk = {
       addOrder: "Додати замовлення",
       loading: "Завантаження замовлень...",
       empty: "Замовлень не знайдено.",
+      grid: {
+        rowsPerPage: "Рядків на сторінці:",
+      },
       columns: {
         id: "ID",
         device: "Пристрій",
@@ -292,6 +300,63 @@ const uk = {
       errors: {
         save: "Не вдалося зберегти пристрій. Спробуйте ще раз.",
         existingDevice: "ID наявного пристрою: {{id}}.",
+      },
+    },
+
+    repairIntake: {
+      title: "Нове приймання в ремонт",
+      intro:
+        "Клієнт, пристрій і замовлення будуть збережені разом в одній транзакції.",
+      sections: {
+        client: "Клієнт",
+        device: "Пристрій",
+        order: "Приймання в ремонт",
+      },
+      modes: {
+        existing: "Наявний",
+        new: "Новий",
+      },
+      fields: {
+        existingClient: "Знайти наявного клієнта",
+        existingDevice: "Вибрати наявний пристрій",
+      },
+      lookup: {
+        checkPhone: "Перевірити телефон",
+        checking: "Перевірка...",
+        found: "Наявного клієнта знайдено та вибрано.",
+        notFound: "Клієнта не знайдено. Продовжуйте створення нового клієнта.",
+        failed: "Не вдалося перевірити номер телефону.",
+      },
+      helpers: {
+        selectClientFirst: "Спочатку виберіть наявного клієнта.",
+        noDevices: "У цього клієнта немає зареєстрованих пристроїв.",
+        newClientNewDevice:
+          "Новий клієнт має бути збережений разом із новим пристроєм.",
+      },
+      actions: {
+        create: "Створити приймання",
+        creating: "Створення...",
+      },
+      errors: {
+        loadDevices: "Не вдалося завантажити пристрої.",
+        save: "Не вдалося створити приймання в ремонт.",
+        codes: {
+          INTAKE_VALIDATION_FAILED: "Дані приймання заповнені неправильно.",
+          INTAKE_CLIENT_NOT_FOUND: "Вибраного клієнта не знайдено.",
+          INTAKE_CLIENT_PHONE_CONFLICT:
+            "Клієнт із цим номером телефону вже існує.",
+          INTAKE_CLIENT_EMAIL_CONFLICT:
+            "Клієнт із цією електронною адресою вже існує.",
+          INTAKE_DEVICE_NOT_FOUND: "Вибраний пристрій не знайдено.",
+          INTAKE_DEVICE_CLIENT_MISMATCH:
+            "Вибраний пристрій належить іншому клієнту.",
+          INTAKE_DEVICE_IDENTIFIER_CONFLICT:
+            "Пристрій із таким IMEI або серійним номером уже існує.",
+          INTAKE_ORDER_VALIDATION_FAILED: "Дані замовлення заповнені неправильно.",
+          INTAKE_RELATION_INVALID:
+            "Вибраний клієнт або пристрій недійсний.",
+          INTAKE_CREATE_FAILED: "Не вдалося створити приймання в ремонт.",
+        },
       },
     },
 

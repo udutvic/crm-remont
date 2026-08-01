@@ -789,19 +789,31 @@ exports.markOrderDelivered = async (
       });
     }
 
+    const deliverableStatuses =
+      new Set([
+        "completed",
+        "unrepairable",
+      ]);
+
     if (
-      order.status !== "completed"
+      !deliverableStatuses.has(
+        order.status
+      )
     ) {
       return res.status(409).json({
         error:
-          "Only a completed order can be marked as delivered.",
+          "Only a completed or unrepairable order can be marked as delivered.",
       });
     }
 
     const now = new Date();
     const updates = {};
 
-    if (!order.completedAt) {
+    if (
+      order.status ===
+        "completed" &&
+      !order.completedAt
+    ) {
       updates.completedAt = now;
     }
 

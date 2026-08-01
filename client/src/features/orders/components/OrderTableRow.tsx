@@ -18,7 +18,7 @@ import ClientInfo from "common/components/ClientInfo";
 import DeviceIcon from "common/components/DeviceIcon";
 import StatusSelect from "common/components/StatusSelect";
 import useAppFormatters from "hooks/useAppFormatters";
-import {
+import type {
   Client,
   Order,
   OrderStatus,
@@ -91,7 +91,8 @@ const OrderTableRow = ({
     );
 
   const priceTypeLabel =
-    displayPrice.type === "final"
+    displayPrice.type ===
+    "final"
       ? t(
           "ordersPage.priceTypes.final"
         )
@@ -105,6 +106,8 @@ const OrderTableRow = ({
         sx={{
           pl: 2,
           py: 2,
+          whiteSpace:
+            "nowrap",
         }}
       >
         {formatOrderId(
@@ -116,7 +119,8 @@ const OrderTableRow = ({
         <Box
           sx={{
             display: "flex",
-            alignItems: "center",
+            alignItems:
+              "center",
           }}
         >
           <DeviceIcon
@@ -158,7 +162,7 @@ const OrderTableRow = ({
         sx={{
           display: {
             xs: "none",
-            md: "table-cell",
+            lg: "table-cell",
           },
         }}
       >
@@ -180,7 +184,7 @@ const OrderTableRow = ({
         sx={{
           display: {
             xs: "none",
-            md: "table-cell",
+            lg: "table-cell",
           },
         }}
       >
@@ -213,6 +217,8 @@ const OrderTableRow = ({
       <TableCell
         sx={{
           pr: 2,
+          whiteSpace:
+            "nowrap",
         }}
       >
         <Box
@@ -220,8 +226,9 @@ const OrderTableRow = ({
             display: "flex",
             justifyContent:
               "flex-start",
-            alignItems: "center",
-            gap: 1,
+            alignItems:
+              "center",
+            gap: 0.5,
           }}
         >
           <IconButton
@@ -268,6 +275,7 @@ const OrderTableRow = ({
               const orderWithCustomMessage =
                 {
                   ...order,
+
                   _deleteMessage:
                     t(
                       "ordersPage.deleteConfirmation",

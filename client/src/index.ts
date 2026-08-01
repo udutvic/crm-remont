@@ -8,6 +8,8 @@ import {
   Order,
   OrderPayload,
   OrderStatus,
+  RepairIntakePayload,
+  RepairIntakeResult,
 } from "types";
 
 export interface DashboardStats {
@@ -262,6 +264,21 @@ export const searchOrders = async (query: string): Promise<Order[]> => {
       q: query,
     },
   });
+
+  return response.data;
+};
+
+
+// Repair intake
+
+export const createRepairIntake = async (
+  intake: RepairIntakePayload
+): Promise<RepairIntakeResult> => {
+  const response =
+    await apiClient.post<RepairIntakeResult>(
+      "/intake",
+      intake
+    );
 
   return response.data;
 };

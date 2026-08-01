@@ -30,6 +30,8 @@ const statusColors: Record<
   in_progress: "info",
   completed: "success",
   cancelled: "error",
+  unrepairable:
+    "secondary",
 };
 
 const statusTranslationKeys: Record<
@@ -44,6 +46,8 @@ const statusTranslationKeys: Record<
     "statuses.completed",
   cancelled:
     "statuses.cancelled",
+  unrepairable:
+    "statuses.unrepairable",
 };
 
 const StatusChip = ({

@@ -94,7 +94,7 @@ const statusOptions: OrderStatus[] = [
   "pending",
   "in_progress",
   "completed",
-  "cancelled",
+  "cancelled",  "unrepairable",
 ];
 
 const statusTranslationKeys: Record<
@@ -108,7 +108,8 @@ const statusTranslationKeys: Record<
   completed:
     "statuses.completed",
   cancelled:
-    "statuses.cancelled",
+    "statuses.cancelled",  unrepairable:
+    "statuses.unrepairable",
 };
 
 const accessTypeOptions: OrderAccessType[] =

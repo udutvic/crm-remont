@@ -73,7 +73,8 @@ export type OrderStatus =
   | "pending"
   | "in_progress"
   | "completed"
-  | "cancelled";
+  | "cancelled"
+  | "unrepairable";
 
 export type OrderAccessType =
   | "none"
@@ -152,3 +153,74 @@ export interface OrderPayload {
   receivedAt?: string;
   dueAt?: string | null;
 }
+
+export interface ExistingIntakeSelection {
+  mode: "existing";
+  id: number;
+}
+
+export interface NewClientIntakeSelection {
+  mode: "new";
+  data: ClientPayload;
+}
+
+export type IntakeClientSelection =
+  | ExistingIntakeSelection
+  | NewClientIntakeSelection;
+
+export type DeviceIntakePayload =
+  Omit<
+    DevicePayload,
+    "clientId"
+  >;
+
+export interface NewDeviceIntakeSelection {
+  mode: "new";
+  data: DeviceIntakePayload;
+}
+
+export type IntakeDeviceSelection =
+  | ExistingIntakeSelection
+  | NewDeviceIntakeSelection;
+
+export type OrderIntakePayload =
+  Omit<
+    OrderPayload,
+    "clientId" | "deviceId"
+  >;
+
+export interface RepairIntakePayload {
+  client: IntakeClientSelection;
+  device: IntakeDeviceSelection;
+  order: OrderIntakePayload;
+}
+
+export interface RepairIntakeResult {
+  client: Client;
+  device: Device;
+  order: Order;
+
+  created: {
+    client: boolean;
+    device: boolean;
+  };
+}
+
+export interface RepairIntakeErrorMeta {
+  existingClientId?: number;
+  existingDeviceId?: number;
+  identifier?: string;
+}
+
+export interface RepairIntakeErrorResponse {
+  code?: string;
+  error?: string;
+
+  details?: Record<
+    string,
+    string
+  >;
+
+  meta?: RepairIntakeErrorMeta;
+}
+

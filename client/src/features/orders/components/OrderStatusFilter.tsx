@@ -12,6 +12,10 @@ import {
   useTranslation,
 } from "react-i18next";
 
+import type {
+  OrderStatus,
+} from "types";
+
 interface OrderStatusFilterProps {
   statusFilter: string;
 
@@ -20,15 +24,42 @@ interface OrderStatusFilterProps {
   ) => void;
 }
 
+const statusOptions: OrderStatus[] = [
+  "pending",
+  "in_progress",
+  "completed",
+  "unrepairable",
+  "cancelled",
+];
+
+const statusTranslationKeys: Record<
+  OrderStatus,
+  string
+> = {
+  pending:
+    "statuses.pending",
+  in_progress:
+    "statuses.inProgress",
+  completed:
+    "statuses.completed",
+  cancelled:
+    "statuses.cancelled",
+  unrepairable:
+    "statuses.unrepairable",
+};
+
 const OrderStatusFilter = ({
   statusFilter,
   onFilterChange,
 }: OrderStatusFilterProps) => {
-  const theme = useTheme();
+  const theme =
+    useTheme();
 
   const isMobile =
     useMediaQuery(
-      theme.breakpoints.down("sm")
+      theme.breakpoints.down(
+        "sm"
+      )
     );
 
   const {
@@ -51,19 +82,23 @@ const OrderStatusFilter = ({
         sx={{
           minWidth: {
             xs: "100%",
-            sm: 200,
+            sm: 220,
           },
         }}
       >
         <InputLabel
           id={labelId}
         >
-          {t("common.status")}
+          {t(
+            "common.status"
+          )}
         </InputLabel>
 
         <Select
           labelId={labelId}
-          value={statusFilter}
+          value={
+            statusFilter
+          }
           label={t(
             "common.status"
           )}
@@ -77,32 +112,25 @@ const OrderStatusFilter = ({
           }
         >
           <MenuItem value="all">
-            {t("common.all")}
-          </MenuItem>
-
-          <MenuItem value="pending">
             {t(
-              "statuses.pending"
+              "common.all"
             )}
           </MenuItem>
 
-          <MenuItem value="in_progress">
-            {t(
-              "statuses.inProgress"
-            )}
-          </MenuItem>
-
-          <MenuItem value="completed">
-            {t(
-              "statuses.completed"
-            )}
-          </MenuItem>
-
-          <MenuItem value="cancelled">
-            {t(
-              "statuses.cancelled"
-            )}
-          </MenuItem>
+          {statusOptions.map(
+            (status) => (
+              <MenuItem
+                key={status}
+                value={status}
+              >
+                {t(
+                  statusTranslationKeys[
+                    status
+                  ]
+                )}
+              </MenuItem>
+            )
+          )}
         </Select>
       </FormControl>
     </Box>

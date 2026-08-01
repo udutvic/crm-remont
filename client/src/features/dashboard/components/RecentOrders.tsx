@@ -26,6 +26,7 @@ import {
 import ClientInfo from "common/components/ClientInfo";
 import DeviceIcon from "common/components/DeviceIcon";
 import useAppFormatters from "hooks/useAppFormatters";
+import formatOrderNumber from "utils/formatOrderNumber";
 import type {
   Client,
   Order,
@@ -66,23 +67,6 @@ const RecentOrders = ({
 
   const recentOrders =
     orders.slice(0, 5);
-
-  const formatOrderId = (
-    order: Order
-  ): string => {
-    const index =
-      orders.findIndex(
-        (currentOrder) =>
-          currentOrder.id ===
-          order.id
-      );
-
-    return `#PR-${(
-      orders.length - index
-    )
-      .toString()
-      .padStart(4, "0")}`;
-  };
 
   const getReceivedDate = (
     order: Order
@@ -168,8 +152,8 @@ const RecentOrders = ({
                           600
                         }
                       >
-                        {formatOrderId(
-                          order
+                        {formatOrderNumber(
+                          order.id
                         )}
                       </Typography>
 
@@ -397,8 +381,8 @@ const RecentOrders = ({
                   key={order.id}
                 >
                   <TableCell>
-                    {formatOrderId(
-                      order
+                    {formatOrderNumber(
+                      order.id
                     )}
                   </TableCell>
 

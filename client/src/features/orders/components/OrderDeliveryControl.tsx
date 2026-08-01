@@ -63,6 +63,10 @@ const OrderDeliveryControl = ({
       order
     );
 
+  const isWithoutRepair =
+    order.status ===
+    "unrepairable";
+
   const handleDeliver =
     async (): Promise<void> => {
       if (
@@ -88,7 +92,9 @@ const OrderDeliveryControl = ({
         );
 
         setErrorMessage(
-          t("delivery.error")
+          t(
+            "delivery.error"
+          )
         );
       } finally {
         setDelivering(false);
@@ -109,9 +115,15 @@ const OrderDeliveryControl = ({
             <CheckCircleOutlineIcon />
           }
           label={t(
-            "delivery.delivered"
+            isWithoutRepair
+              ? "delivery.returnedWithoutRepair"
+              : "delivery.delivered"
           )}
-          color="success"
+          color={
+            isWithoutRepair
+              ? "secondary"
+              : "success"
+          }
           size="small"
         />
 
@@ -138,16 +150,26 @@ const OrderDeliveryControl = ({
       >
         <Chip
           label={t(
-            "delivery.ready"
+            isWithoutRepair
+              ? "delivery.readyWithoutRepair"
+              : "delivery.ready"
           )}
-          color="warning"
+          color={
+            isWithoutRepair
+              ? "secondary"
+              : "warning"
+          }
           size="small"
         />
 
         <Button
           type="button"
           variant="contained"
-          color="success"
+          color={
+            isWithoutRepair
+              ? "secondary"
+              : "success"
+          }
           size="small"
           disabled={
             !order.id ||
@@ -166,13 +188,21 @@ const OrderDeliveryControl = ({
           onClick={() => {
             void handleDeliver();
           }}
+          sx={{
+            whiteSpace:
+              "nowrap",
+          }}
         >
           {delivering
             ? t(
-                "delivery.delivering"
+                isWithoutRepair
+                  ? "delivery.returningWithoutRepair"
+                  : "delivery.delivering"
               )
             : t(
-                "delivery.deliver"
+                isWithoutRepair
+                  ? "delivery.deliverWithoutRepair"
+                  : "delivery.deliver"
               )}
         </Button>
 

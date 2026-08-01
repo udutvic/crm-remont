@@ -1,4 +1,6 @@
-import { Order } from "types";
+import type {
+  Order,
+} from "types";
 
 export type OrderDeliveryState =
   | "not_ready"
@@ -7,16 +9,24 @@ export type OrderDeliveryState =
 
 export interface OrderDisplayPrice {
   amount: number;
-  type: "estimated" | "final";
+
+  type:
+    | "estimated"
+    | "final";
 }
 
 export const getOrderDisplayPrice = (
   order: Order
 ): OrderDisplayPrice => {
-  if (order.finalPrice !== null &&
-      order.finalPrice !== undefined) {
+  if (
+    order.finalPrice !== null &&
+    order.finalPrice !==
+      undefined
+  ) {
     return {
-      amount: order.finalPrice,
+      amount:
+        order.finalPrice,
+
       type: "final",
     };
   }
@@ -26,6 +36,7 @@ export const getOrderDisplayPrice = (
       order.estimatedPrice ??
       order.price ??
       0,
+
     type: "estimated",
   };
 };
@@ -37,7 +48,12 @@ export const getOrderDeliveryState = (
     return "delivered";
   }
 
-  if (order.status === "completed") {
+  if (
+    order.status ===
+      "completed" ||
+    order.status ===
+      "unrepairable"
+  ) {
     return "ready";
   }
 
@@ -47,6 +63,8 @@ export const getOrderDeliveryState = (
 export const getOrderReceivedDate = (
   order: Order
 ): string | undefined => {
-  return order.receivedAt ??
-    order.createdAt;
+  return (
+    order.receivedAt ??
+    order.createdAt
+  );
 };

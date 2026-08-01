@@ -1,19 +1,20 @@
 import {
-  Box,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   useTranslation,
 } from "react-i18next";
 
-import DataView from "common/components/DataView";
-import {
+import DataCards from "common/components/DataCards";
+import type {
   Client,
   Order,
   OrderStatus,
 } from "types";
 
 import OrderCard from "./OrderCard";
-import OrderTableRow from "./OrderTableRow";
+import OrderDataGrid from "./OrderDataGrid";
 
 interface OrderListProps {
   orders: Order[];
@@ -58,123 +59,28 @@ const OrderList = ({
   onStatusChange,
   onDeliver,
   onView,
-  onSort,
   formatOrderId,
 }: OrderListProps) => {
   const {
     t,
   } = useTranslation();
 
-  return (
-    <Box>
-      <DataView
+  const theme =
+    useTheme();
+
+  const useCards =
+    useMediaQuery(
+      theme.breakpoints.down(
+        "md"
+      )
+    );
+
+  if (useCards) {
+    return (
+      <DataCards
         data={orders}
-        columns={[
-          {
-            id: "id",
-            label: t(
-              "ordersPage.columns.id"
-            ),
-            sx: {
-              pl: 2,
-            },
-          },
-          {
-            id: "deviceName",
-            label: t(
-              "ordersPage.columns.device"
-            ),
-          },
-          {
-            id: "client",
-            label: t(
-              "ordersPage.columns.client"
-            ),
-            sx: {
-              display: {
-                xs: "none",
-                md: "table-cell",
-              },
-            },
-          },
-          {
-            id: "price",
-            label: t(
-              "ordersPage.columns.price"
-            ),
-            sx: {
-              display: {
-                xs: "none",
-                md: "table-cell",
-              },
-            },
-          },
-          {
-            id: "receivedAt",
-            label: t(
-              "ordersPage.columns.received"
-            ),
-            onClick: () => {
-              onSort(
-                "receivedAt"
-              );
-            },
-            sx: {
-              cursor: "pointer",
-              display: {
-                xs: "none",
-                md: "table-cell",
-              },
-            },
-          },
-          {
-            id: "status",
-            label: t(
-              "ordersPage.columns.status"
-            ),
-          },
-          {
-            id: "delivery",
-            label: t(
-              "ordersPage.columns.delivery"
-            ),
-          },
-          {
-            id: "actions",
-            label: t(
-              "ordersPage.columns.actions"
-            ),
-            sx: {
-              pr: 2,
-              width: "auto",
-            },
-          },
-        ]}
         emptyMessage={t(
           "ordersPage.empty"
-        )}
-        renderTableRow={(
-          order
-        ) => (
-          <OrderTableRow
-            key={order.id}
-            order={order}
-            clients={clients}
-            onEdit={onEdit}
-            onDelete={
-              onDelete
-            }
-            onStatusChange={
-              onStatusChange
-            }
-            onDeliver={
-              onDeliver
-            }
-            onView={onView}
-            formatOrderId={
-              formatOrderId
-            }
-          />
         )}
         renderCard={(
           order
@@ -200,7 +106,21 @@ const OrderList = ({
           />
         )}
       />
-    </Box>
+    );
+  }
+
+  return (
+    <OrderDataGrid
+      orders={orders}
+      clients={clients}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      onStatusChange={
+        onStatusChange
+      }
+      onDeliver={onDeliver}
+      onView={onView}
+    />
   );
 };
 

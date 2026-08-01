@@ -34,6 +34,7 @@ const cs = {
       inProgress: "Probíhá",
       completed: "Dokončeno",
       cancelled: "Zrušeno",
+      unrepairable: "Nelze opravit",
     },
 
     delivery: {
@@ -43,6 +44,10 @@ const cs = {
       deliver: "Vydat",
       delivering: "Vydávání...",
       error: "Zakázku se nepodařilo označit jako vydanou.",
+      readyWithoutRepair: "Bez opravy",
+      returnedWithoutRepair: "Vydáno bez opravy",
+      deliverWithoutRepair: "Vydat",
+      returningWithoutRepair: "Vydávání...",
     },
 
     ordersPage: {
@@ -50,6 +55,9 @@ const cs = {
       addOrder: "Přidat zakázku",
       loading: "Načítání zakázek...",
       empty: "Nebyly nalezeny žádné zakázky.",
+      grid: {
+        rowsPerPage: "Řádků na stránku:",
+      },
       columns: {
         id: "ID",
         device: "Zařízení",
@@ -291,6 +299,63 @@ const cs = {
       errors: {
         save: "Zařízení se nepodařilo uložit. Zkuste to znovu.",
         existingDevice: "ID existujícího zařízení: {{id}}.",
+      },
+    },
+
+    repairIntake: {
+      title: "Nový příjem do opravy",
+      intro:
+        "Zákazník, zařízení a zakázka budou uloženi společně v jedné transakci.",
+      sections: {
+        client: "Zákazník",
+        device: "Zařízení",
+        order: "Příjem do opravy",
+      },
+      modes: {
+        existing: "Existující",
+        new: "Nový",
+      },
+      fields: {
+        existingClient: "Vyhledat existujícího zákazníka",
+        existingDevice: "Vybrat existující zařízení",
+      },
+      lookup: {
+        checkPhone: "Ověřit telefon",
+        checking: "Ověřování...",
+        found: "Existující zákazník byl nalezen a vybrán.",
+        notFound: "Zákazník nebyl nalezen. Pokračujte vytvořením nového zákazníka.",
+        failed: "Telefonní číslo se nepodařilo ověřit.",
+      },
+      helpers: {
+        selectClientFirst: "Nejprve vyberte existujícího zákazníka.",
+        noDevices: "Tento zákazník nemá žádná registrovaná zařízení.",
+        newClientNewDevice:
+          "Nový zákazník musí být uložen společně s novým zařízením.",
+      },
+      actions: {
+        create: "Vytvořit příjem",
+        creating: "Vytváření...",
+      },
+      errors: {
+        loadDevices: "Zařízení se nepodařilo načíst.",
+        save: "Příjem do opravy se nepodařilo vytvořit.",
+        codes: {
+          INTAKE_VALIDATION_FAILED: "Údaje příjmu nejsou platné.",
+          INTAKE_CLIENT_NOT_FOUND: "Vybraný zákazník nebyl nalezen.",
+          INTAKE_CLIENT_PHONE_CONFLICT:
+            "Zákazník s tímto telefonním číslem již existuje.",
+          INTAKE_CLIENT_EMAIL_CONFLICT:
+            "Zákazník s touto e-mailovou adresou již existuje.",
+          INTAKE_DEVICE_NOT_FOUND: "Vybrané zařízení nebylo nalezeno.",
+          INTAKE_DEVICE_CLIENT_MISMATCH:
+            "Vybrané zařízení patří jinému zákazníkovi.",
+          INTAKE_DEVICE_IDENTIFIER_CONFLICT:
+            "Zařízení s tímto IMEI nebo sériovým číslem již existuje.",
+          INTAKE_ORDER_VALIDATION_FAILED: "Údaje zakázky nejsou platné.",
+          INTAKE_RELATION_INVALID:
+            "Vybraný zákazník nebo zařízení není platné.",
+          INTAKE_CREATE_FAILED: "Příjem do opravy se nepodařilo vytvořit.",
+        },
       },
     },
 

@@ -34,6 +34,7 @@ const en = {
       inProgress: "In Progress",
       completed: "Completed",
       cancelled: "Cancelled",
+      unrepairable: "Not repairable",
     },
 
     delivery: {
@@ -43,6 +44,10 @@ const en = {
       deliver: "Deliver",
       delivering: "Delivering...",
       error: "Failed to mark as delivered.",
+      readyWithoutRepair: "No repair",
+      returnedWithoutRepair: "Returned without repair",
+      deliverWithoutRepair: "Return",
+      returningWithoutRepair: "Returning...",
     },
 
     ordersPage: {
@@ -50,6 +55,9 @@ const en = {
       addOrder: "Add Order",
       loading: "Loading orders...",
       empty: "No orders found.",
+      grid: {
+        rowsPerPage: "Rows per page:",
+      },
       columns: {
         id: "ID",
         device: "Device",
@@ -291,6 +299,63 @@ const en = {
       errors: {
         save: "Error saving device. Please try again.",
         existingDevice: "Existing device ID: {{id}}.",
+      },
+    },
+
+    repairIntake: {
+      title: "New Repair Intake",
+      intro:
+        "Client, device and order will be saved together in one transaction.",
+      sections: {
+        client: "Client",
+        device: "Device",
+        order: "Repair Intake",
+      },
+      modes: {
+        existing: "Existing",
+        new: "New",
+      },
+      fields: {
+        existingClient: "Find existing client",
+        existingDevice: "Select existing device",
+      },
+      lookup: {
+        checkPhone: "Check phone",
+        checking: "Checking...",
+        found: "Existing client found and selected.",
+        notFound: "No client found. Continue creating a new client.",
+        failed: "Unable to check the phone number.",
+      },
+      helpers: {
+        selectClientFirst: "Select an existing client first.",
+        noDevices: "This client has no registered devices.",
+        newClientNewDevice:
+          "A new client must be saved with a new device.",
+      },
+      actions: {
+        create: "Create Intake",
+        creating: "Creating...",
+      },
+      errors: {
+        loadDevices: "Failed to load devices.",
+        save: "Failed to create repair intake.",
+        codes: {
+          INTAKE_VALIDATION_FAILED: "Intake data is invalid.",
+          INTAKE_CLIENT_NOT_FOUND: "The selected client was not found.",
+          INTAKE_CLIENT_PHONE_CONFLICT:
+            "A client with this phone number already exists.",
+          INTAKE_CLIENT_EMAIL_CONFLICT:
+            "A client with this email address already exists.",
+          INTAKE_DEVICE_NOT_FOUND: "The selected device was not found.",
+          INTAKE_DEVICE_CLIENT_MISMATCH:
+            "The selected device belongs to another client.",
+          INTAKE_DEVICE_IDENTIFIER_CONFLICT:
+            "A device with this IMEI or serial number already exists.",
+          INTAKE_ORDER_VALIDATION_FAILED: "Order data is invalid.",
+          INTAKE_RELATION_INVALID:
+            "The selected client or device is invalid.",
+          INTAKE_CREATE_FAILED: "Failed to create repair intake.",
+        },
       },
     },
 
