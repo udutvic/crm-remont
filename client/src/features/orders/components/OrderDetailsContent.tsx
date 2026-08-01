@@ -1,17 +1,21 @@
 import {
+  ReactNode,
+} from "react";
+import {
   Box,
   Divider,
   Paper,
   Stack,
   Typography,
 } from "@mui/material";
-import { ReactNode } from "react";
-
-import { Order } from "types";
 import {
-  formatDateTime,
-  formatPrice,
-} from "utils/formatters";
+  useTranslation,
+} from "react-i18next";
+
+import useAppFormatters from "hooks/useAppFormatters";
+import {
+  Order,
+} from "types";
 
 interface DetailItemProps {
   label: string;
@@ -46,7 +50,8 @@ const DetailItem = ({
         component="div"
         variant="body2"
         sx={{
-          overflowWrap: "anywhere",
+          overflowWrap:
+            "anywhere",
           whiteSpace:
             preserveWhitespace
               ? "pre-wrap"
@@ -94,63 +99,90 @@ const DetailsSection = ({
   );
 };
 
-const textOrDash = (
-  value?: string | null
-): string => {
-  const normalized =
-    value?.trim();
-
-  return normalized || "-";
-};
-
-const formatDeviceType = (
-  value: string
-): string => {
-  return value
-    .replace(/_/g, " ")
-    .replace(
-      /^./,
-      (character) =>
-        character.toUpperCase()
-    );
-};
-
-const getAccessDescription = (
-  order: Order
-): string => {
-  switch (order.accessType) {
-    case "pin":
-      return order.hasAccessCode
-        ? "PIN provided"
-        : "PIN not provided";
-
-    case "password":
-      return order.hasAccessCode
-        ? "Password provided"
-        : "Password not provided";
-
-    case "pattern":
-      return order.hasAccessCode
-        ? "Pattern provided"
-        : "Pattern not provided";
-
-    case "unknown":
-      return "Unknown";
-
-    case "none":
-    default:
-      return "No access code";
-  }
-};
-
 const OrderDetailsContent = ({
   order,
 }: {
   order: Order;
 }) => {
+  const {
+    t,
+  } = useTranslation();
+
+  const {
+    formatDateTime,
+    formatPrice,
+  } = useAppFormatters();
+
+  const notAvailable =
+    t(
+      "common.notAvailable"
+    );
+
+  const textOrFallback = (
+    value?: string | null
+  ): string => {
+    const normalized =
+      value?.trim();
+
+    return (
+      normalized ??
+      notAvailable
+    );
+  };
+
+  const getAccessDescription =
+    (): string => {
+      switch (
+        order.accessType
+      ) {
+        case "pin":
+          return order.hasAccessCode
+            ? t(
+                "orderDetails.access.pinProvided"
+              )
+            : t(
+                "orderDetails.access.pinNotProvided"
+              );
+
+        case "password":
+          return order.hasAccessCode
+            ? t(
+                "orderDetails.access.passwordProvided"
+              )
+            : t(
+                "orderDetails.access.passwordNotProvided"
+              );
+
+        case "pattern":
+          return order.hasAccessCode
+            ? t(
+                "orderDetails.access.patternProvided"
+              )
+            : t(
+                "orderDetails.access.patternNotProvided"
+              );
+
+        case "unknown":
+          return t(
+            "orderDetails.access.unknown"
+          );
+
+        case "none":
+        default:
+          return t(
+            "orderDetails.access.none"
+          );
+      }
+    };
+
   const estimatedPrice =
     order.estimatedPrice ??
     order.price;
+
+  const deviceType =
+    t(
+      `orderDetails.deviceTypes.${order.device.deviceType}`
+    );
 
   return (
     <Box
@@ -158,223 +190,308 @@ const OrderDetailsContent = ({
         display: "grid",
         gridTemplateColumns: {
           xs: "1fr",
-          md: "repeat(2, minmax(0, 1fr))",
+          md:
+            "repeat(2, minmax(0, 1fr))",
         },
         gap: 2,
       }}
     >
-      <DetailsSection title="Client">
+      <DetailsSection
+        title={t(
+          "orderDetails.sections.client"
+        )}
+      >
         <DetailItem
-          label="Name"
+          label={t(
+            "orderDetails.fields.name"
+          )}
           value={
             order.client?.name ??
-            `Client #${order.clientId}`
+            t(
+              "orderDetails.clientFallback",
+              {
+                id:
+                  order.clientId,
+              }
+            )
           }
         />
 
         <DetailItem
-          label="Phone"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.phone"
+          )}
+          value={textOrFallback(
             order.client?.phone
           )}
         />
 
         <DetailItem
-          label="Secondary Phone"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.secondaryPhone"
+          )}
+          value={textOrFallback(
             order.client
               ?.secondaryPhone
           )}
         />
 
         <DetailItem
-          label="Email"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.email"
+          )}
+          value={textOrFallback(
             order.client?.email
           )}
         />
 
         <DetailItem
-          label="Address"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.address"
+          )}
+          value={textOrFallback(
             order.client?.address
           )}
         />
 
         <DetailItem
-          label="Client Note"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.clientNote"
+          )}
+          value={textOrFallback(
             order.client?.note
           )}
           preserveWhitespace
         />
       </DetailsSection>
 
-      <DetailsSection title="Device">
+      <DetailsSection
+        title={t(
+          "orderDetails.sections.device"
+        )}
+      >
         <DetailItem
-          label="Device Type"
-          value={formatDeviceType(
-            order.device.deviceType
+          label={t(
+            "orderDetails.fields.deviceType"
           )}
+          value={deviceType}
         />
 
         <DetailItem
-          label="Brand"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.brand"
+          )}
+          value={textOrFallback(
             order.device.brand
           )}
         />
 
         <DetailItem
-          label="Model"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.model"
+          )}
+          value={textOrFallback(
             order.device.model
           )}
         />
 
         <DetailItem
-          label="Color"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.color"
+          )}
+          value={textOrFallback(
             order.device.color
           )}
         />
 
         <DetailItem
-          label="IMEI 1"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.imei1"
+          )}
+          value={textOrFallback(
             order.device.imei1
           )}
         />
 
         <DetailItem
-          label="IMEI 2"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.imei2"
+          )}
+          value={textOrFallback(
             order.device.imei2
           )}
         />
 
         <DetailItem
-          label="Serial Number"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.serialNumber"
+          )}
+          value={textOrFallback(
             order.device.serial
           )}
         />
       </DetailsSection>
 
-      <DetailsSection title="Intake">
+      <DetailsSection
+        title={t(
+          "orderDetails.sections.intake"
+        )}
+      >
         <DetailItem
-          label="Reported Problem"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.reportedProblem"
+          )}
+          value={textOrFallback(
             order.problem
           )}
           preserveWhitespace
         />
 
         <DetailItem
-          label="Device Condition"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.deviceCondition"
+          )}
+          value={textOrFallback(
             order.deviceCondition
           )}
           preserveWhitespace
         />
 
         <DetailItem
-          label="Accessories"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.accessories"
+          )}
+          value={textOrFallback(
             order.accessories
           )}
           preserveWhitespace
         />
 
         <DetailItem
-          label="Device Access"
-          value={getAccessDescription(
-            order
+          label={t(
+            "orderDetails.fields.deviceAccess"
           )}
+          value={
+            getAccessDescription()
+          }
         />
 
         <DetailItem
-          label="Received"
+          label={t(
+            "orderDetails.fields.received"
+          )}
           value={formatDateTime(
             order.receivedAt ??
-            order.createdAt
+              order.createdAt
           )}
         />
 
         <DetailItem
-          label="Due Date"
+          label={t(
+            "orderDetails.fields.dueDate"
+          )}
           value={formatDateTime(
             order.dueAt
           )}
         />
       </DetailsSection>
 
-      <DetailsSection title="Repair">
+      <DetailsSection
+        title={t(
+          "orderDetails.sections.repair"
+        )}
+      >
         <DetailItem
-          label="Diagnosis"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.diagnosis"
+          )}
+          value={textOrFallback(
             order.diagnosis
           )}
           preserveWhitespace
         />
 
         <DetailItem
-          label="Work Performed"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.workPerformed"
+          )}
+          value={textOrFallback(
             order.workPerformed
           )}
           preserveWhitespace
         />
 
         <DetailItem
-          label="Internal Note"
-          value={textOrDash(
+          label={t(
+            "orderDetails.fields.internalNote"
+          )}
+          value={textOrFallback(
             order.internalNote
           )}
           preserveWhitespace
         />
       </DetailsSection>
 
-      <DetailsSection title="Price">
+      <DetailsSection
+        title={t(
+          "orderDetails.sections.price"
+        )}
+      >
         <DetailItem
-          label="Estimated Price"
+          label={t(
+            "orderDetails.fields.estimatedPrice"
+          )}
           value={formatPrice(
             estimatedPrice
           )}
         />
 
         <DetailItem
-          label="Final Price"
+          label={t(
+            "orderDetails.fields.finalPrice"
+          )}
           value={formatPrice(
             order.finalPrice
           )}
         />
       </DetailsSection>
 
-      <DetailsSection title="Timeline">
+      <DetailsSection
+        title={t(
+          "orderDetails.sections.timeline"
+        )}
+      >
         <DetailItem
-          label="Created"
+          label={t(
+            "orderDetails.fields.created"
+          )}
           value={formatDateTime(
             order.createdAt
           )}
         />
 
         <DetailItem
-          label="Last Updated"
+          label={t(
+            "orderDetails.fields.lastUpdated"
+          )}
           value={formatDateTime(
             order.updatedAt
           )}
         />
 
         <DetailItem
-          label="Completed"
+          label={t(
+            "orderDetails.fields.completed"
+          )}
           value={formatDateTime(
             order.completedAt
           )}
         />
 
         <DetailItem
-          label="Delivered"
+          label={t(
+            "orderDetails.fields.delivered"
+          )}
           value={formatDateTime(
             order.deliveredAt
           )}

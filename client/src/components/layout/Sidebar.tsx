@@ -1,66 +1,175 @@
 import {
+  Assignment,
+  Dashboard,
+  Devices,
+  People,
+} from "@mui/icons-material";
+import {
+  Box,
+  Divider,
   Drawer,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Toolbar,
-  Divider,
-  Box,
 } from "@mui/material";
-import { Dashboard, People, Devices, Assignment } from "@mui/icons-material";
-import { Link, useLocation } from "react-router";
-const drawerWidth = 240; 
+import {
+  Link,
+  useLocation,
+} from "react-router";
+import {
+  useTranslation,
+} from "react-i18next";
+
+const drawerWidth = 240;
+
 interface SidebarProps {
   mobileOpen: boolean;
   onClose: () => void;
   isMobile: boolean;
 }
-const Sidebar = ({ mobileOpen, onClose, isMobile }: SidebarProps) => {
+
+const Sidebar = ({
+  mobileOpen,
+  onClose,
+  isMobile,
+}: SidebarProps) => {
   const location = useLocation();
+
+  const {
+    t,
+  } = useTranslation();
+
+  const isPathActive = (
+    path: string
+  ): boolean => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+
+    return (
+      location.pathname === path ||
+      location.pathname.startsWith(
+        `${path}/`
+      )
+    );
+  };
+
   const menuItems = [
-    { text: "Dashboard", icon: <Dashboard sx={{color: useLocation().pathname === "/" ? "#219EBC" : "inherit"}}/>, path: "/" },
-    { text: "Clients", icon: <People sx={{color: useLocation().pathname === "/clients" ? "#219EBC" : "inherit"}}/>, path: "/clients" },
-    { text: "Devices", icon: <Devices sx={{color: useLocation().pathname === "/devices" ? "#219EBC" : "inherit"}}/>, path: "/devices" },
-    { text: "Orders", icon: <Assignment sx={{color: useLocation().pathname === "/orders" ? "#219EBC" : "inherit"}}/>, path: "/orders" },
+    {
+      text: t(
+        "navigation.dashboard"
+      ),
+      icon: Dashboard,
+      path: "/",
+    },
+    {
+      text: t(
+        "navigation.clients"
+      ),
+      icon: People,
+      path: "/clients",
+    },
+    {
+      text: t(
+        "navigation.devices"
+      ),
+      icon: Devices,
+      path: "/devices",
+    },
+    {
+      text: t(
+        "navigation.orders"
+      ),
+      icon: Assignment,
+      path: "/orders",
+    },
   ];
+
   const drawerContent = (
     <>
       <Toolbar />
+
       <Divider />
+
       <List>
-        {menuItems.map((item) => (
-          <ListItemButton
-            key={item.text}
-            component={Link}
-            to={item.path}
-            selected={location.pathname === item.path}
-            onClick={isMobile ? onClose : undefined}
-          >
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItemButton>
-        ))}
+        {menuItems.map(
+          (item) => {
+            const active =
+              isPathActive(
+                item.path
+              );
+
+            const ItemIcon =
+              item.icon;
+
+            return (
+              <ListItemButton
+                key={item.path}
+                component={Link}
+                to={item.path}
+                selected={active}
+                onClick={
+                  isMobile
+                    ? onClose
+                    : undefined
+                }
+              >
+                <ListItemIcon>
+                  <ItemIcon
+                    sx={{
+                      color: active
+                        ? "#219EBC"
+                        : "inherit",
+                    }}
+                  />
+                </ListItemIcon>
+
+                <ListItemText
+                  primary={item.text}
+                />
+              </ListItemButton>
+            );
+          }
+        )}
       </List>
     </>
   );
+
   return (
     <Box
       component="nav"
-      sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+      sx={{
+        width: {
+          md: drawerWidth,
+        },
+        flexShrink: {
+          md: 0,
+        },
+      }}
     >
-      {}
       {isMobile ? (
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={onClose}
           ModalProps={{
-            keepMounted: true, 
+            keepMounted: true,
           }}
           sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            display: {
+              xs: "block",
+              md: "none",
+            },
+
+            "& .MuiDrawer-paper":
+              {
+                boxSizing:
+                  "border-box",
+                width:
+                  drawerWidth,
+              },
           }}
         >
           {drawerContent}
@@ -68,11 +177,21 @@ const Sidebar = ({ mobileOpen, onClose, isMobile }: SidebarProps) => {
       ) : (
         <Drawer
           variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box' },
-          }}
           open
+          sx={{
+            display: {
+              xs: "none",
+              md: "block",
+            },
+
+            "& .MuiDrawer-paper":
+              {
+                boxSizing:
+                  "border-box",
+                width:
+                  drawerWidth,
+              },
+          }}
         >
           {drawerContent}
         </Drawer>
@@ -80,4 +199,5 @@ const Sidebar = ({ mobileOpen, onClose, isMobile }: SidebarProps) => {
     </Box>
   );
 };
+
 export default Sidebar;

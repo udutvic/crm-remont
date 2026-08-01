@@ -6,6 +6,9 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
 
 interface ConfirmDeleteDialogProps {
   open: boolean;
@@ -22,16 +25,32 @@ const ConfirmDeleteDialog = ({
   onConfirm,
   isConfirmEnabled = true,
 }: ConfirmDeleteDialogProps) => {
-  const normalizedMessage = message.toLowerCase();
+  const {
+    t,
+  } = useTranslation();
+
+  const normalizedMessage =
+    message.toLowerCase();
 
   const hasErrorMessage =
-    normalizedMessage.includes("cannot delete") ||
-    normalizedMessage.includes("open orders") ||
-    (normalizedMessage.includes("confirm deletion") &&
-      normalizedMessage.includes("cannot"));
+    normalizedMessage.includes(
+      "cannot delete"
+    ) ||
+    normalizedMessage.includes(
+      "open orders"
+    ) ||
+    (
+      normalizedMessage.includes(
+        "confirm deletion"
+      ) &&
+      normalizedMessage.includes(
+        "cannot"
+      )
+    );
 
   const showDeleteButton =
-    isConfirmEnabled && !hasErrorMessage;
+    isConfirmEnabled &&
+    !hasErrorMessage;
 
   return (
     <Dialog
@@ -40,7 +59,11 @@ const ConfirmDeleteDialog = ({
       maxWidth="sm"
       fullWidth
     >
-      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogTitle>
+        {t(
+          "deleteDialog.title"
+        )}
+      </DialogTitle>
 
       <DialogContent>
         <Typography>
@@ -49,17 +72,25 @@ const ConfirmDeleteDialog = ({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>
-          Cancel
+        <Button
+          onClick={onClose}
+        >
+          {t(
+            "deleteDialog.cancel"
+          )}
         </Button>
 
         {showDeleteButton && (
           <Button
-            onClick={onConfirm}
+            onClick={
+              onConfirm
+            }
             color="error"
             variant="contained"
           >
-            Delete
+            {t(
+              "deleteDialog.delete"
+            )}
           </Button>
         )}
       </DialogActions>

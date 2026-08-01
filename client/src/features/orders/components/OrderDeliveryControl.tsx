@@ -11,7 +11,9 @@ import {
   HourglassEmpty as HourglassEmptyIcon,
   LocalShippingOutlined as LocalShippingOutlinedIcon,
 } from "@mui/icons-material";
-
+import {
+  useTranslation,
+} from "react-i18next";
 import { Order } from "types";
 import { formatDate } from "utils/formatters";
 
@@ -31,6 +33,10 @@ const OrderDeliveryControl = ({
   order,
   onDeliver,
 }: OrderDeliveryControlProps) => {
+   const {
+    t,
+  } = useTranslation();
+
   const [
     delivering,
     setDelivering,
@@ -65,8 +71,8 @@ const OrderDeliveryControl = ({
         );
 
         setErrorMessage(
-          "Failed to mark as delivered."
-        );
+  t("delivery.error")
+);
       } finally {
         setDelivering(false);
       }
@@ -85,7 +91,9 @@ const OrderDeliveryControl = ({
           icon={
             <CheckCircleOutlineIcon />
           }
-          label="Delivered"
+          label={t(
+  "delivery.delivered"
+)}
           color="success"
           size="small"
         />
@@ -113,7 +121,9 @@ const OrderDeliveryControl = ({
         alignItems="flex-start"
       >
         <Chip
-          label="Ready"
+          label={t(
+  "delivery.ready"
+)}
           color="warning"
           size="small"
         />
@@ -142,8 +152,8 @@ const OrderDeliveryControl = ({
           }}
         >
           {delivering
-            ? "Delivering..."
-            : "Deliver"}
+  ? t("delivery.delivering")
+  : t("delivery.deliver")}
         </Button>
 
         {errorMessage && (
@@ -161,7 +171,9 @@ const OrderDeliveryControl = ({
   return (
     <Chip
       icon={<HourglassEmptyIcon />}
-      label="Not ready"
+      label={t(
+  "delivery.notReady"
+)}
       size="small"
       variant="outlined"
     />

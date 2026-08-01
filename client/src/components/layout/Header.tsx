@@ -1,41 +1,100 @@
-import { AppBar, Toolbar, Typography, IconButton, useMediaQuery, useTheme } from "@mui/material";
-import { Construction, Menu as MenuIcon } from "@mui/icons-material";
+import {
+  AppBar,
+  Box,
+  IconButton,
+  Toolbar,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import {
+  Construction,
+  Menu as MenuIcon,
+} from "@mui/icons-material";
+
+import LanguageSwitcher from "./LanguageSwitcher";
+
 interface HeaderProps {
   onMenuClick: () => void;
 }
-const Header = ({ onMenuClick }: HeaderProps) => {
+
+const Header = ({
+  onMenuClick,
+}: HeaderProps) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const isMobile =
+    useMediaQuery(
+      theme.breakpoints.down("md")
+    );
+
   return (
     <AppBar
       position="fixed"
-      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, backgroundColor: "#219EBC" }}
+      sx={{
+        zIndex: (currentTheme) =>
+          currentTheme.zIndex.drawer +
+          1,
+        backgroundColor:
+          "#219EBC",
+      }}
     >
       <Toolbar>
         {isMobile && (
           <IconButton
             color="inherit"
-            aria-label="відкрити меню"
+            aria-label="Open menu"
             edge="start"
             onClick={onMenuClick}
-            sx={{ mr: 2 }}
+            sx={{
+              mr: {
+                xs: 1,
+                sm: 2,
+              },
+            }}
           >
             <MenuIcon />
           </IconButton>
         )}
-        <Typography
-          variant="h5"
-          component="div"
-          sx={{ 
+
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
             flexGrow: 1,
-            fontSize: { xs: '1.2rem', sm: '1.5rem' }
+            minWidth: 0,
           }}
         >
-          <Construction sx={{ mr: 1, fontSize: { xs: 20, sm: 24 } }} />
-          CRM Remont
-        </Typography>
+          <Construction
+            sx={{
+              mr: 1,
+              fontSize: {
+                xs: 20,
+                sm: 24,
+              },
+              flexShrink: 0,
+            }}
+          />
+
+          <Typography
+            variant="h5"
+            component="div"
+            noWrap
+            sx={{
+              fontSize: {
+                xs: "1.05rem",
+                sm: "1.5rem",
+              },
+            }}
+          >
+            CRM Remont
+          </Typography>
+        </Box>
+
+        <LanguageSwitcher />
       </Toolbar>
     </AppBar>
   );
 };
+
 export default Header;
