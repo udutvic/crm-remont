@@ -12,6 +12,20 @@ export interface Client {
   updatedAt?: string;
 }
 
+export interface ClientPayload {
+  name: string;
+  phone: string;
+  secondaryPhone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  note?: string | null;
+}
+
+export interface ClientLookupResult {
+  found: boolean;
+  client: Client | null;
+}
+
 export interface Device {
   id?: number;
   clientId: number;

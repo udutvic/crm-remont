@@ -1,10 +1,12 @@
 import { apiClient } from "api";
 import {
   Client,
+  ClientPayload,
+  ClientLookupResult,
   Device,
   Order,
   OrderPayload,
-  OrderStatus,
+  OrderStatus,  
 } from "types";
 
 export interface DashboardStats {
@@ -44,17 +46,41 @@ export const getClient = async (id: number): Promise<Client> => {
   return response.data;
 };
 
-export const createClient = async (client: Client): Promise<Client> => {
-  const response = await apiClient.post<Client>("/clients", client);
+export const lookupClientByPhone = async (
+  phone: string
+): Promise<ClientLookupResult> => {
+  const response =
+    await apiClient.get<ClientLookupResult>(
+      "/clients/lookup",
+      {
+        params: {
+          phone,
+        },
+      }
+    );
+
+  return response.data;
+};
+
+export const createClient = async (
+  client: ClientPayload
+): Promise<Client> => {
+  const response = await apiClient.post<Client>(
+    "/clients",
+    client
+  );
 
   return response.data;
 };
 
 export const updateClient = async (
   id: number,
-  client: Client
+  client: ClientPayload
 ): Promise<Client> => {
-  const response = await apiClient.put<Client>(`/clients/${id}`, client);
+  const response = await apiClient.put<Client>(
+    `/clients/${id}`,
+    client
+  );
 
   return response.data;
 };

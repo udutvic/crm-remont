@@ -1,6 +1,9 @@
 import React from "react";
 import { Container } from "@mui/material";
-import { Client } from "types";
+import {
+  Client,
+  ClientPayload,
+} from "types";
 import { getClients, createClient, updateClient, deleteClient } from "index";
 import LoadingIndicator from "components/ui/LoadingIndicator";
 import ConfirmDeleteDialog from "components/ui/ConfirmDeleteDialog";
@@ -28,7 +31,7 @@ const ClientsPage: React.FC = () => {
     handleSubmit,
     handleCloseForm,
     handleCloseDeleteDialog,
-  } = useCrud<Client>({
+ } = useCrud<Client, ClientPayload>({
     getAll: getClients,
     create: createClient,
     update: updateClient,

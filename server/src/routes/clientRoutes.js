@@ -7,6 +7,11 @@ const clientController = require(
 const router = express.Router();
 
 router.get(
+  "/lookup",
+  clientController.lookupClientByPhone
+);
+
+router.get(
   "/search",
   clientController.searchClients
 );

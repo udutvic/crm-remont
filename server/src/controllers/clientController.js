@@ -54,14 +54,14 @@ const handleClientError = (
     ) {
       return res.status(409).json({
         error:
-          "Клієнт з таким номером телефону вже існує.",
+          "A client with this phone number already exists.",
       });
     }
 
     if (fields.includes("email")) {
       return res.status(409).json({
         error:
-          "Клієнт з таким email вже існує.",
+          "A client with this email address already exists.",
       });
     }
 
@@ -297,6 +297,8 @@ exports.deleteClient = async (
     );
   }
 };
+
+
 
 exports.searchClients = async (
   req,
