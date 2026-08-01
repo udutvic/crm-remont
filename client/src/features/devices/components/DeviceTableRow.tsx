@@ -5,6 +5,7 @@ import { Device, Client } from "types";
 import { formatDate } from "utils/formatters";
 import ClientInfo from "common/components/ClientInfo";
 import DeviceIcon from "../../../common/components/DeviceIcon";
+import { getPrimaryDeviceIdentifier } from "../utils/getPrimaryDeviceIdentifier";
 interface DeviceTableRowProps {
   device: Device;
   clients: Client[];
@@ -17,6 +18,9 @@ const DeviceTableRow: React.FC<DeviceTableRowProps> = ({
   onEdit,
   onDelete
 }) => {
+  const identifier =
+    getPrimaryDeviceIdentifier(device);
+
   return (
     <TableRow>
       <TableCell sx={{ pl: 2, py: 2, fontSize: "0.875rem" }}>
@@ -40,7 +44,22 @@ const DeviceTableRow: React.FC<DeviceTableRowProps> = ({
           fontSize: "0.875rem",
         }}
       >
-        {device.serial || "-"}
+        {identifier ? (
+  <Box>
+    <Typography variant="body2">
+      {identifier.value}
+    </Typography>
+
+    <Typography
+      variant="caption"
+      color="text.secondary"
+    >
+      {identifier.label}
+    </Typography>
+  </Box>
+) : (
+  "-"
+)}
       </TableCell>
       <TableCell sx={{ py: 2, fontSize: "0.875rem" }}>
         <ClientInfo clientId={device.clientId} clients={clients} />        

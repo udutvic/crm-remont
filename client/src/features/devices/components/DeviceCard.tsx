@@ -5,6 +5,7 @@ import { Device, Client } from "types";
 import { formatDate } from "utils/formatters";
 import ClientInfo from "common/components/ClientInfo";
 import DeviceIcon from "common/components/DeviceIcon";
+import { getPrimaryDeviceIdentifier } from "../utils/getPrimaryDeviceIdentifier";
 interface DeviceCardProps {
   device: Device;
   clients: Client[];
@@ -17,6 +18,14 @@ const DeviceCard: React.FC<DeviceCardProps> = ({
   onEdit,
   onDelete
 }) => {
+  const identifier =
+  getPrimaryDeviceIdentifier(device);
+
+const deviceTypeLabel =
+  device.deviceType
+    .charAt(0)
+    .toUpperCase() +
+  device.deviceType.slice(1);
   return (
     <Card sx={{ boxShadow: 1, borderRadius: 1 }}>
       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
@@ -31,9 +40,14 @@ const DeviceCard: React.FC<DeviceCardProps> = ({
                 {device.brand} {device.model}
               </Typography>
             </Box>
-            <Typography variant="body2" color="textSecondary">
-              {device.serial || "-"}
-            </Typography>
+            <Typography
+  variant="body2"
+  color="text.secondary"
+>
+  {identifier
+    ? `${identifier.label}: ${identifier.value}`
+    : "No identifier"}
+</Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <IconButton 
@@ -75,24 +89,38 @@ const DeviceCard: React.FC<DeviceCardProps> = ({
               />
             </Box>
           </ListItem>
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemText 
-              primary="Serial Number:" 
-              slotProps={{
-                primary: {
-                  sx: {
-                    variant: 'body2', 
-                    color: 'text.secondary',
-                    fontWeight: 500
-                  }
-                }
-              }} 
-              sx={{ flex: '0 0 35%' }}
-            />
-            <Typography variant="body2" sx={{ ml: 2 }}>
-              {device.serial || "-"}
-            </Typography>
-          </ListItem>
+          <ListItem
+  sx={{
+    px: 0,
+    py: 0.5,
+  }}
+>
+  <ListItemText
+    primary="Device type:"
+    slotProps={{
+      primary: {
+        sx: {
+          variant: "body2",
+          color: "text.secondary",
+          fontWeight: 500,
+        },
+      },
+    }}
+    sx={{
+      flex: "0 0 35%",
+    }}
+  />
+
+  <Typography
+    variant="body2"
+    sx={{ ml: 2 }}
+  >
+    {deviceTypeLabel}
+    {device.color
+      ? ` • ${device.color}`
+      : ""}
+  </Typography>
+</ListItem>
           <ListItem sx={{ px: 0, py: 0.5 }}>
             <ListItemText 
               primary="Date:" 

@@ -25,7 +25,16 @@ const DeviceList: React.FC<DeviceListProps> = ({
         columns={[
           { id: 'brand', label: 'Brand', sx: { pl: 2 } },
           { id: 'model', label: 'Model' },
-          { id: 'serial', label: 'Serial Number', sx: { display: { xs: "none", md: "table-cell" } } },
+          {
+  id: "imei1",
+  label: "Identifier",
+  sx: {
+    display: {
+      xs: "none",
+      md: "table-cell",
+    },
+  },
+},
           { id: 'client', label: 'Client' },
           { 
             id: 'createdAt', 
