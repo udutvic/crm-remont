@@ -1,4 +1,8 @@
 import {
+  Construction,
+  Menu as MenuIcon,
+} from "@mui/icons-material";
+import {
   AppBar,
   Box,
   IconButton,
@@ -8,9 +12,8 @@ import {
   useTheme,
 } from "@mui/material";
 import {
-  Construction,
-  Menu as MenuIcon,
-} from "@mui/icons-material";
+  useTranslation,
+} from "react-i18next";
 
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -21,20 +24,30 @@ interface HeaderProps {
 const Header = ({
   onMenuClick,
 }: HeaderProps) => {
-  const theme = useTheme();
+  const {
+    t,
+  } = useTranslation();
+
+  const theme =
+    useTheme();
 
   const isMobile =
     useMediaQuery(
-      theme.breakpoints.down("md")
+      theme.breakpoints.down(
+        "md"
+      )
     );
 
   return (
     <AppBar
       position="fixed"
       sx={{
-        zIndex: (currentTheme) =>
-          currentTheme.zIndex.drawer +
-          1,
+        zIndex: (
+          currentTheme
+        ) =>
+          currentTheme.zIndex
+            .drawer + 1,
+
         backgroundColor:
           "#219EBC",
       }}
@@ -43,9 +56,13 @@ const Header = ({
         {isMobile && (
           <IconButton
             color="inherit"
-            aria-label="Open menu"
+            aria-label={t(
+              "common.openMenu"
+            )}
             edge="start"
-            onClick={onMenuClick}
+            onClick={
+              onMenuClick
+            }
             sx={{
               mr: {
                 xs: 1,
@@ -68,10 +85,12 @@ const Header = ({
           <Construction
             sx={{
               mr: 1,
+
               fontSize: {
                 xs: 20,
                 sm: 24,
               },
+
               flexShrink: 0,
             }}
           />

@@ -18,6 +18,8 @@ const en = {
       yes: "Yes",
       no: "No",
       notAvailable: "-",
+      noData: "No data found.",
+      openMenu: "Open menu",
     },
 
     navigation: {
@@ -87,6 +89,42 @@ const en = {
       title: "Confirm Deletion",
       cancel: "Cancel",
       delete: "Delete",
+    },
+
+    clientInfo: {
+      noOwner: "No owner",
+      unknown: "Unknown",
+      avatarAlt: "Client avatar",
+    },
+
+    dashboardPage: {
+      title: "Dashboard",
+      loading: "Loading dashboard...",
+      statistics: {
+        clients: "Clients",
+        devices: "Devices",
+        orders: "Orders",
+        income: "Income",
+      },
+      recentOrders: {
+        title: "Latest 5 Orders",
+        empty: "No orders found.",
+        columns: {
+          id: "ID",
+          device: "Device",
+          client: "Client",
+          received: "Received",
+          status: "Status",
+        },
+        labels: {
+          device: "Device",
+          client: "Client",
+          received: "Received",
+        },
+      },
+      errors: {
+        loadFailed: "Some dashboard data could not be loaded.",
+      },
     },
 
     clientsPage: {

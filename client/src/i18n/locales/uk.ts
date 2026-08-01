@@ -18,6 +18,8 @@ const uk = {
       yes: "Так",
       no: "Ні",
       notAvailable: "-",
+      noData: "Даних не знайдено.",
+      openMenu: "Відкрити меню",
     },
 
     navigation: {
@@ -87,6 +89,42 @@ const uk = {
       title: "Підтвердження видалення",
       cancel: "Скасувати",
       delete: "Видалити",
+    },
+
+    clientInfo: {
+      noOwner: "Власника не вказано",
+      unknown: "Невідомий клієнт",
+      avatarAlt: "Аватар клієнта",
+    },
+
+    dashboardPage: {
+      title: "Головна",
+      loading: "Завантаження головної сторінки...",
+      statistics: {
+        clients: "Клієнти",
+        devices: "Пристрої",
+        orders: "Замовлення",
+        income: "Дохід",
+      },
+      recentOrders: {
+        title: "Останні 5 замовлень",
+        empty: "Замовлень не знайдено.",
+        columns: {
+          id: "ID",
+          device: "Пристрій",
+          client: "Клієнт",
+          received: "Прийнято",
+          status: "Статус",
+        },
+        labels: {
+          device: "Пристрій",
+          client: "Клієнт",
+          received: "Прийнято",
+        },
+      },
+      errors: {
+        loadFailed: "Не вдалося завантажити частину даних головної сторінки.",
+      },
     },
 
     clientsPage: {

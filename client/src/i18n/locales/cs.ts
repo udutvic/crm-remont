@@ -18,6 +18,8 @@ const cs = {
       yes: "Ano",
       no: "Ne",
       notAvailable: "-",
+      noData: "Nebyla nalezena žádná data.",
+      openMenu: "Otevřít nabídku",
     },
 
     navigation: {
@@ -87,6 +89,42 @@ const cs = {
       title: "Potvrzení smazání",
       cancel: "Zrušit",
       delete: "Smazat",
+    },
+
+    clientInfo: {
+      noOwner: "Vlastník není uveden",
+      unknown: "Neznámý zákazník",
+      avatarAlt: "Avatar zákazníka",
+    },
+
+    dashboardPage: {
+      title: "Přehled",
+      loading: "Načítání přehledu...",
+      statistics: {
+        clients: "Zákazníci",
+        devices: "Zařízení",
+        orders: "Zakázky",
+        income: "Příjem",
+      },
+      recentOrders: {
+        title: "Posledních 5 zakázek",
+        empty: "Nebyly nalezeny žádné zakázky.",
+        columns: {
+          id: "ID",
+          device: "Zařízení",
+          client: "Zákazník",
+          received: "Přijato",
+          status: "Stav",
+        },
+        labels: {
+          device: "Zařízení",
+          client: "Zákazník",
+          received: "Přijato",
+        },
+      },
+      errors: {
+        loadFailed: "Část dat přehledu se nepodařilo načíst.",
+      },
     },
 
     clientsPage: {

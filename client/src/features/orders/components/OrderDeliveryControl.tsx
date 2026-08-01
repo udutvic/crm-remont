@@ -1,4 +1,11 @@
-import { useState } from "react";
+import {
+  useState,
+} from "react";
+import {
+  CheckCircleOutline as CheckCircleOutlineIcon,
+  HourglassEmpty as HourglassEmptyIcon,
+  LocalShippingOutlined as LocalShippingOutlinedIcon,
+} from "@mui/icons-material";
 import {
   Button,
   Chip,
@@ -7,15 +14,13 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  CheckCircleOutline as CheckCircleOutlineIcon,
-  HourglassEmpty as HourglassEmptyIcon,
-  LocalShippingOutlined as LocalShippingOutlinedIcon,
-} from "@mui/icons-material";
-import {
   useTranslation,
 } from "react-i18next";
-import { Order } from "types";
-import { formatDate } from "utils/formatters";
+
+import useAppFormatters from "hooks/useAppFormatters";
+import type {
+  Order,
+} from "types";
 
 import {
   getOrderDeliveryState,
@@ -33,9 +38,13 @@ const OrderDeliveryControl = ({
   order,
   onDeliver,
 }: OrderDeliveryControlProps) => {
-   const {
+  const {
     t,
   } = useTranslation();
+
+  const {
+    formatDate,
+  } = useAppFormatters();
 
   const [
     delivering,
@@ -45,10 +54,14 @@ const OrderDeliveryControl = ({
   const [
     errorMessage,
     setErrorMessage,
-  ] = useState<string | null>(null);
+  ] = useState<
+    string | null
+  >(null);
 
   const deliveryState =
-    getOrderDeliveryState(order);
+    getOrderDeliveryState(
+      order
+    );
 
   const handleDeliver =
     async (): Promise<void> => {
@@ -63,16 +76,20 @@ const OrderDeliveryControl = ({
         setDelivering(true);
         setErrorMessage(null);
 
-        await onDeliver(order.id);
-      } catch (error: unknown) {
+        await onDeliver(
+          order.id
+        );
+      } catch (
+        error: unknown
+      ) {
         console.error(
           "Error delivering order:",
           error
         );
 
         setErrorMessage(
-  t("delivery.error")
-);
+          t("delivery.error")
+        );
       } finally {
         setDelivering(false);
       }
@@ -92,8 +109,8 @@ const OrderDeliveryControl = ({
             <CheckCircleOutlineIcon />
           }
           label={t(
-  "delivery.delivered"
-)}
+            "delivery.delivered"
+          )}
           color="success"
           size="small"
         />
@@ -103,8 +120,7 @@ const OrderDeliveryControl = ({
           color="text.secondary"
         >
           {formatDate(
-            order.deliveredAt ??
-              undefined
+            order.deliveredAt
           )}
         </Typography>
       </Stack>
@@ -122,8 +138,8 @@ const OrderDeliveryControl = ({
       >
         <Chip
           label={t(
-  "delivery.ready"
-)}
+            "delivery.ready"
+          )}
           color="warning"
           size="small"
         />
@@ -152,8 +168,12 @@ const OrderDeliveryControl = ({
           }}
         >
           {delivering
-  ? t("delivery.delivering")
-  : t("delivery.deliver")}
+            ? t(
+                "delivery.delivering"
+              )
+            : t(
+                "delivery.deliver"
+              )}
         </Button>
 
         {errorMessage && (
@@ -170,10 +190,12 @@ const OrderDeliveryControl = ({
 
   return (
     <Chip
-      icon={<HourglassEmptyIcon />}
+      icon={
+        <HourglassEmptyIcon />
+      }
       label={t(
-  "delivery.notReady"
-)}
+        "delivery.notReady"
+      )}
       size="small"
       variant="outlined"
     />

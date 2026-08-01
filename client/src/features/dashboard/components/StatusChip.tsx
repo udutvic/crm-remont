@@ -1,42 +1,71 @@
-import React from "react";
-import { Chip } from "@mui/material";
+import {
+  Chip,
+} from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
+
+import type {
+  OrderStatus,
+} from "types";
+
 interface StatusChipProps {
-  status: string;
+  status: OrderStatus;
 }
-const StatusChip: React.FC<StatusChipProps> = ({ status }) => {
-  let color:
-    | "default"
-    | "primary"
-    | "secondary"
-    | "error"
-    | "info"
-    | "success"
-    | "warning" = "default";
-  let label = "";
-  switch (status) {
-    case "pending":
-      color = "warning";
-      label = "Pending";
-      break;
-    case "in_progress":
-      color = "info";
-      label = "In Progress";
-      break;
-    case "completed":
-      color = "success";
-      label = "Completed";
-      break;
-    case "cancelled":
-      color = "error";
-      label = "Cancelled";
-      break;
-  }
+
+type ChipColor =
+  | "default"
+  | "primary"
+  | "secondary"
+  | "error"
+  | "info"
+  | "success"
+  | "warning";
+
+const statusColors: Record<
+  OrderStatus,
+  ChipColor
+> = {
+  pending: "warning",
+  in_progress: "info",
+  completed: "success",
+  cancelled: "error",
+};
+
+const statusTranslationKeys: Record<
+  OrderStatus,
+  string
+> = {
+  pending:
+    "statuses.pending",
+  in_progress:
+    "statuses.inProgress",
+  completed:
+    "statuses.completed",
+  cancelled:
+    "statuses.cancelled",
+};
+
+const StatusChip = ({
+  status,
+}: StatusChipProps) => {
+  const {
+    t,
+  } = useTranslation();
+
   return (
     <Chip
-      label={label}
-      color={color}
+      label={t(
+        statusTranslationKeys[
+          status
+        ]
+      )}
+      color={
+        statusColors[status]
+      }
       size="small"
     />
   );
 };
+
 export default StatusChip;
