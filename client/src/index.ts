@@ -230,9 +230,24 @@ export const updateOrderStatus = async (
   id: number,
   status: OrderStatus
 ): Promise<Order> => {
-  const response = await apiClient.patch<Order>(`/orders/${id}`, {
-    status,
-  });
+  const response =
+    await apiClient.patch<Order>(
+      `/orders/${id}/status`,
+      {
+        status,
+      }
+    );
+
+  return response.data;
+};
+
+export const markOrderDelivered = async (
+  id: number
+): Promise<Order> => {
+  const response =
+    await apiClient.patch<Order>(
+      `/orders/${id}/deliver`
+    );
 
   return response.data;
 };
