@@ -1,14 +1,21 @@
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
+import type {
+  AxiosError,
+} from "axios";
 import {
   Alert,
   Container,
-  SelectChangeEvent,
   Stack,
 } from "@mui/material";
+import type {
+  GridPaginationModel,
+  GridSortModel,
+} from "@mui/x-data-grid";
 import {
   useTranslation,
 } from "react-i18next";
@@ -20,30 +27,47 @@ import PageHeader from "common/components/PageHeader";
 import ConfirmDeleteDialog from "components/ui/ConfirmDeleteDialog";
 import LoadingIndicator from "components/ui/LoadingIndicator";
 import {
-  createOrder,
   createRepairIntake,
   deleteOrder,
   getClients,
-  getOrders,
+  getPagedOrders,
   markOrderDelivered,
   updateOrder,
   updateOrderStatus,
 } from "index";
-import useCrud from "hooks/useCrud";
-import useSorting from "hooks/useSorting";
 import formatOrderNumber from "utils/formatOrderNumber";
 import type {
   Client,
   Order,
+  OrderListDeliveryFilter,
+  OrderListSortField,
   OrderPayload,
   OrderStatus,
   RepairIntakePayload,
 } from "types";
 
+import OrderFilters from "./components/OrderFilters";
 import OrderForm from "./components/OrderForm";
 import OrderList from "./components/OrderList";
-import OrderStatusFilter from "./components/OrderStatusFilter";
 import RepairIntakeForm from "./components/RepairIntakeForm";
+
+interface ApiErrorResponse {
+  error?: string;
+}
+
+type OrderStatusFilter =
+  | OrderStatus
+  | "all";
+
+const SORT_FIELD_MAP: Record<
+  string,
+  OrderListSortField
+> = {
+  id: "id",
+  receivedAt:
+    "receivedAt",
+  status: "status",
+};
 
 const OrdersPage = () => {
   const {
@@ -54,9 +78,9 @@ const OrdersPage = () => {
     useNavigate();
 
   const [
-    statusFilter,
-    setStatusFilter,
-  ] = useState("all");
+    orders,
+    setOrders,
+  ] = useState<Order[]>([]);
 
   const [
     clients,
@@ -64,55 +88,162 @@ const OrdersPage = () => {
   ] = useState<Client[]>([]);
 
   const [
+    total,
+    setTotal,
+  ] = useState(0);
+
+  const [
+    listLoading,
+    setListLoading,
+  ] = useState(true);
+
+  const [
+    hasLoaded,
+    setHasLoaded,
+  ] = useState(false);
+
+  const [
+    loadError,
+    setLoadError,
+  ] = useState<
+    string | null
+  >(null);
+
+  const [
+    actionError,
+    setActionError,
+  ] = useState<
+    string | null
+  >(null);
+
+  const [
+    searchInput,
+    setSearchInput,
+  ] = useState("");
+
+  const [
+    searchQuery,
+    setSearchQuery,
+  ] = useState("");
+
+  const [
+    statusFilter,
+    setStatusFilter,
+  ] =
+    useState<OrderStatusFilter>(
+      "all"
+    );
+
+  const [
+    deliveryFilter,
+    setDeliveryFilter,
+  ] =
+    useState<OrderListDeliveryFilter>(
+      "all"
+    );
+
+  const [
+    startDate,
+    setStartDate,
+  ] = useState("");
+
+  const [
+    endDate,
+    setEndDate,
+  ] = useState("");
+
+  const [
+    paginationModel,
+    setPaginationModel,
+  ] =
+    useState<GridPaginationModel>({
+      page: 0,
+      pageSize: 25,
+    });
+
+  const [
+    sortModel,
+    setSortModel,
+  ] = useState<GridSortModel>([
+    {
+      field: "receivedAt",
+      sort: "desc",
+    },
+  ]);
+
+  const [
+    reloadKey,
+    setReloadKey,
+  ] = useState(0);
+
+  const [
     intakeOpen,
     setIntakeOpen,
   ] = useState(false);
 
   const [
-    actionErrorKey,
-    setActionErrorKey,
+    selectedOrder,
+    setSelectedOrder,
   ] = useState<
-    string | null
+    Order | undefined
+  >(undefined);
+
+  const [
+    editFormOpen,
+    setEditFormOpen,
+  ] = useState(false);
+
+  const [
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+  ] = useState(false);
+
+  const [
+    deleteDialogMessage,
+    setDeleteDialogMessage,
+  ] = useState("");
+
+  const [
+    orderToDelete,
+    setOrderToDelete,
+  ] = useState<
+    Order | null
   >(null);
 
-  const {
-    handleRequestSort,
-    sortItems,
-  } = useSorting<Order>({
-    defaultOrderBy:
-      "createdAt",
-  });
+  const [
+    deleting,
+    setDeleting,
+  ] = useState(false);
 
-  const {
-    items: orders,
-    selectedItem:
-      selectedOrder,
-    openForm,
-    loading,
-    error: loadError,
-    deleteDialogOpen,
-    deleteDialogMessage,
-    isDeleteEnabled,
-    loadItems: loadOrders,
-    handleEdit:
-      handleEditOrder,
-    handleDelete:
-      handleDeleteOrder,
-    confirmDelete:
-      confirmDeleteOrder,
-    handleSubmit:
-      handleOrderSubmit,
-    handleCloseForm,
-    handleCloseDeleteDialog,
-  } = useCrud<
-    Order,
-    OrderPayload
-  >({
-    getAll: getOrders,
-    create: createOrder,
-    update: updateOrder,
-    remove: deleteOrder,
-  });
+  const requestIdRef =
+    useRef(0);
+
+  useEffect(() => {
+    const timeout =
+      window.setTimeout(
+        () => {
+          setSearchQuery(
+            searchInput.trim()
+          );
+
+          setPaginationModel(
+            (
+              current
+            ) => ({
+              ...current,
+              page: 0,
+            })
+          );
+        },
+        350
+      );
+
+    return () => {
+      window.clearTimeout(
+        timeout
+      );
+    };
+  }, [searchInput]);
 
   const loadClients =
     useCallback(
@@ -132,42 +263,321 @@ const OrdersPage = () => {
             error
           );
 
-          setActionErrorKey(
-            "ordersPage.errors.clientsLoadFailed"
+          setActionError(
+            t(
+              "ordersPage.errors.clientsLoadFailed"
+            )
           );
         }
       },
-      []
+      [t]
     );
 
   useEffect(() => {
     void loadClients();
   }, [loadClients]);
 
-  const filteredOrders =
-    statusFilter === "all"
-      ? orders
-      : orders.filter(
-          (order) =>
-            order.status ===
-            statusFilter
-        );
+  const loadOrders =
+    useCallback(
+      async (): Promise<void> => {
+        /*
+         * reloadKey intentionally invalidates
+         * this callback after mutations.
+         */
+        void reloadKey;
 
-  const sortedOrders =
-    sortItems(
-      filteredOrders
+        const requestId =
+          requestIdRef.current +
+          1;
+
+        requestIdRef.current =
+          requestId;
+
+        setListLoading(true);
+
+        const firstSort =
+          sortModel[0];
+
+        const sortBy =
+          firstSort
+            ? SORT_FIELD_MAP[
+                firstSort.field
+              ] ??
+              "receivedAt"
+            : "receivedAt";
+
+        const sortDirection =
+          firstSort?.sort ===
+          "asc"
+            ? "asc"
+            : "desc";
+
+        try {
+          const response =
+            await getPagedOrders({
+              q:
+                searchQuery ||
+                undefined,
+
+              status:
+                statusFilter,
+
+              delivery:
+                deliveryFilter,
+
+              startDate:
+                startDate ||
+                undefined,
+
+              endDate:
+                endDate ||
+                undefined,
+
+              page:
+                paginationModel.page +
+                1,
+
+              pageSize:
+                paginationModel.pageSize,
+
+              sortBy,
+              sortDirection,
+            });
+
+          if (
+            requestId !==
+            requestIdRef.current
+          ) {
+            return;
+          }
+
+          const maximumPage =
+            response.pagination
+              .totalPages > 0
+              ? response.pagination
+                  .totalPages -
+                1
+              : 0;
+
+          if (
+            paginationModel.page >
+            maximumPage
+          ) {
+            setPaginationModel(
+              (
+                current
+              ) => ({
+                ...current,
+                page:
+                  maximumPage,
+              })
+            );
+
+            return;
+          }
+
+          setOrders(
+            response.items
+          );
+
+          setTotal(
+            response.pagination
+              .total
+          );
+
+          setLoadError(null);
+        } catch (
+          error: unknown
+        ) {
+          if (
+            requestId !==
+            requestIdRef.current
+          ) {
+            return;
+          }
+
+          console.error(
+            "Error loading paged orders:",
+            error
+          );
+
+          const axiosError =
+            error as AxiosError<ApiErrorResponse>;
+
+          setLoadError(
+            axiosError.response
+              ?.data?.error ??
+              t(
+                "ordersPage.errors.loadFailed"
+              )
+          );
+        } finally {
+          if (
+            requestId ===
+            requestIdRef.current
+          ) {
+            setListLoading(
+              false
+            );
+
+            setHasLoaded(true);
+          }
+        }
+      },
+      [
+        deliveryFilter,
+        endDate,
+        paginationModel.page,
+        paginationModel.pageSize,
+        reloadKey,
+        searchQuery,
+        sortModel,
+        startDate,
+        statusFilter,
+        t,
+      ]
     );
 
-  const handleFilterChange =
+  useEffect(() => {
+    void loadOrders();
+  }, [loadOrders]);
+
+  const reloadOrders =
+    useCallback((): void => {
+      setReloadKey(
+        (value) =>
+          value + 1
+      );
+    }, []);
+
+  const resetPage =
+    useCallback((): void => {
+      setPaginationModel(
+        (
+          current
+        ) => ({
+          ...current,
+          page: 0,
+        })
+      );
+    }, []);
+
+  const handleStatusFilterChange =
     useCallback(
       (
-        event: SelectChangeEvent
+        value: OrderStatusFilter
       ): void => {
         setStatusFilter(
-          event.target.value
+          value
+        );
+
+        resetPage();
+      },
+      [resetPage]
+    );
+
+  const handleDeliveryFilterChange =
+    useCallback(
+      (
+        value:
+          OrderListDeliveryFilter
+      ): void => {
+        setDeliveryFilter(
+          value
+        );
+
+        resetPage();
+      },
+      [resetPage]
+    );
+
+  const handleStartDateChange =
+    useCallback(
+      (
+        value: string
+      ): void => {
+        setStartDate(
+          value
+        );
+
+        resetPage();
+      },
+      [resetPage]
+    );
+
+  const handleEndDateChange =
+    useCallback(
+      (
+        value: string
+      ): void => {
+        setEndDate(value);
+        resetPage();
+      },
+      [resetPage]
+    );
+
+  const handleResetFilters =
+    useCallback((): void => {
+      setSearchInput("");
+      setSearchQuery("");
+      setStatusFilter("all");
+      setDeliveryFilter(
+        "all"
+      );
+      setStartDate("");
+      setEndDate("");
+
+      setPaginationModel(
+        (
+          current
+        ) => ({
+          ...current,
+          page: 0,
+        })
+      );
+    }, []);
+
+  const handlePaginationModelChange =
+    useCallback(
+      (
+        model:
+          GridPaginationModel
+      ): void => {
+        setPaginationModel(
+          model
         );
       },
       []
+    );
+
+  const handleSortModelChange =
+    useCallback(
+      (
+        model: GridSortModel
+      ): void => {
+        const nextModel =
+          model.length > 0
+            ? [
+                model[
+                  model.length -
+                    1
+                ],
+              ]
+            : [
+                {
+                  field:
+                    "receivedAt",
+                  sort: "desc" as const,
+                },
+              ];
+
+        setSortModel(
+          nextModel
+        );
+
+        resetPage();
+      },
+      [resetPage]
     );
 
   const handleChangeStatus =
@@ -177,16 +587,14 @@ const OrdersPage = () => {
         status: OrderStatus
       ): Promise<void> => {
         try {
-          setActionErrorKey(
-            null
-          );
+          setActionError(null);
 
           await updateOrderStatus(
             id,
             status
           );
 
-          await loadOrders();
+          reloadOrders();
         } catch (
           error: unknown
         ) {
@@ -195,12 +603,22 @@ const OrdersPage = () => {
             error
           );
 
-          setActionErrorKey(
-            "ordersPage.errors.statusUpdateFailed"
+          const axiosError =
+            error as AxiosError<ApiErrorResponse>;
+
+          setActionError(
+            axiosError.response
+              ?.data?.error ??
+              t(
+                "ordersPage.errors.statusUpdateFailed"
+              )
           );
         }
       },
-      [loadOrders]
+      [
+        reloadOrders,
+        t,
+      ]
     );
 
   const handleDeliverOrder =
@@ -208,18 +626,47 @@ const OrdersPage = () => {
       async (
         id: number
       ): Promise<void> => {
-        await markOrderDelivered(
-          id
-        );
+        try {
+          setActionError(null);
 
-        await loadOrders();
+          await markOrderDelivered(
+            id
+          );
+
+          reloadOrders();
+        } catch (
+          error: unknown
+        ) {
+          console.error(
+            "Error delivering order:",
+            error
+          );
+
+          const axiosError =
+            error as AxiosError<ApiErrorResponse>;
+
+          setActionError(
+            axiosError.response
+              ?.data?.error ??
+              t(
+                "orderDetails.errors.deliveryFailed"
+              )
+          );
+
+          throw error;
+        }
       },
-      [loadOrders]
+      [
+        reloadOrders,
+        t,
+      ]
     );
 
   const handleViewOrder =
     useCallback(
-      (order: Order): void => {
+      (
+        order: Order
+      ): void => {
         if (!order.id) {
           return;
         }
@@ -231,12 +678,185 @@ const OrdersPage = () => {
       [navigate]
     );
 
-  const handleOpenIntake =
+  const handleEditOrder =
+    useCallback(
+      (
+        order: Order
+      ): void => {
+        setSelectedOrder(
+          order
+        );
+
+        setEditFormOpen(
+          true
+        );
+      },
+      []
+    );
+
+  const handleCloseEditForm =
     useCallback((): void => {
-      setActionErrorKey(
-        null
+      setEditFormOpen(
+        false
       );
 
+      setSelectedOrder(
+        undefined
+      );
+    }, []);
+
+  const handleOrderSubmit =
+    useCallback(
+      async (
+        payload: OrderPayload
+      ): Promise<void> => {
+        if (!selectedOrder?.id) {
+          throw new Error(
+            t(
+              "orderDetails.errors.missingOrderId"
+            )
+          );
+        }
+
+        await updateOrder(
+          selectedOrder.id,
+          payload
+        );
+
+        handleCloseEditForm();
+        reloadOrders();
+      },
+      [
+        handleCloseEditForm,
+        reloadOrders,
+        selectedOrder?.id,
+        t,
+      ]
+    );
+
+  const handleDeleteOrder =
+    useCallback(
+      (
+        order: Order
+      ): void => {
+        setOrderToDelete(
+          order
+        );
+
+        setDeleteDialogMessage(
+          order._deleteMessage ??
+            t(
+              "ordersPage.deleteConfirmation",
+              {
+                id:
+                  formatOrderNumber(
+                    order.id
+                  ),
+              }
+            )
+        );
+
+        setDeleteDialogOpen(
+          true
+        );
+      },
+      [t]
+    );
+
+  const handleCloseDeleteDialog =
+    useCallback((): void => {
+      if (deleting) {
+        return;
+      }
+
+      setDeleteDialogOpen(
+        false
+      );
+
+      setOrderToDelete(
+        null
+      );
+    }, [deleting]);
+
+  const confirmDeleteOrder =
+    useCallback(
+      async (): Promise<void> => {
+        if (
+          !orderToDelete?.id ||
+          deleting
+        ) {
+          return;
+        }
+
+        try {
+          setDeleting(true);
+
+          await deleteOrder(
+            orderToDelete.id
+          );
+
+          setDeleteDialogOpen(
+            false
+          );
+
+          setOrderToDelete(
+            null
+          );
+
+          if (
+            orders.length ===
+              1 &&
+            paginationModel.page >
+              0
+          ) {
+            setPaginationModel(
+              (
+                current
+              ) => ({
+                ...current,
+                page:
+                  current.page -
+                  1,
+              })
+            );
+          } else {
+            reloadOrders();
+          }
+        } catch (
+          error: unknown
+        ) {
+          console.error(
+            "Error deleting order:",
+            error
+          );
+
+          const axiosError =
+            error as AxiosError<ApiErrorResponse>;
+
+          setDeleteDialogMessage(
+            axiosError.response
+              ?.data?.error ??
+              t(
+                "ordersPage.errors.deleteFailed"
+              )
+          );
+        } finally {
+          setDeleting(false);
+        }
+      },
+      [
+        deleting,
+        orderToDelete?.id,
+        orders.length,
+        paginationModel.page,
+        reloadOrders,
+        t,
+      ]
+    );
+
+  const handleOpenIntake =
+    useCallback((): void => {
+      setActionError(null);
       setIntakeOpen(true);
     }, []);
 
@@ -252,14 +872,21 @@ const OrdersPage = () => {
 
         setIntakeOpen(false);
 
-        await Promise.all([
-          loadOrders(),
-          loadClients(),
-        ]);
+        setPaginationModel(
+          (
+            current
+          ) => ({
+            ...current,
+            page: 0,
+          })
+        );
+
+        await loadClients();
+        reloadOrders();
       },
       [
         loadClients,
-        loadOrders,
+        reloadOrders,
       ]
     );
 
@@ -274,7 +901,10 @@ const OrdersPage = () => {
       []
     );
 
-  if (loading) {
+  if (
+    listLoading &&
+    !hasLoaded
+  ) {
     return (
       <LoadingIndicator
         message={t(
@@ -319,43 +949,84 @@ const OrdersPage = () => {
 
       <Stack spacing={2}>
         {loadError && (
-          <Alert severity="error">
-            {t(
-              "ordersPage.errors.loadFailed"
-            )}
-          </Alert>
-        )}
-
-        {actionErrorKey && (
           <Alert
             severity="error"
             onClose={() => {
-              setActionErrorKey(
+              setLoadError(null);
+            }}
+          >
+            {loadError}
+          </Alert>
+        )}
+
+        {actionError && (
+          <Alert
+            severity="error"
+            onClose={() => {
+              setActionError(
                 null
               );
             }}
           >
-            {t(
-              actionErrorKey
-            )}
+            {actionError}
           </Alert>
         )}
 
-        <OrderStatusFilter
-          statusFilter={
+        <OrderFilters
+          searchValue={
+            searchInput
+          }
+          status={
             statusFilter
           }
-          onFilterChange={
-            handleFilterChange
+          delivery={
+            deliveryFilter
+          }
+          startDate={
+            startDate
+          }
+          endDate={endDate}
+          disabled={
+            deleting
+          }
+          onSearchChange={
+            setSearchInput
+          }
+          onStatusChange={
+            handleStatusFilterChange
+          }
+          onDeliveryChange={
+            handleDeliveryFilterChange
+          }
+          onStartDateChange={
+            handleStartDateChange
+          }
+          onEndDateChange={
+            handleEndDateChange
+          }
+          onReset={
+            handleResetFilters
           }
         />
 
         <OrderList
-          orders={
-            sortedOrders
+          orders={orders}
+          clients={clients}
+          total={total}
+          loading={
+            listLoading
           }
-          clients={
-            clients
+          paginationModel={
+            paginationModel
+          }
+          sortModel={
+            sortModel
+          }
+          onPaginationModelChange={
+            handlePaginationModelChange
+          }
+          onSortModelChange={
+            handleSortModelChange
           }
           onView={
             handleViewOrder
@@ -371,9 +1042,6 @@ const OrdersPage = () => {
           }
           onDeliver={
             handleDeliverOrder
-          }
-          onSort={
-            handleRequestSort
           }
           formatOrderId={
             formatOrderId
@@ -400,7 +1068,7 @@ const OrdersPage = () => {
 
       <OrderForm
         open={
-          openForm
+          editFormOpen
         }
         order={
           selectedOrder
@@ -412,7 +1080,7 @@ const OrdersPage = () => {
           handleOrderSubmit
         }
         onClose={
-          handleCloseForm
+          handleCloseEditForm
         }
       />
 
@@ -430,7 +1098,7 @@ const OrdersPage = () => {
           handleCloseDeleteDialog
         }
         isConfirmEnabled={
-          isDeleteEnabled
+          !deleting
         }
       />
     </Container>

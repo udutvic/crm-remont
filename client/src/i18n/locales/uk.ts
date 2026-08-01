@@ -51,6 +51,21 @@ const uk = {
     },
 
     ordersPage: {
+      listTools: {
+        searchLabel: "Пошук замовлень",
+        searchPlaceholder: "№ замовлення, клієнт, телефон, IMEI, пристрій...",
+        deliveryLabel: "Видача",
+        deliveryAll: "Усі",
+        deliveryReady: "Готові до видачі",
+        deliveryNotDelivered: "Не видані",
+        deliveryDelivered: "Видані",
+        startDate: "Прийнято від",
+        endDate: "Прийнято до",
+        reset: "Скинути",
+        rowsPerPage: "Рядків на сторінці:",
+        displayedRows: "{{from}}–{{to}} з {{count}}",
+      },
+
       title: "Замовлення",
       addOrder: "Додати замовлення",
       loading: "Завантаження замовлень...",

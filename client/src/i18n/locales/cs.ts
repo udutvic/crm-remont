@@ -51,6 +51,21 @@ const cs = {
     },
 
     ordersPage: {
+      listTools: {
+        searchLabel: "Hledat zakázky",
+        searchPlaceholder: "Číslo zakázky, zákazník, telefon, IMEI, zařízení...",
+        deliveryLabel: "Vydání",
+        deliveryAll: "Vše",
+        deliveryReady: "Připravené k vydání",
+        deliveryNotDelivered: "Nevydané",
+        deliveryDelivered: "Vydané",
+        startDate: "Přijato od",
+        endDate: "Přijato do",
+        reset: "Obnovit",
+        rowsPerPage: "Řádků na stránku:",
+        displayedRows: "{{from}}–{{to}} z {{count}}",
+      },
+
       title: "Zakázky",
       addOrder: "Přidat zakázku",
       loading: "Načítání zakázek...",

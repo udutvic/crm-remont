@@ -6,6 +6,8 @@ import {
   Device,
   DevicePayload,
   Order,
+  OrderListQuery,
+  OrderListResponse,
   OrderPayload,
   OrderStatus,
   RepairIntakePayload,
@@ -169,6 +171,62 @@ export const searchDevices = async (query: string): Promise<Device[]> => {
 
 export const getOrders = async (): Promise<Order[]> => {
   const response = await apiClient.get<Order[]>("/orders");
+
+  return response.data;
+};
+
+export const getPagedOrders = async (
+  query: OrderListQuery
+): Promise<OrderListResponse> => {
+  const response =
+    await apiClient.get<OrderListResponse>(
+      "/orders/paged",
+      {
+        params: {
+          page: query.page,
+          pageSize: query.pageSize,
+          sortBy: query.sortBy,
+          sortDirection:
+            query.sortDirection,
+
+          ...(query.q
+            ? {
+                q: query.q,
+              }
+            : {}),
+
+          ...(query.status &&
+          query.status !== "all"
+            ? {
+                status:
+                  query.status,
+              }
+            : {}),
+
+          ...(query.delivery &&
+          query.delivery !== "all"
+            ? {
+                delivery:
+                  query.delivery,
+              }
+            : {}),
+
+          ...(query.startDate
+            ? {
+                startDate:
+                  query.startDate,
+              }
+            : {}),
+
+          ...(query.endDate
+            ? {
+                endDate:
+                  query.endDate,
+              }
+            : {}),
+        },
+      }
+    );
 
   return response.data;
 };

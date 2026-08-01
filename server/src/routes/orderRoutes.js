@@ -5,7 +5,17 @@ const orderController =
     "../controllers/orderController"
   );
 
+const orderListController =
+  require(
+    "../controllers/orderListController"
+  );
+
 const router = express.Router();
+
+router.get(
+  "/paged",
+  orderListController.getPagedOrders
+);
 
 router.get(
   "/search",

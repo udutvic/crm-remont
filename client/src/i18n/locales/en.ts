@@ -51,6 +51,21 @@ const en = {
     },
 
     ordersPage: {
+      listTools: {
+        searchLabel: "Search orders",
+        searchPlaceholder: "Order number, customer, phone, IMEI, device...",
+        deliveryLabel: "Delivery",
+        deliveryAll: "All",
+        deliveryReady: "Ready for collection",
+        deliveryNotDelivered: "Not collected",
+        deliveryDelivered: "Collected",
+        startDate: "Received from",
+        endDate: "Received to",
+        reset: "Reset",
+        rowsPerPage: "Rows per page:",
+        displayedRows: "{{from}}–{{to}} of {{count}}",
+      },
+
       title: "Orders",
       addOrder: "Add Order",
       loading: "Loading orders...",

@@ -21,6 +21,8 @@ import {
 import type {
   GridColDef,
   GridColumnVisibilityModel,
+  GridPaginationModel,
+  GridSortModel,
 } from "@mui/x-data-grid";
 import {
   useTranslation,
@@ -46,6 +48,19 @@ import OrderDeliveryControl from "./OrderDeliveryControl";
 interface OrderDataGridProps {
   orders: Order[];
   clients: Client[];
+  total: number;
+  loading: boolean;
+
+  paginationModel: GridPaginationModel;
+  sortModel: GridSortModel;
+
+  onPaginationModelChange: (
+    model: GridPaginationModel
+  ) => void;
+
+  onSortModelChange: (
+    model: GridSortModel
+  ) => void;
 
   onEdit: (
     order: Order
@@ -74,7 +89,6 @@ interface OrderGridRow {
   id: number;
   order: Order;
 
-  orderNumber: string;
   deviceName: string;
   clientName: string;
 
@@ -87,6 +101,12 @@ interface OrderGridRow {
 const OrderDataGrid = ({
   orders,
   clients,
+  total,
+  loading,
+  paginationModel,
+  sortModel,
+  onPaginationModelChange,
+  onSortModelChange,
   onEdit,
   onDelete,
   onStatusChange,
@@ -163,11 +183,6 @@ const OrderDataGrid = ({
                 id: order.id,
                 order,
 
-                orderNumber:
-                  formatOrderNumber(
-                    order.id
-                  ),
-
                 deviceName:
                   `${order.device.brand} ${order.device.model}`,
 
@@ -208,8 +223,7 @@ const OrderDataGrid = ({
     >(
       () => [
         {
-          field:
-            "orderNumber",
+          field: "id",
 
           headerName: t(
             "ordersPage.columns.id"
@@ -222,14 +236,16 @@ const OrderDataGrid = ({
           hideable: false,
 
           renderCell: ({
-            value,
+            row,
           }) => (
             <Typography
               variant="body2"
               fontWeight={500}
               noWrap
             >
-              {String(value)}
+              {formatOrderNumber(
+                row.id
+              )}
             </Typography>
           ),
         },
@@ -244,6 +260,7 @@ const OrderDataGrid = ({
           flex: 1,
           minWidth: 155,
 
+          sortable: false,
           hideable: false,
 
           renderCell: ({
@@ -302,6 +319,8 @@ const OrderDataGrid = ({
           flex: 1.15,
           minWidth: 190,
 
+          sortable: false,
+
           renderCell: ({
             row,
           }) => (
@@ -334,6 +353,7 @@ const OrderDataGrid = ({
 
           type: "number",
           width: 135,
+          sortable: false,
 
           renderCell: ({
             row,
@@ -583,7 +603,9 @@ const OrderDataGrid = ({
                             "ordersPage.deleteConfirmation",
                             {
                               id:
-                                row.orderNumber,
+                                formatOrderNumber(
+                                  row.id
+                                ),
                             }
                           ),
                       };
@@ -650,37 +672,34 @@ const OrderDataGrid = ({
         rows={rows}
         columns={columns}
         autoHeight
-        disableRowSelectionOnClick
-        disableColumnMenu
-        disableColumnSelector
-        columnVisibilityModel={
-          columnVisibilityModel
+        pagination
+        paginationMode="server"
+        sortingMode="server"
+        rowCount={total}
+        loading={loading}
+        paginationModel={
+          paginationModel
+        }
+        sortModel={
+          sortModel
+        }
+        onPaginationModelChange={
+          onPaginationModelChange
+        }
+        onSortModelChange={
+          onSortModelChange
         }
         pageSizeOptions={[
           10,
           25,
           50,
+          100,
         ]}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              page: 0,
-              pageSize: 10,
-            },
-          },
-
-          sorting: {
-            sortModel: [
-              {
-                field:
-                  "id",
-                sort: "desc",
-              },
-            ],
-          },
-        }}
-        hideFooter={
-          rows.length <= 10
+        disableRowSelectionOnClick
+        disableColumnMenu
+        disableColumnSelector
+        columnVisibilityModel={
+          columnVisibilityModel
         }
         rowHeight={92}
         columnHeaderHeight={

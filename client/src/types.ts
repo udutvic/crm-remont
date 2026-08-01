@@ -86,6 +86,12 @@ export type OrderAccessType =
 export interface Order {
   id?: number;
 
+  /*
+   * Temporary UI metadata used only
+   * by the delete confirmation dialog.
+   */
+  _deleteMessage?: string;
+
   clientId: number;
   deviceId: number;
 
@@ -224,3 +230,68 @@ export interface RepairIntakeErrorResponse {
   meta?: RepairIntakeErrorMeta;
 }
 
+
+export type OrderListDeliveryFilter =
+  | "all"
+  | "delivered"
+  | "not_delivered"
+  | "ready";
+
+export type OrderListSortField =
+  | "id"
+  | "receivedAt"
+  | "dueAt"
+  | "createdAt"
+  | "updatedAt"
+  | "status"
+  | "estimatedPrice"
+  | "finalPrice";
+
+export type OrderListSortDirection =
+  | "asc"
+  | "desc";
+
+export interface OrderListQuery {
+  q?: string;
+
+  status?:
+    | OrderStatus
+    | "all";
+
+  delivery?:
+    OrderListDeliveryFilter;
+
+  startDate?: string;
+  endDate?: string;
+
+  page: number;
+  pageSize: number;
+
+  sortBy:
+    OrderListSortField;
+
+  sortDirection:
+    OrderListSortDirection;
+}
+
+export interface OrderListPagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface OrderListResponse {
+  items: Order[];
+
+  pagination:
+    OrderListPagination;
+
+  sort: {
+    field:
+      OrderListSortField;
+
+    direction:
+      OrderListSortDirection;
+  };
+}
