@@ -26,12 +26,33 @@ export interface ClientLookupResult {
   client: Client | null;
 }
 
+export type DeviceType =
+  | "phone"
+  | "tablet"
+  | "laptop"
+  | "smartwatch"
+  | "other";
+
 export interface Device {
   id?: number;
   clientId: number;
+
+  deviceType?: DeviceType;
+
   brand: string;
   model: string;
-  serial?: string;
+
+  imei1?: string | null;
+  imei1Normalized?: string | null;
+
+  imei2?: string | null;
+  imei2Normalized?: string | null;
+
+  serial?: string | null;
+  serialNormalized?: string | null;
+
+  color?: string | null;
+
   client?: Client;
   createdAt?: string;
   updatedAt?: string;
