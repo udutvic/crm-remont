@@ -1,0 +1,492 @@
+{
+  "generatedAt": "2026-08-01T09:25:00.439Z",
+  "database": {
+    "databaseName": "crm-remont",
+    "schemaName": "public",
+    "version": "PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35227, 64-bit"
+  },
+  "tables": [
+    {
+      "name": "clients",
+      "rowCount": 6,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "allowNull": false,
+          "primaryKey": true,
+          "defaultValue": "nextval(clients_id_seq::regclass)"
+        },
+        {
+          "name": "name",
+          "type": "CHARACTER VARYING(255)",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "phone",
+          "type": "CHARACTER VARYING(255)",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "email",
+          "type": "CHARACTER VARYING(255)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "createdAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "updatedAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "phoneNormalized",
+          "type": "CHARACTER VARYING(32)",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "secondaryPhone",
+          "type": "CHARACTER VARYING(32)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "address",
+          "type": "CHARACTER VARYING(255)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "note",
+          "type": "TEXT",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "clients_email_key",
+          "unique": true,
+          "primary": false,
+          "fields": [
+            "email"
+          ]
+        },
+        {
+          "name": "clients_phone_key",
+          "unique": true,
+          "primary": false,
+          "fields": [
+            "phone"
+          ]
+        },
+        {
+          "name": "clients_phone_normalized_unique",
+          "unique": true,
+          "primary": false,
+          "fields": [
+            "phoneNormalized"
+          ]
+        },
+        {
+          "name": "clients_pkey",
+          "unique": true,
+          "primary": true,
+          "fields": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "name": "devices",
+      "rowCount": 4,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "allowNull": false,
+          "primaryKey": true,
+          "defaultValue": "nextval(devices_id_seq::regclass)"
+        },
+        {
+          "name": "clientId",
+          "type": "INTEGER",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "brand",
+          "type": "CHARACTER VARYING(255)",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "model",
+          "type": "CHARACTER VARYING(255)",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "serial",
+          "type": "CHARACTER VARYING(255)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "createdAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "updatedAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "deviceType",
+          "type": "CHARACTER VARYING(40)",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": "phone"
+        },
+        {
+          "name": "imei1",
+          "type": "CHARACTER VARYING(32)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "imei1Normalized",
+          "type": "CHARACTER VARYING(32)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "imei2",
+          "type": "CHARACTER VARYING(32)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "imei2Normalized",
+          "type": "CHARACTER VARYING(32)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "serialNormalized",
+          "type": "CHARACTER VARYING(100)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "color",
+          "type": "CHARACTER VARYING(80)",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "devices_imei1_normalized_idx",
+          "unique": false,
+          "primary": false,
+          "fields": [
+            "imei1Normalized"
+          ]
+        },
+        {
+          "name": "devices_imei2_normalized_idx",
+          "unique": false,
+          "primary": false,
+          "fields": [
+            "imei2Normalized"
+          ]
+        },
+        {
+          "name": "devices_pkey",
+          "unique": true,
+          "primary": true,
+          "fields": [
+            "id"
+          ]
+        },
+        {
+          "name": "devices_serial_normalized_idx",
+          "unique": false,
+          "primary": false,
+          "fields": [
+            "serialNormalized"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "columnName": "clientId",
+          "referencedTableName": "clients",
+          "referencedColumnName": "id"
+        }
+      ]
+    },
+    {
+      "name": "orders",
+      "rowCount": 3,
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "allowNull": false,
+          "primaryKey": true,
+          "defaultValue": "nextval(orders_id_seq::regclass)"
+        },
+        {
+          "name": "clientId",
+          "type": "INTEGER",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "deviceId",
+          "type": "INTEGER",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "problem",
+          "type": "CHARACTER VARYING(255)",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "status",
+          "type": "USER-DEFINED",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": "pending"
+        },
+        {
+          "name": "price",
+          "type": "DOUBLE PRECISION",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "createdAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "updatedAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "deviceCondition",
+          "type": "TEXT",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "accessories",
+          "type": "TEXT",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "accessType",
+          "type": "CHARACTER VARYING(20)",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": "none"
+        },
+        {
+          "name": "accessCodeEncrypted",
+          "type": "TEXT",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "diagnosis",
+          "type": "TEXT",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "workPerformed",
+          "type": "TEXT",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "internalNote",
+          "type": "TEXT",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "estimatedPrice",
+          "type": "NUMERIC",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "finalPrice",
+          "type": "NUMERIC",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "receivedAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": false,
+          "primaryKey": false,
+          "defaultValue": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "dueAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "completedAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        },
+        {
+          "name": "deliveredAt",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "allowNull": true,
+          "primaryKey": false,
+          "defaultValue": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "orders_client_created_at_idx",
+          "unique": false,
+          "primary": false,
+          "fields": [
+            "clientId",
+            "createdAt"
+          ]
+        },
+        {
+          "name": "orders_device_created_at_idx",
+          "unique": false,
+          "primary": false,
+          "fields": [
+            "deviceId",
+            "createdAt"
+          ]
+        },
+        {
+          "name": "orders_pkey",
+          "unique": true,
+          "primary": true,
+          "fields": [
+            "id"
+          ]
+        },
+        {
+          "name": "orders_status_created_at_idx",
+          "unique": false,
+          "primary": false,
+          "fields": [
+            "status",
+            "createdAt"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "columnName": "clientId",
+          "referencedTableName": "clients",
+          "referencedColumnName": "id"
+        },
+        {
+          "columnName": "deviceId",
+          "referencedTableName": "devices",
+          "referencedColumnName": "id"
+        }
+      ]
+    },
+    {
+      "name": "SequelizeMeta",
+      "rowCount": 4,
+      "columns": [
+        {
+          "name": "name",
+          "type": "CHARACTER VARYING(255)",
+          "allowNull": false,
+          "primaryKey": true,
+          "defaultValue": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "SequelizeMeta_pkey",
+          "unique": true,
+          "primary": true,
+          "fields": [
+            "name"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    }
+  ]
+}
