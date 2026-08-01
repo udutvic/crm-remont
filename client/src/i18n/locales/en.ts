@@ -440,8 +440,66 @@ const en = {
       },
     },
 
+    receipt: {
+      title: "Repair intake receipt",
+      serviceCopyTitle: "Repair intake protocol",
+      customerCopyTitle: "Repair intake confirmation",
+      serviceCopy: "Service copy",
+      customerCopy: "Customer copy",
+      loading: "Loading receipt...",
+      cutLine: "Cut line",
+      blankLine: "________________",
+      printHint:
+        "In the print dialog select A4, 100% scale and disable browser headers and footers.",
+      configurationWarning:
+        "Service details are not filled in. Edit client/src/config/serviceReceiptConfig.ts before using receipts with customers.",
+      confirmation:
+        "The customer confirms that the device, its visible condition, accessories and reported fault are recorded correctly and that the repair terms below have been accepted.",
+      customerTerms:
+        "Full repair terms: {{url}}",
+      fields: {
+        identifiers: "IMEI / Serial number",
+        receivedByCustomer: "Received by customer",
+        paid: "Paid",
+        stampAndSignature: "Stamp and signature",
+      },
+      terms: {
+        title: "Repair terms",
+        item1:
+          "The final price and completion date may be confirmed only after diagnosis. The service will contact the customer if approval of additional work or costs is required.",
+        item2:
+          "The customer is responsible for backing up important data before repair. Some repairs or software procedures may cause data loss.",
+        item3:
+          "Without a PIN, password or pattern, input and output testing may be limited. The access code itself is not printed on this receipt.",
+        item4:
+          "After opening a device, the original water resistance cannot be guaranteed unless separately confirmed in writing.",
+        item5:
+          "Devices with liquid, corrosion, impact or board damage may contain hidden faults that can appear during diagnosis or repair.",
+        item6:
+          "Only accessories listed on this receipt are considered to have been accepted with the device.",
+        item7:
+          "The device is released against this receipt or after verification of the recipient's identity.",
+        item8:
+          "Uncollected devices are handled according to the published repair terms and applicable law.",
+        fullTerms:
+          "Full terms: {{url}}",
+      },
+      actions: {
+        open: "Receipt",
+        back: "Back to order",
+        print: "Print / Save PDF",
+      },
+      signatures: {
+        customer: "Customer signature",
+        service: "Service representative",
+      },
+      errors: {
+        loadFailed: "Could not load the receipt.",
+      },
+    },
+
     orderDetails: {
-      title: "Order #{{id}}",
+      title: "Order {{number}}",
       backToOrders: "Back to Orders",
       editOrder: "Edit Order",
       loadingOrder: "Loading order...",

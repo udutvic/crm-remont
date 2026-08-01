@@ -440,8 +440,66 @@ const cs = {
       },
     },
 
+    receipt: {
+      title: "Potvrzení o převzetí do opravy",
+      serviceCopyTitle: "Protokol o převzetí do opravy",
+      customerCopyTitle: "Potvrzení o převzetí do opravy",
+      serviceCopy: "Kopie pro servis",
+      customerCopy: "Kopie pro zákazníka",
+      loading: "Načítání potvrzení...",
+      cutLine: "Čára pro odstřižení",
+      blankLine: "________________",
+      printHint:
+        "V dialogu tisku zvolte A4, měřítko 100 % a vypněte záhlaví a zápatí prohlížeče.",
+      configurationWarning:
+        "Údaje servisu nejsou vyplněny. Před použitím potvrzení upravte client/src/config/serviceReceiptConfig.ts.",
+      confirmation:
+        "Zákazník potvrzuje, že zařízení, jeho viditelný stav, příslušenství a nahlášená závada jsou uvedeny správně a že níže uvedené podmínky opravy byly přijaty.",
+      customerTerms:
+        "Úplné podmínky opravy: {{url}}",
+      fields: {
+        identifiers: "IMEI / Sériové číslo",
+        receivedByCustomer: "Převzato zákazníkem",
+        paid: "Uhrazeno",
+        stampAndSignature: "Razítko a podpis",
+      },
+      terms: {
+        title: "Podmínky opravy",
+        item1:
+          "Konečnou cenu a termín dokončení lze potvrdit až po diagnostice. Pokud jsou nutné další práce nebo náklady, servis kontaktuje zákazníka.",
+        item2:
+          "Zákazník odpovídá za zálohování důležitých dat před opravou. Některé opravy nebo softwarové úkony mohou způsobit ztrátu dat.",
+        item3:
+          "Bez PINu, hesla nebo gesta mohou být vstupní a výstupní testy omezené. Samotný přístupový kód se na tomto potvrzení netiskne.",
+        item4:
+          "Po otevření zařízení nelze zaručit původní voděodolnost, pokud není písemně potvrzeno jinak.",
+        item5:
+          "Zařízení po kontaktu s kapalinou, korozi, nárazu nebo poškození desky může mít skryté vady, které se projeví během diagnostiky nebo opravy.",
+        item6:
+          "Za převzaté se považuje pouze příslušenství uvedené na tomto potvrzení.",
+        item7:
+          "Zařízení se vydává proti tomuto potvrzení nebo po ověření totožnosti příjemce.",
+        item8:
+          "Nevyzvednutá zařízení se řeší podle zveřejněných podmínek opravy a platných právních předpisů.",
+        fullTerms:
+          "Úplné podmínky: {{url}}",
+      },
+      actions: {
+        open: "Potvrzení",
+        back: "Zpět k zakázce",
+        print: "Tisk / Uložit PDF",
+      },
+      signatures: {
+        customer: "Podpis zákazníka",
+        service: "Zástupce servisu",
+      },
+      errors: {
+        loadFailed: "Potvrzení se nepodařilo načíst.",
+      },
+    },
+
     orderDetails: {
-      title: "Zakázka č. {{id}}",
+      title: "Zakázka {{number}}",
       backToOrders: "Zpět k zakázkám",
       editOrder: "Upravit zakázku",
       loadingOrder: "Načítání zakázky...",

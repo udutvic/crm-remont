@@ -1,36 +1,77 @@
+import {
+  Route,
+  Routes,
+} from "react-router";
+
 import MainLayout from "components/layout/MainLayout";
-import DashboardPage from "features/dashboard/DashboardPage";
 import ClientsPage from "features/clients/ClientsPage";
+import DashboardPage from "features/dashboard/DashboardPage";
 import DevicesPage from "features/devices/DevicesPage";
-import OrdersPage from "features/orders/OrdersPage";
 import OrderDetailsPage from "features/orders/OrderDetailsPage";
-import { Routes, Route } from "react-router";
-function App() {
+import OrderReceiptPage from "features/orders/OrderReceiptPage";
+import OrdersPage from "features/orders/OrdersPage";
+
+const MainApp = () => {
   return (
     <MainLayout>
       <Routes>
         <Route
           path="/"
-          element={<DashboardPage />}
+          element={
+            <DashboardPage />
+          }
         />
+
         <Route
           path="/clients"
-          element={<ClientsPage />}
+          element={
+            <ClientsPage />
+          }
         />
+
         <Route
           path="/devices"
-          element={<DevicesPage />}
+          element={
+            <DevicesPage />
+          }
         />
+
         <Route
           path="/orders"
-          element={<OrdersPage />}
+          element={
+            <OrdersPage />
+          }
         />
+
         <Route
           path="/orders/:id"
-          element={<OrderDetailsPage />}
+          element={
+            <OrderDetailsPage />
+          }
         />
       </Routes>
     </MainLayout>
   );
+};
+
+function App() {
+  return (
+    <Routes>
+      <Route
+        path="/orders/:id/receipt"
+        element={
+          <OrderReceiptPage />
+        }
+      />
+
+      <Route
+        path="*"
+        element={
+          <MainApp />
+        }
+      />
+    </Routes>
+  );
 }
+
 export default App;

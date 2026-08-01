@@ -3,20 +3,17 @@ import {
   useEffect,
   useState,
 } from "react";
-import {
+import type {
   AxiosError,
 } from "axios";
 import {
   ArrowBack as ArrowBackIcon,
-  Edit as EditIcon,
 } from "@mui/icons-material";
 import {
   Alert,
-  Box,
   Button,
   Container,
   Stack,
-  Typography,
 } from "@mui/material";
 import {
   useTranslation,
@@ -26,7 +23,6 @@ import {
   useParams,
 } from "react-router";
 
-import StatusSelect from "common/components/StatusSelect";
 import LoadingIndicator from "components/ui/LoadingIndicator";
 import {
   getClients,
@@ -35,15 +31,15 @@ import {
   updateOrder,
   updateOrderStatus,
 } from "index";
-import {
+import type {
   Client,
   Order,
   OrderPayload,
   OrderStatus,
 } from "types";
 
-import OrderDeliveryControl from "./components/OrderDeliveryControl";
 import OrderDetailsContent from "./components/OrderDetailsContent";
+import OrderDetailsHeader from "./components/OrderDetailsHeader";
 import OrderForm from "./components/OrderForm";
 
 interface ApiErrorResponse {
@@ -187,6 +183,7 @@ const OrderDetailsPage = () => {
             setServerLoadError(
               apiError
             );
+
             setLoadError(null);
           } else {
             setLoadError(
@@ -404,7 +401,7 @@ const OrderDetailsPage = () => {
   ) {
     return (
       <Container
-        maxWidth="lg"
+        maxWidth="xl"
         sx={{
           mt: 4,
           mb: 4,
@@ -442,12 +439,13 @@ const OrderDetailsPage = () => {
 
   return (
     <Container
-      maxWidth="lg"
+      maxWidth="xl"
       sx={{
         mt: {
           xs: 2,
           sm: 4,
         },
+
         mb: {
           xs: 2,
           sm: 4,
@@ -460,7 +458,9 @@ const OrderDetailsPage = () => {
             <ArrowBackIcon />
           }
           onClick={() => {
-            navigate("/orders");
+            navigate(
+              "/orders"
+            );
           }}
           sx={{
             alignSelf:
@@ -472,112 +472,34 @@ const OrderDetailsPage = () => {
           )}
         </Button>
 
-        <Stack
-          direction={{
-            xs: "column",
-            sm: "row",
+        <OrderDetailsHeader
+          order={order}
+          openingEditForm={
+            openingEditForm
+          }
+          onEdit={() => {
+            void handleOpenEditForm();
           }}
-          spacing={2}
-          justifyContent="space-between"
-          alignItems={{
-            xs: "stretch",
-            sm: "center",
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h4"
-              component="h1"
-            >
-              {t(
-                "orderDetails.title",
-                {
-                  id: order.id,
-                }
-              )}
-            </Typography>
-
-            <Typography
-              color="text.secondary"
-            >
-              {order.device.brand}{" "}
-              {order.device.model}
-            </Typography>
-          </Box>
-
-          <Button
-            variant="outlined"
-            startIcon={
-              <EditIcon />
+          onReceipt={() => {
+            if (order.id) {
+              navigate(
+                `/orders/${order.id}/receipt`
+              );
             }
-            disabled={
-              openingEditForm
-            }
-            onClick={() => {
-              void handleOpenEditForm();
-            }}
-          >
-            {openingEditForm
-              ? t(
-                  "common.loading"
-                )
-              : t(
-                  "orderDetails.editOrder"
-                )}
-          </Button>
-        </Stack>
-
-        <Stack
-          direction={{
-            xs: "column",
-            sm: "row",
           }}
-          spacing={1.5}
-          alignItems={{
-            xs: "stretch",
-            sm: "center",
+          onStatusChange={(
+            orderId,
+            status
+          ) => {
+            void handleStatusChange(
+              orderId,
+              status
+            );
           }}
-          sx={{
-            width: {
-              xs: "100%",
-              sm: "auto",
-            },
-          }}
-        >
-          <Box
-            sx={{
-              minWidth: {
-                xs: "100%",
-                sm: 160,
-              },
-            }}
-          >
-            <StatusSelect
-              status={
-                order.status
-              }
-              id={
-                order.id ?? 0
-              }
-              onStatusChange={(
-                orderId,
-                status
-              ) => {
-                void handleStatusChange(
-                  orderId,
-                  status
-                );
-              }}
-            />
-          </Box>
-
-          <OrderDeliveryControl
-            order={order}
-            onDeliver={
-              handleDeliver
-            }
-          />
-        </Stack>
+          onDeliver={
+            handleDeliver
+          }
+        />
 
         {actionError && (
           <Alert

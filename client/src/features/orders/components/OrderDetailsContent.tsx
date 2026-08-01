@@ -1,9 +1,18 @@
-import {
+import type {
   ReactNode,
 } from "react";
 import {
+  AssignmentOutlined as IntakeIcon,
+  BuildOutlined as RepairIcon,
+  DevicesOutlined as DeviceIcon,
+  HistoryOutlined as TimelineIcon,
+  PaymentsOutlined as PriceIcon,
+  PersonOutline as ClientIcon,
+} from "@mui/icons-material";
+import {
   Box,
   Divider,
+  Link,
   Paper,
   Stack,
   Typography,
@@ -13,7 +22,7 @@ import {
 } from "react-i18next";
 
 import useAppFormatters from "hooks/useAppFormatters";
-import {
+import type {
   Order,
 } from "types";
 
@@ -21,26 +30,63 @@ interface DetailItemProps {
   label: string;
   value: ReactNode;
   preserveWhitespace?: boolean;
+  wide?: boolean;
+  highlighted?: boolean;
 }
 
 interface DetailsSectionProps {
   title: string;
+  icon: ReactNode;
   children: ReactNode;
+  fullWidth?: boolean;
 }
 
 const DetailItem = ({
   label,
   value,
   preserveWhitespace = false,
+  wide = false,
+  highlighted = false,
 }: DetailItemProps) => {
   return (
-    <Box>
+    <Box
+      sx={{
+        gridColumn: wide
+          ? "1 / -1"
+          : "auto",
+
+        p: highlighted
+          ? 1.5
+          : 0,
+
+        borderRadius:
+          highlighted
+            ? 1.5
+            : 0,
+
+        backgroundColor:
+          highlighted
+            ? "warning.50"
+            : "transparent",
+
+        border:
+          highlighted
+            ? "1px solid"
+            : "none",
+
+        borderColor:
+          highlighted
+            ? "warning.200"
+            : "transparent",
+      }}
+    >
       <Typography
         variant="overline"
         color="text.secondary"
         sx={{
           display: "block",
-          lineHeight: 1.5,
+          lineHeight: 1.4,
+          mb: 0.35,
         }}
       >
         {label}
@@ -52,6 +98,7 @@ const DetailItem = ({
         sx={{
           overflowWrap:
             "anywhere",
+
           whiteSpace:
             preserveWhitespace
               ? "pre-wrap"
@@ -66,7 +113,9 @@ const DetailItem = ({
 
 const DetailsSection = ({
   title,
+  icon,
   children,
+  fullWidth = false,
 }: DetailsSectionProps) => {
   return (
     <Paper
@@ -76,15 +125,37 @@ const DetailsSection = ({
           xs: 2,
           sm: 3,
         },
+
         height: "100%",
+
+        gridColumn:
+          fullWidth
+            ? "1 / -1"
+            : "auto",
       }}
     >
-      <Typography
-        variant="h6"
-        component="h2"
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
       >
-        {title}
-      </Typography>
+        <Box
+          sx={{
+            display: "grid",
+            placeItems: "center",
+            color: "primary.main",
+          }}
+        >
+          {icon}
+        </Box>
+
+        <Typography
+          variant="h6"
+          component="h2"
+        >
+          {title}
+        </Typography>
+      </Stack>
 
       <Divider
         sx={{
@@ -92,9 +163,19 @@ const DetailsSection = ({
         }}
       />
 
-      <Stack spacing={2}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm:
+              "repeat(2, minmax(0, 1fr))",
+          },
+          gap: 2,
+        }}
+      >
         {children}
-      </Stack>
+      </Box>
     </Paper>
   );
 };
@@ -125,8 +206,36 @@ const OrderDetailsContent = ({
       value?.trim();
 
     return (
-      normalized ??
+      normalized ||
       notAvailable
+    );
+  };
+
+  const linkedValue = ({
+    value,
+    href,
+  }: {
+    value?: string | null;
+    href: (
+      normalized: string
+    ) => string;
+  }): ReactNode => {
+    const normalized =
+      value?.trim();
+
+    if (!normalized) {
+      return notAvailable;
+    }
+
+    return (
+      <Link
+        href={href(
+          normalized
+        )}
+        underline="hover"
+      >
+        {normalized}
+      </Link>
     );
   };
 
@@ -184,15 +293,27 @@ const OrderDetailsContent = ({
       `orderDetails.deviceTypes.${order.device.deviceType}`
     );
 
+  const deliveredLabel =
+    order.status ===
+    "unrepairable"
+      ? t(
+          "delivery.returnedWithoutRepair"
+        )
+      : t(
+          "orderDetails.fields.delivered"
+        );
+
   return (
     <Box
       sx={{
         display: "grid",
+
         gridTemplateColumns: {
           xs: "1fr",
-          md:
+          lg:
             "repeat(2, minmax(0, 1fr))",
         },
+
         gap: 2,
       }}
     >
@@ -200,6 +321,9 @@ const OrderDetailsContent = ({
         title={t(
           "orderDetails.sections.client"
         )}
+        icon={
+          <ClientIcon />
+        }
       >
         <DetailItem
           label={t(
@@ -221,28 +345,43 @@ const OrderDetailsContent = ({
           label={t(
             "orderDetails.fields.phone"
           )}
-          value={textOrFallback(
-            order.client?.phone
-          )}
+          value={linkedValue({
+            value:
+              order.client?.phone,
+
+            href: (
+              phone
+            ) => `tel:${phone}`,
+          })}
         />
 
         <DetailItem
           label={t(
             "orderDetails.fields.secondaryPhone"
           )}
-          value={textOrFallback(
-            order.client
-              ?.secondaryPhone
-          )}
+          value={linkedValue({
+            value:
+              order.client
+                ?.secondaryPhone,
+
+            href: (
+              phone
+            ) => `tel:${phone}`,
+          })}
         />
 
         <DetailItem
           label={t(
             "orderDetails.fields.email"
           )}
-          value={textOrFallback(
-            order.client?.email
-          )}
+          value={linkedValue({
+            value:
+              order.client?.email,
+
+            href: (
+              email
+            ) => `mailto:${email}`,
+          })}
         />
 
         <DetailItem
@@ -252,6 +391,7 @@ const OrderDetailsContent = ({
           value={textOrFallback(
             order.client?.address
           )}
+          wide
         />
 
         <DetailItem
@@ -262,6 +402,7 @@ const OrderDetailsContent = ({
             order.client?.note
           )}
           preserveWhitespace
+          wide
         />
       </DetailsSection>
 
@@ -269,12 +410,24 @@ const OrderDetailsContent = ({
         title={t(
           "orderDetails.sections.device"
         )}
+        icon={
+          <DeviceIcon />
+        }
       >
         <DetailItem
           label={t(
             "orderDetails.fields.deviceType"
           )}
           value={deviceType}
+        />
+
+        <DetailItem
+          label={t(
+            "orderDetails.fields.color"
+          )}
+          value={textOrFallback(
+            order.device.color
+          )}
         />
 
         <DetailItem
@@ -292,15 +445,6 @@ const OrderDetailsContent = ({
           )}
           value={textOrFallback(
             order.device.model
-          )}
-        />
-
-        <DetailItem
-          label={t(
-            "orderDetails.fields.color"
-          )}
-          value={textOrFallback(
-            order.device.color
           )}
         />
 
@@ -329,6 +473,7 @@ const OrderDetailsContent = ({
           value={textOrFallback(
             order.device.serial
           )}
+          wide
         />
       </DetailsSection>
 
@@ -336,6 +481,10 @@ const OrderDetailsContent = ({
         title={t(
           "orderDetails.sections.intake"
         )}
+        icon={
+          <IntakeIcon />
+        }
+        fullWidth
       >
         <DetailItem
           label={t(
@@ -345,6 +494,7 @@ const OrderDetailsContent = ({
             order.problem
           )}
           preserveWhitespace
+          wide
         />
 
         <DetailItem
@@ -374,25 +524,7 @@ const OrderDetailsContent = ({
           value={
             getAccessDescription()
           }
-        />
-
-        <DetailItem
-          label={t(
-            "orderDetails.fields.received"
-          )}
-          value={formatDateTime(
-            order.receivedAt ??
-              order.createdAt
-          )}
-        />
-
-        <DetailItem
-          label={t(
-            "orderDetails.fields.dueDate"
-          )}
-          value={formatDateTime(
-            order.dueAt
-          )}
+          wide
         />
       </DetailsSection>
 
@@ -400,6 +532,10 @@ const OrderDetailsContent = ({
         title={t(
           "orderDetails.sections.repair"
         )}
+        icon={
+          <RepairIcon />
+        }
+        fullWidth
       >
         <DetailItem
           label={t(
@@ -409,6 +545,7 @@ const OrderDetailsContent = ({
             order.diagnosis
           )}
           preserveWhitespace
+          wide
         />
 
         <DetailItem
@@ -419,6 +556,7 @@ const OrderDetailsContent = ({
             order.workPerformed
           )}
           preserveWhitespace
+          wide
         />
 
         <DetailItem
@@ -429,6 +567,8 @@ const OrderDetailsContent = ({
             order.internalNote
           )}
           preserveWhitespace
+          wide
+          highlighted
         />
       </DetailsSection>
 
@@ -436,6 +576,9 @@ const OrderDetailsContent = ({
         title={t(
           "orderDetails.sections.price"
         )}
+        icon={
+          <PriceIcon />
+        }
       >
         <DetailItem
           label={t(
@@ -460,6 +603,9 @@ const OrderDetailsContent = ({
         title={t(
           "orderDetails.sections.timeline"
         )}
+        icon={
+          <TimelineIcon />
+        }
       >
         <DetailItem
           label={t(
@@ -481,6 +627,25 @@ const OrderDetailsContent = ({
 
         <DetailItem
           label={t(
+            "orderDetails.fields.received"
+          )}
+          value={formatDateTime(
+            order.receivedAt ??
+              order.createdAt
+          )}
+        />
+
+        <DetailItem
+          label={t(
+            "orderDetails.fields.dueDate"
+          )}
+          value={formatDateTime(
+            order.dueAt
+          )}
+        />
+
+        <DetailItem
+          label={t(
             "orderDetails.fields.completed"
           )}
           value={formatDateTime(
@@ -489,9 +654,9 @@ const OrderDetailsContent = ({
         />
 
         <DetailItem
-          label={t(
-            "orderDetails.fields.delivered"
-          )}
+          label={
+            deliveredLabel
+          }
           value={formatDateTime(
             order.deliveredAt
           )}
