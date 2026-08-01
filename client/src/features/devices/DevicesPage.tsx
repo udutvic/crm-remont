@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "@mui/material";
-import { Device, Client } from "types";
+import {
+  Client,
+  Device,
+  DevicePayload,
+} from "types";
 import { getDevices, createDevice, updateDevice, deleteDevice, getClients } from "index";
 import LoadingIndicator from "components/ui/LoadingIndicator";
 import ConfirmDeleteDialog from "components/ui/ConfirmDeleteDialog";
@@ -29,7 +33,7 @@ const DevicesPage: React.FC = () => {
     handleSubmit,
     handleCloseForm,
     handleCloseDeleteDialog,
-  } = useCrud<Device>({
+  } = useCrud<Device, DevicePayload>({
     getAll: getDevices,
     create: createDevice,
     update: updateDevice,

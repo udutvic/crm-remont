@@ -1,12 +1,13 @@
 import { apiClient } from "api";
 import {
   Client,
-  ClientPayload,
   ClientLookupResult,
+  ClientPayload,
   Device,
+  DevicePayload,
   Order,
   OrderPayload,
-  OrderStatus,  
+  OrderStatus,
 } from "types";
 
 export interface DashboardStats {
@@ -125,17 +126,25 @@ export const getDevicesByClient = async (
   return response.data;
 };
 
-export const createDevice = async (device: Device): Promise<Device> => {
-  const response = await apiClient.post<Device>("/devices", device);
+export const createDevice = async (
+  device: DevicePayload
+): Promise<Device> => {
+  const response = await apiClient.post<Device>(
+    "/devices",
+    device
+  );
 
   return response.data;
 };
 
 export const updateDevice = async (
   id: number,
-  device: Device
+  device: DevicePayload
 ): Promise<Device> => {
-  const response = await apiClient.put<Device>(`/devices/${id}`, device);
+  const response = await apiClient.put<Device>(
+    `/devices/${id}`,
+    device
+  );
 
   return response.data;
 };

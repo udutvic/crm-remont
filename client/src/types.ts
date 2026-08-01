@@ -37,7 +37,7 @@ export interface Device {
   id?: number;
   clientId: number;
 
-  deviceType?: DeviceType;
+  deviceType: DeviceType;
 
   brand: string;
   model: string;
@@ -56,6 +56,17 @@ export interface Device {
   client?: Client;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface DevicePayload {
+  clientId: number;
+  deviceType: DeviceType;
+  brand: string;
+  model: string;
+  imei1?: string | null;
+  imei2?: string | null;
+  serial?: string | null;
+  color?: string | null;
 }
 
 export type OrderStatus =
