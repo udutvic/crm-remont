@@ -89,6 +89,254 @@ const en = {
       delete: "Delete",
     },
 
+    clientsPage: {
+      title: "Clients",
+      addClient: "Add Client",
+      loading: "Loading clients...",
+      empty: "No clients found.",
+      columns: {
+        name: "Name",
+        phone: "Phone",
+        email: "Email",
+        date: "Date",
+        actions: "Actions",
+      },
+      labels: {
+        phone: "Phone",
+        email: "Email",
+      },
+      actions: {
+        edit: "Edit client",
+        delete: "Delete client",
+      },
+      deleteConfirmation:
+        'Are you sure you want to delete client "{{name}}"?',
+      errors: {
+        loadFailed: "Failed to load clients.",
+      },
+    },
+
+    clientForm: {
+      titles: {
+        add: "Add New Client",
+        edit: "Edit Client",
+      },
+      fields: {
+        fullName: "Full name",
+        phone: "Phone",
+        secondaryPhone: "Secondary phone",
+        email: "Email",
+        address: "Address",
+        note: "Client note",
+      },
+      lookup: {
+        searching: "Searching...",
+        findClient: "Find client",
+        notFound:
+          "No existing client was found. Complete the form to create a new client.",
+        failed: "Unable to search for the client.",
+      },
+      helpers: {
+        optional: "Optional",
+        note: "Internal information about the client",
+      },
+      validation: {
+        nameRequired: "Full name is required",
+        nameMax: "Full name cannot exceed 120 characters",
+        phoneRequired: "Phone is required",
+        phoneInvalid: "Enter a valid phone number",
+        secondaryPhoneInvalid:
+          "Enter a valid secondary phone number",
+        emailInvalid: "Invalid email format",
+        emailMax: "Email cannot exceed 160 characters",
+        addressMax: "Address cannot exceed 255 characters",
+        noteMax: "Note cannot exceed 2000 characters",
+      },
+      actions: {
+        cancel: "Cancel",
+        save: "Save",
+      },
+      errors: {
+        save: "Error saving client. Please try again.",
+      },
+    },
+
+    devicesPage: {
+      title: "Devices",
+      addDevice: "Add Device",
+      loading: "Loading devices...",
+      empty: "No devices found.",
+      columns: {
+        brand: "Brand",
+        model: "Model",
+        identifier: "Identifier",
+        client: "Client",
+        date: "Date",
+        actions: "Actions",
+      },
+      labels: {
+        client: "Client",
+        deviceType: "Device type",
+        date: "Date",
+      },
+      identifiers: {
+        imei1: "IMEI 1",
+        imei2: "IMEI 2",
+        serial: "Serial number",
+        none: "No identifier",
+      },
+      deviceTypes: {
+        phone: "Phone",
+        tablet: "Tablet",
+        laptop: "Laptop",
+        smartwatch: "Smartwatch",
+        other: "Other",
+      },
+      actions: {
+        edit: "Edit device",
+        delete: "Delete device",
+      },
+      deleteConfirmation:
+        'Are you sure you want to delete device "{{device}}"?',
+      errors: {
+        loadFailed: "Failed to load devices.",
+        clientsLoadFailed: "Failed to load clients.",
+      },
+    },
+
+    deviceForm: {
+      titles: {
+        add: "Add New Device",
+        edit: "Edit Device",
+      },
+      fields: {
+        client: "Client",
+        deviceType: "Device type",
+        color: "Color",
+        brand: "Brand",
+        model: "Model",
+        imei1: "IMEI 1",
+        imei2: "IMEI 2",
+        serial: "Serial number",
+      },
+      deviceTypes: {
+        phone: "Phone",
+        tablet: "Tablet",
+        laptop: "Laptop",
+        smartwatch: "Smartwatch",
+        other: "Other",
+      },
+      helpers: {
+        noClients: "No clients available",
+        optional: "Optional",
+        imei: "Optional, 15 digits",
+      },
+      validation: {
+        clientRequired: "Client is required",
+        deviceTypeRequired: "Device type is required",
+        colorMax: "Color cannot exceed 80 characters",
+        brandRequired: "Brand is required",
+        brandMax: "Brand cannot exceed 120 characters",
+        modelRequired: "Model is required",
+        modelMax: "Model cannot exceed 120 characters",
+        imeiCharacters:
+          "IMEI may contain only digits, spaces and hyphens",
+        imeiLength: "IMEI must contain exactly 15 digits",
+        serialMax:
+          "Serial number cannot exceed 100 characters",
+      },
+      actions: {
+        cancel: "Cancel",
+        save: "Save",
+        saving: "Saving...",
+      },
+      errors: {
+        save: "Error saving device. Please try again.",
+        existingDevice: "Existing device ID: {{id}}.",
+      },
+    },
+
+    orderForm: {
+      titles: {
+        create: "Create New Order",
+        edit: "Edit Order",
+      },
+
+      sections: {
+        clientDevice: "Client and Device",
+        intake: "Intake Information",
+        repair: "Repair Information",
+      },
+
+      fields: {
+        client: "Client",
+        device: "Device",
+        reportedProblem: "Reported Problem",
+        deviceCondition: "Device Condition",
+        accessories: "Accessories",
+        receivedAt: "Received At",
+        dueAt: "Due At",
+        accessType: "Access Type",
+        accessCode: "Access Code",
+        status: "Status",
+        estimatedPrice: "Estimated Price",
+        finalPrice: "Final Price",
+        diagnosis: "Diagnosis",
+        workPerformed: "Work Performed",
+        internalNote: "Internal Note",
+      },
+
+      placeholders: {
+        deviceCondition: "Scratches, cracks, bent frame...",
+        accessories: "Phone, case, charger...",
+      },
+
+      accessTypes: {
+        none: "No access code",
+        pin: "PIN",
+        password: "Password",
+        pattern: "Pattern",
+        unknown: "Unknown",
+      },
+
+      helpers: {
+        noClients: "No clients available",
+        noDevices: "This client has no devices",
+        codeSaved: "A code is already saved. Leave blank to keep it.",
+        patternExample: "Example: 1-2-5-8",
+        unknownAccess: "The access method is unknown.",
+        noCodeRequired: "No access code is required.",
+        internalNote: "Visible only to service staff.",
+      },
+
+      validation: {
+        clientRequired: "Client is required",
+        deviceRequired: "Device is required",
+        clientDeviceRequired: "Client and device must be selected.",
+        problemRequired: "Problem is required",
+        problemMax: "Problem cannot exceed 255 characters",
+        receivedRequired: "Received date is required",
+        dueBeforeReceived: "Due date cannot be earlier than received date",
+        accessCodeRequired: "Access code is required",
+        accessCodeMax: "Access code cannot exceed 256 characters",
+        estimatedNonNegative: "Estimated price cannot be negative",
+        estimatedWhole: "Estimated price must be a whole number",
+        finalNonNegative: "Final price cannot be negative",
+        finalWhole: "Final price must be a whole number",
+      },
+
+      actions: {
+        cancel: "Cancel",
+        add: "Add",
+        update: "Update",
+      },
+
+      errors: {
+        loadDevices: "Failed to load devices.",
+        save: "Failed to save order.",
+      },
+    },
+
     orderDetails: {
       title: "Order #{{id}}",
       backToOrders: "Back to Orders",

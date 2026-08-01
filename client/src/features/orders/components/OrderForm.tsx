@@ -1,5 +1,10 @@
-import { useEffect, useState } from "react";
-import { AxiosError } from "axios";
+import {
+  useEffect,
+  useState,
+} from "react";
+import {
+  AxiosError,
+} from "axios";
 import {
   Alert,
   Button,
@@ -16,15 +21,34 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
+import {
+  Controller,
+  useForm,
+} from "react-hook-form";
+import {
+  useTranslation,
+} from "react-i18next";
 
-import { getDevices } from "index";
-import { Client, Device, Order, OrderAccessType, OrderPayload, OrderStatus } from "types";
+import {
+  getDevices,
+} from "index";
+import {
+  Client,
+  Device,
+  Order,
+  OrderAccessType,
+  OrderPayload,
+  OrderStatus,
+} from "types";
 
 interface OrderFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: OrderPayload) => Promise<void>;
+
+  onSubmit: (
+    data: OrderPayload
+  ) => Promise<void>;
+
   order?: Order;
   clients: Client[];
 }
@@ -46,8 +70,13 @@ interface OrderFormValues {
   workPerformed: string;
   internalNote: string;
 
-  estimatedPrice: number | "";
-  finalPrice: number | "";
+  estimatedPrice:
+    | number
+    | "";
+
+  finalPrice:
+    | number
+    | "";
 
   receivedAt: string;
   dueAt: string;
@@ -55,154 +84,227 @@ interface OrderFormValues {
 
 interface ApiErrorResponse {
   error?: string;
-  details?: Record<string, string>;
+  details?: Record<
+    string,
+    string
+  >;
 }
 
-const statusOptions: Array<{
-  value: OrderStatus;
-  label: string;
-}> = [
-  {
-    value: "pending",
-    label: "Pending",
-  },
-  {
-    value: "in_progress",
-    label: "In Progress",
-  },
-  {
-    value: "completed",
-    label: "Completed",
-  },
-  {
-    value: "cancelled",
-    label: "Cancelled",
-  },
+const statusOptions: OrderStatus[] = [
+  "pending",
+  "in_progress",
+  "completed",
+  "cancelled",
 ];
 
-const accessTypeOptions: Array<{
-  value: OrderAccessType;
-  label: string;
-}> = [
-  {
-    value: "none",
-    label: "No access code",
-  },
-  {
-    value: "pin",
-    label: "PIN",
-  },
-  {
-    value: "password",
-    label: "Password",
-  },
-  {
-    value: "pattern",
-    label: "Pattern",
-  },
-  {
-    value: "unknown",
-    label: "Unknown",
-  },
-];
+const statusTranslationKeys: Record<
+  OrderStatus,
+  string
+> = {
+  pending:
+    "statuses.pending",
+  in_progress:
+    "statuses.inProgress",
+  completed:
+    "statuses.completed",
+  cancelled:
+    "statuses.cancelled",
+};
 
-const requiredAccessCodeTypes = new Set<OrderAccessType>(["pin", "password", "pattern"]);
+const accessTypeOptions: OrderAccessType[] =
+  [
+    "none",
+    "pin",
+    "password",
+    "pattern",
+    "unknown",
+  ];
 
-const toNullableText = (value: string): string | null => {
-  const normalized = value.trim();
+const accessTypeTranslationKeys: Record<
+  OrderAccessType,
+  string
+> = {
+  none:
+    "orderForm.accessTypes.none",
+  pin:
+    "orderForm.accessTypes.pin",
+  password:
+    "orderForm.accessTypes.password",
+  pattern:
+    "orderForm.accessTypes.pattern",
+  unknown:
+    "orderForm.accessTypes.unknown",
+};
+
+const requiredAccessCodeTypes =
+  new Set<OrderAccessType>([
+    "pin",
+    "password",
+    "pattern",
+  ]);
+
+const toNullableText = (
+  value: string
+): string | null => {
+  const normalized =
+    value.trim();
 
   return normalized || null;
 };
 
-const toDateTimeLocal = (value?: string | null): string => {
+const toDateTimeLocal = (
+  value?: string | null
+): string => {
   if (!value) {
     return "";
   }
 
-  const date = new Date(value);
+  const date =
+    new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return "";
   }
 
-  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  const localDate =
+    new Date(
+      date.getTime() -
+        date.getTimezoneOffset() *
+          60_000
+    );
 
-  return localDate.toISOString().slice(0, 16);
+  return localDate
+    .toISOString()
+    .slice(0, 16);
 };
 
-const toIsoDate = (value: string): string | null => {
+const toIsoDate = (
+  value: string
+): string | null => {
   if (!value) {
     return null;
   }
 
-  const date = new Date(value);
+  const date =
+    new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return null;
   }
 
   return date.toISOString();
 };
 
-const createDefaultValues = (): OrderFormValues => ({
-  clientId: "",
-  deviceId: "",
+const createDefaultValues =
+  (): OrderFormValues => ({
+    clientId: "",
+    deviceId: "",
 
-  problem: "",
-  status: "pending",
+    problem: "",
+    status: "pending",
 
-  deviceCondition: "",
-  accessories: "",
+    deviceCondition: "",
+    accessories: "",
 
-  accessType: "none",
-  accessCode: "",
+    accessType: "none",
+    accessCode: "",
 
-  diagnosis: "",
-  workPerformed: "",
-  internalNote: "",
+    diagnosis: "",
+    workPerformed: "",
+    internalNote: "",
 
-  estimatedPrice: 0,
-  finalPrice: "",
+    estimatedPrice: 0,
+    finalPrice: "",
 
-  receivedAt: toDateTimeLocal(new Date().toISOString()),
-  dueAt: "",
-});
+    receivedAt:
+      toDateTimeLocal(
+        new Date().toISOString()
+      ),
+
+    dueAt: "",
+  });
 
 const priceFieldSx = {
   "& input[type=number]": {
-    MozAppearance: "textfield",
+    MozAppearance:
+      "textfield",
   },
 
   "& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button":
     {
-      WebkitAppearance: "none",
+      WebkitAppearance:
+        "none",
       margin: 0,
     },
 };
 
-const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) => {
-  const [devices, setDevices] = useState<Device[]>([]);
+const OrderForm = ({
+  open,
+  onClose,
+  onSubmit,
+  order,
+  clients,
+}: OrderFormProps) => {
+  const {
+    t,
+  } = useTranslation();
 
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [
+    devices,
+    setDevices,
+  ] = useState<Device[]>([]);
 
-  const { control, getValues, handleSubmit, reset, setValue, watch } =
-    useForm<OrderFormValues>({
-      defaultValues: createDefaultValues(),
-    });
+  const [
+    serverError,
+    setServerError,
+  ] = useState<
+    string | null
+  >(null);
 
-  const selectedClientId = watch("clientId");
+  const {
+    control,
+    getValues,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+  } = useForm<OrderFormValues>({
+    defaultValues:
+      createDefaultValues(),
+  });
 
-  const selectedAccessType = watch("accessType");
+  const selectedClientId =
+    watch("clientId");
 
-  const filteredDevices = devices.filter(
-    (device) => device.clientId === selectedClientId,
-  );
+  const selectedAccessType =
+    watch("accessType");
 
-  const accessCodeRequired = requiredAccessCodeTypes.has(selectedAccessType);
+  const filteredDevices =
+    devices.filter(
+      (device) =>
+        device.clientId ===
+        selectedClientId
+    );
 
-  const existingCodeCanBePreserved = Boolean(
-    order?.hasAccessCode && order.accessType === selectedAccessType,
-  );
+  const accessCodeRequired =
+    requiredAccessCodeTypes.has(
+      selectedAccessType
+    );
+
+  const existingCodeCanBePreserved =
+    Boolean(
+      order?.hasAccessCode &&
+        order.accessType ===
+          selectedAccessType
+    );
 
   useEffect(() => {
     if (!open) {
@@ -213,162 +315,347 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
 
     if (order) {
       reset({
-        clientId: order.clientId,
-        deviceId: order.deviceId,
+        clientId:
+          order.clientId,
 
-        problem: order.problem,
-        status: order.status,
+        deviceId:
+          order.deviceId,
 
-        deviceCondition: order.deviceCondition ?? "",
-        accessories: order.accessories ?? "",
+        problem:
+          order.problem,
 
-        accessType: order.accessType ?? "none",
+        status:
+          order.status,
+
+        deviceCondition:
+          order.deviceCondition ??
+          "",
+
+        accessories:
+          order.accessories ??
+          "",
+
+        accessType:
+          order.accessType ??
+          "none",
+
         accessCode: "",
 
-        diagnosis: order.diagnosis ?? "",
-        workPerformed: order.workPerformed ?? "",
-        internalNote: order.internalNote ?? "",
+        diagnosis:
+          order.diagnosis ??
+          "",
 
-        estimatedPrice: order.estimatedPrice ?? order.price ?? 0,
+        workPerformed:
+          order.workPerformed ??
+          "",
 
-        finalPrice: order.finalPrice ?? "",
+        internalNote:
+          order.internalNote ??
+          "",
 
-        receivedAt: toDateTimeLocal(order.receivedAt ?? order.createdAt),
+        estimatedPrice:
+          order.estimatedPrice ??
+          order.price ??
+          0,
 
-        dueAt: toDateTimeLocal(order.dueAt),
+        finalPrice:
+          order.finalPrice ??
+          "",
+
+        receivedAt:
+          toDateTimeLocal(
+            order.receivedAt ??
+              order.createdAt
+          ),
+
+        dueAt:
+          toDateTimeLocal(
+            order.dueAt
+          ),
       });
 
       return;
     }
 
-    reset(createDefaultValues());
-  }, [open, order, reset]);
+    reset(
+      createDefaultValues()
+    );
+  }, [
+    open,
+    order,
+    reset,
+  ]);
 
   useEffect(() => {
     if (!open) {
       return;
     }
 
-    const loadDevices = async (): Promise<void> => {
+    const loadDevices =
+      async (): Promise<void> => {
+        try {
+          const data =
+            await getDevices();
+
+          setDevices(data);
+        } catch (
+          error: unknown
+        ) {
+          console.error(
+            "Error loading devices:",
+            error
+          );
+
+          setServerError(
+            t(
+              "orderForm.errors.loadDevices"
+            )
+          );
+        }
+      };
+
+    void loadDevices();
+  }, [
+    open,
+    t,
+  ]);
+
+  const handleFormSubmit =
+    async (
+      values: OrderFormValues
+    ): Promise<void> => {
+      if (
+        values.clientId ===
+          "" ||
+        values.deviceId === ""
+      ) {
+        setServerError(
+          t(
+            "orderForm.validation.clientDeviceRequired"
+          )
+        );
+
+        return;
+      }
+
+      const estimatedPrice =
+        values.estimatedPrice ===
+        ""
+          ? 0
+          : Number(
+              values.estimatedPrice
+            );
+
+      const payload: OrderPayload =
+        {
+          clientId:
+            values.clientId,
+
+          deviceId:
+            values.deviceId,
+
+          problem:
+            values.problem.trim(),
+
+          status:
+            values.status,
+
+          /*
+           * Temporary compatibility
+           * with the current order
+           * list and dashboard.
+           */
+          price:
+            estimatedPrice,
+
+          estimatedPrice,
+
+          finalPrice:
+            values.finalPrice ===
+            ""
+              ? null
+              : Number(
+                  values.finalPrice
+                ),
+
+          deviceCondition:
+            toNullableText(
+              values.deviceCondition
+            ),
+
+          accessories:
+            toNullableText(
+              values.accessories
+            ),
+
+          accessType:
+            values.accessType,
+
+          diagnosis:
+            toNullableText(
+              values.diagnosis
+            ),
+
+          workPerformed:
+            toNullableText(
+              values.workPerformed
+            ),
+
+          internalNote:
+            toNullableText(
+              values.internalNote
+            ),
+
+          receivedAt:
+            toIsoDate(
+              values.receivedAt
+            ) ??
+            new Date().toISOString(),
+
+          dueAt:
+            toIsoDate(
+              values.dueAt
+            ),
+        };
+
+      const accessCode =
+        values.accessCode.trim();
+
+      if (
+        values.accessType ===
+          "none" ||
+        values.accessType ===
+          "unknown"
+      ) {
+        /*
+         * Explicitly remove any
+         * previously stored code.
+         */
+        payload.accessCode = "";
+      } else if (accessCode) {
+        /*
+         * A new code replaces the
+         * existing encrypted code.
+         */
+        payload.accessCode =
+          accessCode;
+      }
+
       try {
-        const data = await getDevices();
+        setServerError(null);
 
-        setDevices(data);
-      } catch (error: unknown) {
-        console.error("Error loading devices:", error);
+        await onSubmit(
+          payload
+        );
 
-        setServerError("Failed to load devices.");
+        reset(
+          createDefaultValues()
+        );
+      } catch (
+        error: unknown
+      ) {
+        console.error(
+          "Error saving order:",
+          error
+        );
+
+        const axiosError =
+          error as AxiosError<ApiErrorResponse>;
+
+        const response =
+          axiosError.response
+            ?.data;
+
+        const details =
+          response?.details;
+
+        const detailsMessage =
+          details
+            ? Object.values(
+                details
+              )
+                .filter(Boolean)
+                .join(" ")
+            : "";
+
+        setServerError(
+          detailsMessage ||
+            response?.error ||
+            t(
+              "orderForm.errors.save"
+            )
+        );
       }
     };
 
-    void loadDevices();
-  }, [open]);
+  const handleCancel =
+    (): void => {
+      reset(
+        createDefaultValues()
+      );
 
-  const handleFormSubmit = async (values: OrderFormValues): Promise<void> => {
-    if (values.clientId === "" || values.deviceId === "") {
-      setServerError("Client and device must be selected.");
-
-      return;
-    }
-
-    const estimatedPrice =
-      values.estimatedPrice === "" ? 0 : Number(values.estimatedPrice);
-
-    const payload: OrderPayload = {
-      clientId: values.clientId,
-      deviceId: values.deviceId,
-
-      problem: values.problem.trim(),
-      status: values.status,
-
-      /*
-       * Temporary compatibility
-       * with the current order list
-       * and dashboard.
-       */
-      price: estimatedPrice,
-
-      estimatedPrice,
-
-      finalPrice: values.finalPrice === "" ? null : Number(values.finalPrice),
-
-      deviceCondition: toNullableText(values.deviceCondition),
-
-      accessories: toNullableText(values.accessories),
-
-      accessType: values.accessType,
-
-      diagnosis: toNullableText(values.diagnosis),
-
-      workPerformed: toNullableText(values.workPerformed),
-
-      internalNote: toNullableText(values.internalNote),
-
-      receivedAt: toIsoDate(values.receivedAt) ?? new Date().toISOString(),
-
-      dueAt: toIsoDate(values.dueAt),
+      setServerError(null);
+      onClose();
     };
 
-    const accessCode = values.accessCode.trim();
+  const getAccessCodeLabel =
+    (): string => {
+      switch (
+        selectedAccessType
+      ) {
+        case "pin":
+          return t(
+            "orderForm.accessTypes.pin"
+          );
 
-    if (values.accessType === "none" || values.accessType === "unknown") {
-      /*
-       * Explicitly remove any
-       * previously stored code.
-       */
-      payload.accessCode = "";
-    } else if (accessCode) {
-      /*
-       * A new code replaces the
-       * existing encrypted code.
-       */
-      payload.accessCode = accessCode;
-    }
+        case "password":
+          return t(
+            "orderForm.accessTypes.password"
+          );
 
-    try {
-      setServerError(null);
+        case "pattern":
+          return t(
+            "orderForm.accessTypes.pattern"
+          );
 
-      await onSubmit(payload);
-
-      reset(createDefaultValues());
-    } catch (error: unknown) {
-      console.error("Error saving order:", error);
-
-      const axiosError = error as AxiosError<ApiErrorResponse>;
-
-      const response = axiosError.response?.data;
-
-      const details = response?.details;
-
-      const detailsMessage = details
-        ? Object.values(details).filter(Boolean).join(" ")
-        : "";
-
-      setServerError(detailsMessage || response?.error || "Failed to save order.");
-    }
-  };
-
-  const handleCancel = (): void => {
-    reset(createDefaultValues());
-    setServerError(null);
-    onClose();
-  };
+        default:
+          return t(
+            "orderForm.fields.accessCode"
+          );
+      }
+    };
 
   return (
     <Dialog
       open={open}
-      onClose={handleCancel}
+      onClose={
+        handleCancel
+      }
       maxWidth="md"
       fullWidth
     >
-      <DialogTitle>{order ? "Edit Order" : "Create New Order"}</DialogTitle>
+      <DialogTitle>
+        {order
+          ? t(
+              "orderForm.titles.edit"
+            )
+          : t(
+              "orderForm.titles.create"
+            )}
+      </DialogTitle>
 
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
+      <form
+        onSubmit={handleSubmit(
+          handleFormSubmit
+        )}
+      >
         <DialogContent dividers>
           {serverError && (
             <Alert
               severity="error"
-              sx={{ mb: 3 }}
+              sx={{
+                mb: 3,
+              }}
             >
               {serverError}
             </Alert>
@@ -378,7 +665,9 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
             variant="h6"
             gutterBottom
           >
-            Client and Device
+            {t(
+              "orderForm.sections.clientDevice"
+            )}
           </Typography>
 
           <Grid
@@ -395,45 +684,109 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
                 fullWidth
                 margin="normal"
               >
-                <InputLabel id="client-label">Client</InputLabel>
+                <InputLabel id="client-label">
+                  {t(
+                    "orderForm.fields.client"
+                  )}
+                </InputLabel>
 
                 <Controller
                   name="clientId"
-                  control={control}
+                  control={
+                    control
+                  }
                   rules={{
-                    validate: (value) => value !== "" || "Client is required",
+                    validate: (
+                      value
+                    ) =>
+                      value !==
+                        "" ||
+                      t(
+                        "orderForm.validation.clientRequired"
+                      ),
                   }}
-                  render={({ field, fieldState }) => (
+                  render={({
+                    field,
+                    fieldState,
+                  }) => (
                     <>
                       <Select
                         {...field}
                         labelId="client-label"
-                        label="Client"
-                        error={Boolean(fieldState.error)}
-                        onChange={(event) => {
-                          const clientId = Number(event.target.value);
+                        label={t(
+                          "orderForm.fields.client"
+                        )}
+                        error={Boolean(
+                          fieldState.error
+                        )}
+                        onChange={(
+                          event
+                        ) => {
+                          const clientId =
+                            Number(
+                              event
+                                .target
+                                .value
+                            );
 
-                          field.onChange(clientId);
+                          field.onChange(
+                            clientId
+                          );
 
-                          setValue("deviceId", "");
+                          setValue(
+                            "deviceId",
+                            ""
+                          );
                         }}
                       >
-                        {clients.map((client) => (
+                        {clients.length ===
+                        0 ? (
                           <MenuItem
-                            key={client.id}
-                            value={client.id}
+                            disabled
                           >
-                            {client.name} ({client.phone})
+                            {t(
+                              "orderForm.helpers.noClients"
+                            )}
                           </MenuItem>
-                        ))}
+                        ) : (
+                          clients.map(
+                            (
+                              client
+                            ) => (
+                              <MenuItem
+                                key={
+                                  client.id
+                                }
+                                value={
+                                  client.id
+                                }
+                              >
+                                {
+                                  client.name
+                                }{" "}
+                                (
+                                {
+                                  client.phone
+                                }
+                                )
+                              </MenuItem>
+                            )
+                          )
+                        )}
                       </Select>
 
                       {fieldState.error && (
                         <Alert
                           severity="error"
-                          sx={{ mt: 1 }}
+                          sx={{
+                            mt: 1,
+                          }}
                         >
-                          {fieldState.error.message}
+                          {
+                            fieldState
+                              .error
+                              .message
+                          }
                         </Alert>
                       )}
                     </>
@@ -451,52 +804,109 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
               <FormControl
                 fullWidth
                 margin="normal"
-                disabled={selectedClientId === ""}
+                disabled={
+                  selectedClientId ===
+                  ""
+                }
               >
-                <InputLabel id="device-label">Device</InputLabel>
+                <InputLabel id="device-label">
+                  {t(
+                    "orderForm.fields.device"
+                  )}
+                </InputLabel>
 
                 <Controller
                   name="deviceId"
-                  control={control}
+                  control={
+                    control
+                  }
                   rules={{
-                    validate: (value) => value !== "" || "Device is required",
+                    validate: (
+                      value
+                    ) =>
+                      value !==
+                        "" ||
+                      t(
+                        "orderForm.validation.deviceRequired"
+                      ),
                   }}
-                  render={({ field, fieldState }) => (
+                  render={({
+                    field,
+                    fieldState,
+                  }) => (
                     <>
                       <Select
                         {...field}
                         labelId="device-label"
-                        label="Device"
-                        error={Boolean(fieldState.error)}
-                        onChange={(event) => {
-                          field.onChange(Number(event.target.value));
+                        label={t(
+                          "orderForm.fields.device"
+                        )}
+                        error={Boolean(
+                          fieldState.error
+                        )}
+                        onChange={(
+                          event
+                        ) => {
+                          field.onChange(
+                            Number(
+                              event
+                                .target
+                                .value
+                            )
+                          );
                         }}
                       >
-                        {filteredDevices.length === 0 ? (
-                          <MenuItem disabled>This client has no devices</MenuItem>
+                        {filteredDevices.length ===
+                        0 ? (
+                          <MenuItem
+                            disabled
+                          >
+                            {t(
+                              "orderForm.helpers.noDevices"
+                            )}
+                          </MenuItem>
                         ) : (
-                          filteredDevices.map((device) => (
-                            <MenuItem
-                              key={device.id}
-                              value={device.id}
-                            >
-                              {device.brand} {device.model}
-                              {device.imei1
-                                ? ` (${device.imei1})`
-                                : device.serial
-                                  ? ` (${device.serial})`
-                                  : ""}
-                            </MenuItem>
-                          ))
+                          filteredDevices.map(
+                            (
+                              device
+                            ) => (
+                              <MenuItem
+                                key={
+                                  device.id
+                                }
+                                value={
+                                  device.id
+                                }
+                              >
+                                {
+                                  device.brand
+                                }{" "}
+                                {
+                                  device.model
+                                }
+                                {device.imei1
+                                  ? ` (${device.imei1})`
+                                  : device.serial
+                                    ? ` (${device.serial})`
+                                    : ""}
+                              </MenuItem>
+                            )
+                          )
                         )}
                       </Select>
 
                       {fieldState.error && (
                         <Alert
                           severity="error"
-                          sx={{ mt: 1 }}
+                          sx={{
+                            mt: 1,
+                          }}
                         >
-                          {fieldState.error.message}
+                          {
+                            fieldState
+                              .error
+                              .message
+                          }
                         </Alert>
                       )}
                     </>
@@ -506,40 +916,76 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
             </Grid>
           </Grid>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider
+            sx={{
+              my: 3,
+            }}
+          />
 
           <Typography
             variant="h6"
             gutterBottom
           >
-            Intake Information
+            {t(
+              "orderForm.sections.intake"
+            )}
           </Typography>
 
           <Grid
             container
             spacing={2}
           >
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
               <Controller
                 name="problem"
                 control={control}
                 rules={{
-                  required: "Problem is required",
-                  validate: (value) => value.trim().length > 0 || "Problem is required",
+                  required: t(
+                    "orderForm.validation.problemRequired"
+                  ),
+
+                  validate: (
+                    value
+                  ) =>
+                    value
+                      .trim()
+                      .length >
+                      0 ||
+                    t(
+                      "orderForm.validation.problemRequired"
+                    ),
+
                   maxLength: {
                     value: 255,
-                    message: "Problem cannot exceed 255 characters",
+                    message: t(
+                      "orderForm.validation.problemMax"
+                    ),
                   },
                 }}
-                render={({ field, fieldState }) => (
+                render={({
+                  field,
+                  fieldState,
+                }) => (
                   <TextField
                     {...field}
-                    label="Reported Problem"
+                    label={t(
+                      "orderForm.fields.reportedProblem"
+                    )}
                     fullWidth
                     multiline
                     minRows={3}
-                    error={Boolean(fieldState.error)}
-                    helperText={fieldState.error?.message}
+                    error={Boolean(
+                      fieldState.error
+                    )}
+                    helperText={
+                      fieldState
+                        .error
+                        ?.message
+                    }
                   />
                 )}
               />
@@ -554,14 +1000,20 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
               <Controller
                 name="deviceCondition"
                 control={control}
-                render={({ field }) => (
+                render={({
+                  field,
+                }) => (
                   <TextField
                     {...field}
-                    label="Device Condition"
+                    label={t(
+                      "orderForm.fields.deviceCondition"
+                    )}
                     fullWidth
                     multiline
                     minRows={2}
-                    placeholder="Scratches, cracks, bent frame..."
+                    placeholder={t(
+                      "orderForm.placeholders.deviceCondition"
+                    )}
                   />
                 )}
               />
@@ -576,14 +1028,20 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
               <Controller
                 name="accessories"
                 control={control}
-                render={({ field }) => (
+                render={({
+                  field,
+                }) => (
                   <TextField
                     {...field}
-                    label="Accessories"
+                    label={t(
+                      "orderForm.fields.accessories"
+                    )}
                     fullWidth
                     multiline
                     minRows={2}
-                    placeholder="Phone, case, charger..."
+                    placeholder={t(
+                      "orderForm.placeholders.accessories"
+                    )}
                   />
                 )}
               />
@@ -599,16 +1057,29 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
                 name="receivedAt"
                 control={control}
                 rules={{
-                  required: "Received date is required",
+                  required: t(
+                    "orderForm.validation.receivedRequired"
+                  ),
                 }}
-                render={({ field, fieldState }) => (
+                render={({
+                  field,
+                  fieldState,
+                }) => (
                   <TextField
                     {...field}
-                    label="Received At"
+                    label={t(
+                      "orderForm.fields.receivedAt"
+                    )}
                     type="datetime-local"
                     fullWidth
-                    error={Boolean(fieldState.error)}
-                    helperText={fieldState.error?.message}
+                    error={Boolean(
+                      fieldState.error
+                    )}
+                    helperText={
+                      fieldState
+                        .error
+                        ?.message
+                    }
                     slotProps={{
                       inputLabel: {
                         shrink: true,
@@ -629,31 +1100,56 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
                 name="dueAt"
                 control={control}
                 rules={{
-                  validate: (value) => {
+                  validate: (
+                    value
+                  ) => {
                     if (!value) {
                       return true;
                     }
 
-                    const receivedAt = getValues("receivedAt");
+                    const receivedAt =
+                      getValues(
+                        "receivedAt"
+                      );
 
-                    if (!receivedAt) {
+                    if (
+                      !receivedAt
+                    ) {
                       return true;
                     }
 
                     return (
-                      new Date(value).getTime() >= new Date(receivedAt).getTime() ||
-                      "Due date cannot be earlier than received date"
+                      new Date(
+                        value
+                      ).getTime() >=
+                        new Date(
+                          receivedAt
+                        ).getTime() ||
+                      t(
+                        "orderForm.validation.dueBeforeReceived"
+                      )
                     );
                   },
                 }}
-                render={({ field, fieldState }) => (
+                render={({
+                  field,
+                  fieldState,
+                }) => (
                   <TextField
                     {...field}
-                    label="Due At"
+                    label={t(
+                      "orderForm.fields.dueAt"
+                    )}
                     type="datetime-local"
                     fullWidth
-                    error={Boolean(fieldState.error)}
-                    helperText={fieldState.error?.message}
+                    error={Boolean(
+                      fieldState.error
+                    )}
+                    helperText={
+                      fieldState
+                        .error
+                        ?.message
+                    }
                     slotProps={{
                       inputLabel: {
                         shrink: true,
@@ -674,30 +1170,61 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
                 fullWidth
                 margin="normal"
               >
-                <InputLabel id="access-type-label">Access Type</InputLabel>
+                <InputLabel id="access-type-label">
+                  {t(
+                    "orderForm.fields.accessType"
+                  )}
+                </InputLabel>
 
                 <Controller
                   name="accessType"
-                  control={control}
-                  render={({ field }) => (
+                  control={
+                    control
+                  }
+                  render={({
+                    field,
+                  }) => (
                     <Select
                       {...field}
                       labelId="access-type-label"
-                      label="Access Type"
-                      onChange={(event) => {
-                        field.onChange(event.target.value);
+                      label={t(
+                        "orderForm.fields.accessType"
+                      )}
+                      onChange={(
+                        event
+                      ) => {
+                        field.onChange(
+                          event
+                            .target
+                            .value as OrderAccessType
+                        );
 
-                        setValue("accessCode", "");
+                        setValue(
+                          "accessCode",
+                          ""
+                        );
                       }}
                     >
-                      {accessTypeOptions.map((option) => (
-                        <MenuItem
-                          key={option.value}
-                          value={option.value}
-                        >
-                          {option.label}
-                        </MenuItem>
-                      ))}
+                      {accessTypeOptions.map(
+                        (
+                          accessType
+                        ) => (
+                          <MenuItem
+                            key={
+                              accessType
+                            }
+                            value={
+                              accessType
+                            }
+                          >
+                            {t(
+                              accessTypeTranslationKeys[
+                                accessType
+                              ]
+                            )}
+                          </MenuItem>
+                        )
+                      )}
                     </Select>
                   )}
                 />
@@ -713,37 +1240,62 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
               {accessCodeRequired ? (
                 <Controller
                   name="accessCode"
-                  control={control}
+                  control={
+                    control
+                  }
                   rules={{
-                    validate: (value) =>
-                      value.trim().length > 0 ||
+                    validate: (
+                      value
+                    ) =>
+                      value
+                        .trim()
+                        .length >
+                        0 ||
                       existingCodeCanBePreserved ||
-                      "Access code is required",
+                      t(
+                        "orderForm.validation.accessCodeRequired"
+                      ),
+
                     maxLength: {
                       value: 256,
-                      message: "Access code cannot exceed 256 characters",
+                      message: t(
+                        "orderForm.validation.accessCodeMax"
+                      ),
                     },
                   }}
-                  render={({ field, fieldState }) => (
+                  render={({
+                    field,
+                    fieldState,
+                  }) => (
                     <TextField
                       {...field}
                       label={
-                        selectedAccessType === "pin"
-                          ? "PIN"
-                          : selectedAccessType === "password"
-                            ? "Password"
-                            : "Pattern"
+                        getAccessCodeLabel()
                       }
-                      type={selectedAccessType === "pattern" ? "text" : "password"}
+                      type={
+                        selectedAccessType ===
+                        "pattern"
+                          ? "text"
+                          : "password"
+                      }
                       fullWidth
                       margin="normal"
-                      error={Boolean(fieldState.error)}
+                      error={Boolean(
+                        fieldState.error
+                      )}
                       helperText={
-                        fieldState.error?.message ??
+                        fieldState
+                          .error
+                          ?.message ??
                         (existingCodeCanBePreserved
-                          ? "A code is already saved. Leave blank to keep it."
-                          : selectedAccessType === "pattern"
-                            ? "Example: 1-2-5-8"
+                          ? t(
+                              "orderForm.helpers.codeSaved"
+                            )
+                          : selectedAccessType ===
+                              "pattern"
+                            ? t(
+                                "orderForm.helpers.patternExample"
+                              )
                             : "")
                       }
                     />
@@ -751,28 +1303,41 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
                 />
               ) : (
                 <TextField
-                  label="Access Code"
+                  label={t(
+                    "orderForm.fields.accessCode"
+                  )}
                   value=""
                   fullWidth
                   margin="normal"
                   disabled
                   helperText={
-                    selectedAccessType === "unknown"
-                      ? "The access method is unknown."
-                      : "No access code is required."
+                    selectedAccessType ===
+                    "unknown"
+                      ? t(
+                          "orderForm.helpers.unknownAccess"
+                        )
+                      : t(
+                          "orderForm.helpers.noCodeRequired"
+                        )
                   }
                 />
               )}
             </Grid>
           </Grid>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider
+            sx={{
+              my: 3,
+            }}
+          />
 
           <Typography
             variant="h6"
             gutterBottom
           >
-            Repair Information
+            {t(
+              "orderForm.sections.repair"
+            )}
           </Typography>
 
           <Grid
@@ -789,25 +1354,45 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
                 fullWidth
                 margin="normal"
               >
-                <InputLabel id="status-label">Status</InputLabel>
+                <InputLabel id="status-label">
+                  {t(
+                    "orderForm.fields.status"
+                  )}
+                </InputLabel>
 
                 <Controller
                   name="status"
-                  control={control}
-                  render={({ field }) => (
+                  control={
+                    control
+                  }
+                  render={({
+                    field,
+                  }) => (
                     <Select
                       {...field}
                       labelId="status-label"
-                      label="Status"
+                      label={t(
+                        "orderForm.fields.status"
+                      )}
                     >
-                      {statusOptions.map((option) => (
-                        <MenuItem
-                          key={option.value}
-                          value={option.value}
-                        >
-                          {option.label}
-                        </MenuItem>
-                      ))}
+                      {statusOptions.map(
+                        (status) => (
+                          <MenuItem
+                            key={
+                              status
+                            }
+                            value={
+                              status
+                            }
+                          >
+                            {t(
+                              statusTranslationKeys[
+                                status
+                              ]
+                            )}
+                          </MenuItem>
+                        )
+                      )}
                     </Select>
                   )}
                 />
@@ -826,33 +1411,67 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
                 rules={{
                   min: {
                     value: 0,
-                    message: "Estimated price cannot be negative",
+                    message: t(
+                      "orderForm.validation.estimatedNonNegative"
+                    ),
                   },
-                  validate: (value) =>
-                    value === "" ||
-                    Number.isInteger(Number(value)) ||
-                    "Estimated price must be a whole number",
+
+                  validate: (
+                    value
+                  ) =>
+                    value ===
+                      "" ||
+                    Number.isInteger(
+                      Number(value)
+                    ) ||
+                    t(
+                      "orderForm.validation.estimatedWhole"
+                    ),
                 }}
-                render={({ field, fieldState }) => (
+                render={({
+                  field,
+                  fieldState,
+                }) => (
                   <TextField
                     {...field}
-                    label="Estimated Price"
+                    label={t(
+                      "orderForm.fields.estimatedPrice"
+                    )}
                     type="number"
                     fullWidth
-                    sx={priceFieldSx}
+                    sx={
+                      priceFieldSx
+                    }
                     margin="normal"
-                    error={Boolean(fieldState.error)}
-                    helperText={fieldState.error?.message}
+                    error={Boolean(
+                      fieldState.error
+                    )}
+                    helperText={
+                      fieldState
+                        .error
+                        ?.message
+                    }
                     slotProps={{
                       htmlInput: {
                         min: 0,
                         step: 1,
-                        inputMode: "numeric",
+                        inputMode:
+                          "numeric",
                       },
                     }}
-                    onChange={(event) => {
+                    onChange={(
+                      event
+                    ) => {
                       field.onChange(
-                        event.target.value === "" ? "" : Number(event.target.value),
+                        event.target
+                          .value ===
+                          ""
+                          ? ""
+                          : Number(
+                              event
+                                .target
+                                .value
+                            )
                       );
                     }}
                   />
@@ -872,33 +1491,67 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
                 rules={{
                   min: {
                     value: 0,
-                    message: "Final price cannot be negative",
+                    message: t(
+                      "orderForm.validation.finalNonNegative"
+                    ),
                   },
-                  validate: (value) =>
-                    value === "" ||
-                    Number.isInteger(Number(value)) ||
-                    "Final price must be a whole number",
+
+                  validate: (
+                    value
+                  ) =>
+                    value ===
+                      "" ||
+                    Number.isInteger(
+                      Number(value)
+                    ) ||
+                    t(
+                      "orderForm.validation.finalWhole"
+                    ),
                 }}
-                render={({ field, fieldState }) => (
+                render={({
+                  field,
+                  fieldState,
+                }) => (
                   <TextField
                     {...field}
-                    label="Final Price"
+                    label={t(
+                      "orderForm.fields.finalPrice"
+                    )}
                     type="number"
                     fullWidth
-                    sx={priceFieldSx}
+                    sx={
+                      priceFieldSx
+                    }
                     margin="normal"
-                    error={Boolean(fieldState.error)}
-                    helperText={fieldState.error?.message}
+                    error={Boolean(
+                      fieldState.error
+                    )}
+                    helperText={
+                      fieldState
+                        .error
+                        ?.message
+                    }
                     slotProps={{
                       htmlInput: {
                         min: 0,
                         step: 1,
-                        inputMode: "numeric",
+                        inputMode:
+                          "numeric",
                       },
                     }}
-                    onChange={(event) => {
+                    onChange={(
+                      event
+                    ) => {
                       field.onChange(
-                        event.target.value === "" ? "" : Number(event.target.value),
+                        event.target
+                          .value ===
+                          ""
+                          ? ""
+                          : Number(
+                              event
+                                .target
+                                .value
+                            )
                       );
                     }}
                   />
@@ -906,14 +1559,22 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
               />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
               <Controller
                 name="diagnosis"
                 control={control}
-                render={({ field }) => (
+                render={({
+                  field,
+                }) => (
                   <TextField
                     {...field}
-                    label="Diagnosis"
+                    label={t(
+                      "orderForm.fields.diagnosis"
+                    )}
                     fullWidth
                     multiline
                     minRows={3}
@@ -922,14 +1583,22 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
               />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
               <Controller
                 name="workPerformed"
                 control={control}
-                render={({ field }) => (
+                render={({
+                  field,
+                }) => (
                   <TextField
                     {...field}
-                    label="Work Performed"
+                    label={t(
+                      "orderForm.fields.workPerformed"
+                    )}
                     fullWidth
                     multiline
                     minRows={3}
@@ -938,18 +1607,28 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
               />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
               <Controller
                 name="internalNote"
                 control={control}
-                render={({ field }) => (
+                render={({
+                  field,
+                }) => (
                   <TextField
                     {...field}
-                    label="Internal Note"
+                    label={t(
+                      "orderForm.fields.internalNote"
+                    )}
                     fullWidth
                     multiline
                     minRows={3}
-                    helperText="Visible only to service staff."
+                    helperText={t(
+                      "orderForm.helpers.internalNote"
+                    )}
                   />
                 )}
               />
@@ -958,13 +1637,27 @@ const OrderForm = ({ open, onClose, onSubmit, order, clients }: OrderFormProps) 
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleCancel}>Cancel</Button>
+          <Button
+            onClick={
+              handleCancel
+            }
+          >
+            {t(
+              "orderForm.actions.cancel"
+            )}
+          </Button>
 
           <Button
             type="submit"
             variant="contained"
           >
-            {order ? "Update" : "Add"}
+            {order
+              ? t(
+                  "orderForm.actions.update"
+                )
+              : t(
+                  "orderForm.actions.add"
+                )}
           </Button>
         </DialogActions>
       </form>

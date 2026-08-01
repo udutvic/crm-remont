@@ -1,56 +1,126 @@
-import React from "react";
-import { Box } from "@mui/material";
-import { Client } from "types";
+import {
+  Box,
+} from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
+
 import DataView from "common/components/DataView";
-import ClientTableRow from "./ClientTableRow";
+import {
+  Client,
+} from "types";
+
 import ClientCard from "./ClientCard";
+import ClientTableRow from "./ClientTableRow";
+
 interface ClientListProps {
   clients: Client[];
-  onEdit: (client: Client) => void;
-  onDelete: (client: Client, nameField?: keyof Client) => void;
-  onSort: (field: keyof Client) => void;
+
+  onEdit: (
+    client: Client
+  ) => void;
+
+  onDelete: (
+    client: Client,
+    nameField?: keyof Client
+  ) => void;
+
+  onSort: (
+    field: keyof Client
+  ) => void;
 }
-const ClientList: React.FC<ClientListProps> = ({ 
-  clients, 
-  onEdit, 
-  onDelete, 
-  onSort 
-}) => {
+
+const ClientList = ({
+  clients,
+  onEdit,
+  onDelete,
+  onSort,
+}: ClientListProps) => {
+  const {
+    t,
+  } = useTranslation();
+
   return (
     <Box>
       <DataView
         data={clients}
         columns={[
-          { id: 'name', label: 'Name', sx: { pl: 2 } },
-          { id: 'phone', label: 'Phone' },
-          { id: 'email', label: 'Email' },
-          { 
-            id: 'createdAt', 
-            label: 'Date', 
-            onClick: () => onSort("createdAt"),
-            sx: { cursor: 'pointer' } 
+          {
+            id: "name",
+            label: t(
+              "clientsPage.columns.name"
+            ),
+            sx: {
+              pl: 2,
+            },
           },
-          { id: 'actions', label: 'Actions', sx: { pr: 2, width: 'auto' } }
+          {
+            id: "phone",
+            label: t(
+              "clientsPage.columns.phone"
+            ),
+          },
+          {
+            id: "email",
+            label: t(
+              "clientsPage.columns.email"
+            ),
+          },
+          {
+            id: "createdAt",
+            label: t(
+              "clientsPage.columns.date"
+            ),
+            onClick: () => {
+              onSort(
+                "createdAt"
+              );
+            },
+            sx: {
+              cursor: "pointer",
+            },
+          },
+          {
+            id: "actions",
+            label: t(
+              "clientsPage.columns.actions"
+            ),
+            sx: {
+              pr: 2,
+              width: "auto",
+            },
+          },
         ]}
-        emptyMessage="No clients found"
-        renderTableRow={(client) => (
-          <ClientTableRow 
+        emptyMessage={t(
+          "clientsPage.empty"
+        )}
+        renderTableRow={(
+          client
+        ) => (
+          <ClientTableRow
             key={client.id}
-            client={client} 
-            onEdit={onEdit} 
-            onDelete={onDelete} 
+            client={client}
+            onEdit={onEdit}
+            onDelete={
+              onDelete
+            }
           />
         )}
-        renderCard={(client) => (
-          <ClientCard 
+        renderCard={(
+          client
+        ) => (
+          <ClientCard
             key={client.id}
-            client={client} 
-            onEdit={onEdit} 
-            onDelete={onDelete} 
+            client={client}
+            onEdit={onEdit}
+            onDelete={
+              onDelete
+            }
           />
         )}
       />
     </Box>
   );
 };
+
 export default ClientList;

@@ -2,7 +2,9 @@ import {
   useEffect,
   useState,
 } from "react";
-import { AxiosError } from "axios";
+import {
+  AxiosError,
+} from "axios";
 import {
   Alert,
   Button,
@@ -23,6 +25,9 @@ import {
   Controller,
   useForm,
 } from "react-hook-form";
+import {
+  useTranslation,
+} from "react-i18next";
 
 import {
   Client,
@@ -66,87 +71,48 @@ interface ApiErrorResponse {
       }>;
 }
 
-const defaultValues: DeviceFormValues = {
-  clientId: 0,
-  deviceType: "phone",
-  brand: "",
-  model: "",
-  imei1: "",
-  imei2: "",
-  serial: "",
-  color: "",
-};
+const defaultValues: DeviceFormValues =
+  {
+    clientId: 0,
+    deviceType: "phone",
+    brand: "",
+    model: "",
+    imei1: "",
+    imei2: "",
+    serial: "",
+    color: "",
+  };
 
-const deviceTypes: Array<{
-  value: DeviceType;
-  label: string;
-}> = [
-  {
-    value: "phone",
-    label: "Phone",
-  },
-  {
-    value: "tablet",
-    label: "Tablet",
-  },
-  {
-    value: "laptop",
-    label: "Laptop",
-  },
-  {
-    value: "smartwatch",
-    label: "Smartwatch",
-  },
-  {
-    value: "other",
-    label: "Other",
-  },
-];
+const deviceTypes: DeviceType[] =
+  [
+    "phone",
+    "tablet",
+    "laptop",
+    "smartwatch",
+    "other",
+  ];
 
-const formFieldNames = new Set<
-  keyof DeviceFormValues
->([
-  "clientId",
-  "deviceType",
-  "brand",
-  "model",
-  "imei1",
-  "imei2",
-  "serial",
-  "color",
-]);
+const formFieldNames =
+  new Set<
+    keyof DeviceFormValues
+  >([
+    "clientId",
+    "deviceType",
+    "brand",
+    "model",
+    "imei1",
+    "imei2",
+    "serial",
+    "color",
+  ]);
 
 const toNullableText = (
   value: string
 ): string | null => {
-  const normalized = value.trim();
+  const normalized =
+    value.trim();
 
   return normalized || null;
-};
-
-const validateImei = (
-  value: string
-): true | string => {
-  const trimmed = value.trim();
-
-  if (!trimmed) {
-    return true;
-  }
-
-  if (!/^[0-9\s-]+$/.test(trimmed)) {
-    return "IMEI may contain only digits, spaces and hyphens";
-  }
-
-  const digits = trimmed.replace(
-    /[^0-9]/g,
-    ""
-  );
-
-  if (digits.length !== 15) {
-    return "IMEI must contain exactly 15 digits";
-  }
-
-  return true;
 };
 
 const DeviceForm = ({
@@ -156,10 +122,16 @@ const DeviceForm = ({
   device,
   clients,
 }: DeviceFormProps) => {
+  const {
+    t,
+  } = useTranslation();
+
   const [
     serverError,
     setServerError,
-  ] = useState<string | null>(null);
+  ] = useState<
+    string | null
+  >(null);
 
   const [
     submitting,
@@ -184,14 +156,18 @@ const DeviceForm = ({
 
     if (device) {
       reset({
-        clientId: device.clientId,
+        clientId:
+          device.clientId,
 
         deviceType:
           device.deviceType ??
           "phone",
 
-        brand: device.brand ?? "",
-        model: device.model ?? "",
+        brand:
+          device.brand ?? "",
+
+        model:
+          device.model ?? "",
 
         imei1:
           device.imei1 ?? "",
@@ -210,141 +186,229 @@ const DeviceForm = ({
     }
 
     reset(defaultValues);
-  }, [device, open, reset]);
+  }, [
+    device,
+    open,
+    reset,
+  ]);
 
-  const applyServerFieldErrors = (
-    details: ApiErrorResponse["details"]
-  ): void => {
-    if (!details) {
-      return;
-    }
+  const applyServerFieldErrors =
+    (
+      details:
+        ApiErrorResponse["details"]
+    ): void => {
+      if (!details) {
+        return;
+      }
 
-    if (Array.isArray(details)) {
-      for (const detail of details) {
+      if (
+        Array.isArray(details)
+      ) {
+        for (
+          const detail of details
+        ) {
+          if (
+            detail.field &&
+            formFieldNames.has(
+              detail.field as keyof DeviceFormValues
+            )
+          ) {
+            setError(
+              detail.field as keyof DeviceFormValues,
+              {
+                type: "server",
+                message:
+                  detail.message,
+              }
+            );
+          }
+        }
+
+        return;
+      }
+
+      for (
+        const [
+          field,
+          message,
+        ] of Object.entries(
+          details
+        )
+      ) {
         if (
-          detail.field &&
           formFieldNames.has(
-            detail.field as keyof DeviceFormValues
+            field as keyof DeviceFormValues
           )
         ) {
           setError(
-            detail.field as keyof DeviceFormValues,
+            field as keyof DeviceFormValues,
             {
               type: "server",
-              message: detail.message,
+              message,
             }
           );
         }
       }
-
-      return;
-    }
-
-    for (const [field, message] of Object.entries(
-      details
-    )) {
-      if (
-        formFieldNames.has(
-          field as keyof DeviceFormValues
-        )
-      ) {
-        setError(
-          field as keyof DeviceFormValues,
-          {
-            type: "server",
-            message,
-          }
-        );
-      }
-    }
-  };
-
-  const submitHandler = async (
-    values: DeviceFormValues
-  ): Promise<void> => {
-    const payload: DevicePayload = {
-      clientId: values.clientId,
-      deviceType: values.deviceType,
-      brand: values.brand.trim(),
-      model: values.model.trim(),
-
-      imei1: toNullableText(
-        values.imei1
-      ),
-
-      imei2: toNullableText(
-        values.imei2
-      ),
-
-      serial: toNullableText(
-        values.serial
-      ),
-
-      color: toNullableText(
-        values.color
-      ),
     };
 
-    try {
-      setSubmitting(true);
-      setServerError(null);
+  const validateImei = (
+    value: string
+  ): true | string => {
+    const trimmed =
+      value.trim();
 
-      await onSubmit(payload);
+    if (!trimmed) {
+      return true;
+    }
+
+    if (
+      !/^[0-9\s-]+$/.test(
+        trimmed
+      )
+    ) {
+      return t(
+        "deviceForm.validation.imeiCharacters"
+      );
+    }
+
+    const digits =
+      trimmed.replace(
+        /[^0-9]/g,
+        ""
+      );
+
+    if (
+      digits.length !== 15
+    ) {
+      return t(
+        "deviceForm.validation.imeiLength"
+      );
+    }
+
+    return true;
+  };
+
+  const submitHandler =
+    async (
+      values: DeviceFormValues
+    ): Promise<void> => {
+      const payload: DevicePayload =
+        {
+          clientId:
+            values.clientId,
+
+          deviceType:
+            values.deviceType,
+
+          brand:
+            values.brand.trim(),
+
+          model:
+            values.model.trim(),
+
+          imei1:
+            toNullableText(
+              values.imei1
+            ),
+
+          imei2:
+            toNullableText(
+              values.imei2
+            ),
+
+          serial:
+            toNullableText(
+              values.serial
+            ),
+
+          color:
+            toNullableText(
+              values.color
+            ),
+        };
+
+      try {
+        setSubmitting(true);
+        setServerError(null);
+
+        await onSubmit(
+          payload
+        );
+
+        reset(
+          defaultValues
+        );
+      } catch (
+        error: unknown
+      ) {
+        console.error(
+          "Device form submission failed:",
+          error
+        );
+
+        const axiosError =
+          error as AxiosError<ApiErrorResponse>;
+
+        const response =
+          axiosError.response
+            ?.data;
+
+        applyServerFieldErrors(
+          response?.details
+        );
+
+        const existingDeviceText =
+          response?.existingDeviceId
+            ? ` ${t(
+                "deviceForm.errors.existingDevice",
+                {
+                  id:
+                    response.existingDeviceId,
+                }
+              )}`
+            : "";
+
+        setServerError(
+          `${
+            response?.error ??
+            t(
+              "deviceForm.errors.save"
+            )
+          }${existingDeviceText}`
+        );
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+  const handleCancel =
+    (): void => {
+      if (submitting) {
+        return;
+      }
 
       reset(defaultValues);
-    } catch (error: unknown) {
-      console.error(
-        "Device form submission failed:",
-        error
-      );
-
-      const axiosError =
-        error as AxiosError<ApiErrorResponse>;
-
-      const response =
-        axiosError.response?.data;
-
-      applyServerFieldErrors(
-        response?.details
-      );
-
-      const existingDeviceText =
-        response?.existingDeviceId
-          ? ` Existing device ID: ${response.existingDeviceId}.`
-          : "";
-
-      setServerError(
-        `${
-          response?.error ??
-          "Error saving device. Please try again."
-        }${existingDeviceText}`
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleCancel = (): void => {
-    if (submitting) {
-      return;
-    }
-
-    reset(defaultValues);
-    setServerError(null);
-    onClose();
-  };
+      setServerError(null);
+      onClose();
+    };
 
   return (
     <Dialog
       open={open}
-      onClose={handleCancel}
+      onClose={
+        handleCancel
+      }
       maxWidth="md"
       fullWidth
     >
       <DialogTitle>
         {device
-          ? "Edit Device"
-          : "Add New Device"}
+          ? t(
+              "deviceForm.titles.edit"
+            )
+          : t(
+              "deviceForm.titles.add"
+            )}
       </DialogTitle>
 
       <form
@@ -357,7 +421,9 @@ const DeviceForm = ({
           {serverError && (
             <Alert
               severity="error"
-              sx={{ mb: 2 }}
+              sx={{
+                mb: 2,
+              }}
             >
               {serverError}
             </Alert>
@@ -367,14 +433,22 @@ const DeviceForm = ({
             container
             spacing={2}
           >
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
               <Controller
                 name="clientId"
                 control={control}
                 rules={{
-                  validate: (value) =>
+                  validate: (
+                    value
+                  ) =>
                     value > 0 ||
-                    "Client is required",
+                    t(
+                      "deviceForm.validation.clientRequired"
+                    ),
                 }}
                 render={({
                   field,
@@ -387,25 +461,49 @@ const DeviceForm = ({
                     )}
                   >
                     <InputLabel id="device-client-label">
-                      Client
+                      {t(
+                        "deviceForm.fields.client"
+                      )}
                     </InputLabel>
 
                     <Select
                       labelId="device-client-label"
-                      label="Client"
+                      label={t(
+                        "deviceForm.fields.client"
+                      )}
                       value={
-                        field.value || ""
+                        field.value ||
+                        ""
                       }
-                      onBlur={field.onBlur}
-                      inputRef={field.ref}
-                      onChange={(event) => {
+                      onBlur={
+                        field.onBlur
+                      }
+                      inputRef={
+                        field.ref
+                      }
+                      onChange={(
+                        event
+                      ) => {
                         field.onChange(
                           Number(
-                            event.target.value
+                            event
+                              .target
+                              .value
                           )
                         );
                       }}
                     >
+                      {clients.length ===
+                        0 && (
+                        <MenuItem
+                          disabled
+                        >
+                          {t(
+                            "deviceForm.helpers.noClients"
+                          )}
+                        </MenuItem>
+                      )}
+
                       {clients
                         .filter(
                           (
@@ -416,20 +514,35 @@ const DeviceForm = ({
                             client.id !==
                             undefined
                         )
-                        .map((client) => (
-                          <MenuItem
-                            key={client.id}
-                            value={client.id}
-                          >
-                            {client.name} (
-                            {client.phone})
-                          </MenuItem>
-                        ))}
+                        .map(
+                          (
+                            client
+                          ) => (
+                            <MenuItem
+                              key={
+                                client.id
+                              }
+                              value={
+                                client.id
+                              }
+                            >
+                              {
+                                client.name
+                              }{" "}
+                              (
+                              {
+                                client.phone
+                              }
+                              )
+                            </MenuItem>
+                          )
+                        )}
                     </Select>
 
                     <FormHelperText>
                       {
-                        fieldState.error
+                        fieldState
+                          .error
                           ?.message
                       }
                     </FormHelperText>
@@ -448,8 +561,9 @@ const DeviceForm = ({
                 name="deviceType"
                 control={control}
                 rules={{
-                  required:
-                    "Device type is required",
+                  required: t(
+                    "deviceForm.validation.deviceTypeRequired"
+                  ),
                 }}
                 render={({
                   field,
@@ -462,25 +576,29 @@ const DeviceForm = ({
                     )}
                   >
                     <InputLabel id="device-type-label">
-                      Device type
+                      {t(
+                        "deviceForm.fields.deviceType"
+                      )}
                     </InputLabel>
 
                     <Select
                       {...field}
                       labelId="device-type-label"
-                      label="Device type"
+                      label={t(
+                        "deviceForm.fields.deviceType"
+                      )}
                     >
                       {deviceTypes.map(
-                        (type) => (
+                        (
+                          type
+                        ) => (
                           <MenuItem
-                            key={
-                              type.value
-                            }
-                            value={
-                              type.value
-                            }
+                            key={type}
+                            value={type}
                           >
-                            {type.label}
+                            {t(
+                              `deviceForm.deviceTypes.${type}`
+                            )}
                           </MenuItem>
                         )
                       )}
@@ -488,7 +606,8 @@ const DeviceForm = ({
 
                     <FormHelperText>
                       {
-                        fieldState.error
+                        fieldState
+                          .error
                           ?.message
                       }
                     </FormHelperText>
@@ -509,8 +628,9 @@ const DeviceForm = ({
                 rules={{
                   maxLength: {
                     value: 80,
-                    message:
-                      "Color cannot exceed 80 characters",
+                    message: t(
+                      "deviceForm.validation.colorMax"
+                    ),
                   },
                 }}
                 render={({
@@ -519,15 +639,20 @@ const DeviceForm = ({
                 }) => (
                   <TextField
                     {...field}
-                    label="Color"
+                    label={t(
+                      "deviceForm.fields.color"
+                    )}
                     fullWidth
                     error={Boolean(
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error
+                      fieldState
+                        .error
                         ?.message ??
-                      "Optional"
+                      t(
+                        "deviceForm.helpers.optional"
+                      )
                     }
                   />
                 )}
@@ -544,13 +669,15 @@ const DeviceForm = ({
                 name="brand"
                 control={control}
                 rules={{
-                  required:
-                    "Brand is required",
+                  required: t(
+                    "deviceForm.validation.brandRequired"
+                  ),
 
                   maxLength: {
                     value: 120,
-                    message:
-                      "Brand cannot exceed 120 characters",
+                    message: t(
+                      "deviceForm.validation.brandMax"
+                    ),
                   },
                 }}
                 render={({
@@ -559,13 +686,16 @@ const DeviceForm = ({
                 }) => (
                   <TextField
                     {...field}
-                    label="Brand"
+                    label={t(
+                      "deviceForm.fields.brand"
+                    )}
                     fullWidth
                     error={Boolean(
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error
+                      fieldState
+                        .error
                         ?.message
                     }
                   />
@@ -583,13 +713,15 @@ const DeviceForm = ({
                 name="model"
                 control={control}
                 rules={{
-                  required:
-                    "Model is required",
+                  required: t(
+                    "deviceForm.validation.modelRequired"
+                  ),
 
                   maxLength: {
                     value: 120,
-                    message:
-                      "Model cannot exceed 120 characters",
+                    message: t(
+                      "deviceForm.validation.modelMax"
+                    ),
                   },
                 }}
                 render={({
@@ -598,13 +730,16 @@ const DeviceForm = ({
                 }) => (
                   <TextField
                     {...field}
-                    label="Model"
+                    label={t(
+                      "deviceForm.fields.model"
+                    )}
                     fullWidth
                     error={Boolean(
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error
+                      fieldState
+                        .error
                         ?.message
                     }
                   />
@@ -622,7 +757,8 @@ const DeviceForm = ({
                 name="imei1"
                 control={control}
                 rules={{
-                  validate: validateImei,
+                  validate:
+                    validateImei,
                 }}
                 render={({
                   field,
@@ -630,7 +766,9 @@ const DeviceForm = ({
                 }) => (
                   <TextField
                     {...field}
-                    label="IMEI 1"
+                    label={t(
+                      "deviceForm.fields.imei1"
+                    )}
                     fullWidth
                     inputMode="numeric"
                     placeholder="356789012345678"
@@ -638,9 +776,12 @@ const DeviceForm = ({
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error
+                      fieldState
+                        .error
                         ?.message ??
-                      "Optional, 15 digits"
+                      t(
+                        "deviceForm.helpers.imei"
+                      )
                     }
                   />
                 )}
@@ -657,7 +798,8 @@ const DeviceForm = ({
                 name="imei2"
                 control={control}
                 rules={{
-                  validate: validateImei,
+                  validate:
+                    validateImei,
                 }}
                 render={({
                   field,
@@ -665,7 +807,9 @@ const DeviceForm = ({
                 }) => (
                   <TextField
                     {...field}
-                    label="IMEI 2"
+                    label={t(
+                      "deviceForm.fields.imei2"
+                    )}
                     fullWidth
                     inputMode="numeric"
                     placeholder="356789012345686"
@@ -673,24 +817,32 @@ const DeviceForm = ({
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error
+                      fieldState
+                        .error
                         ?.message ??
-                      "Optional, 15 digits"
+                      t(
+                        "deviceForm.helpers.imei"
+                      )
                     }
                   />
                 )}
               />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
               <Controller
                 name="serial"
                 control={control}
                 rules={{
                   maxLength: {
                     value: 100,
-                    message:
-                      "Serial number cannot exceed 100 characters",
+                    message: t(
+                      "deviceForm.validation.serialMax"
+                    ),
                   },
                 }}
                 render={({
@@ -699,15 +851,20 @@ const DeviceForm = ({
                 }) => (
                   <TextField
                     {...field}
-                    label="Serial number"
+                    label={t(
+                      "deviceForm.fields.serial"
+                    )}
                     fullWidth
                     error={Boolean(
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error
+                      fieldState
+                        .error
                         ?.message ??
-                      "Optional"
+                      t(
+                        "deviceForm.helpers.optional"
+                      )
                     }
                   />
                 )}
@@ -718,16 +875,24 @@ const DeviceForm = ({
 
         <DialogActions>
           <Button
-            onClick={handleCancel}
-            disabled={submitting}
+            onClick={
+              handleCancel
+            }
+            disabled={
+              submitting
+            }
           >
-            Cancel
+            {t(
+              "deviceForm.actions.cancel"
+            )}
           </Button>
 
           <Button
             type="submit"
             variant="contained"
-            disabled={submitting}
+            disabled={
+              submitting
+            }
             startIcon={
               submitting ? (
                 <CircularProgress
@@ -737,8 +902,12 @@ const DeviceForm = ({
             }
           >
             {submitting
-              ? "Saving..."
-              : "Save"}
+              ? t(
+                  "deviceForm.actions.saving"
+                )
+              : t(
+                  "deviceForm.actions.save"
+                )}
           </Button>
         </DialogActions>
       </form>

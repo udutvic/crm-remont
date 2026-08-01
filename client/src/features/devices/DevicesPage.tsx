@@ -1,108 +1,248 @@
-import React, { useState, useEffect } from "react";
-import { Container } from "@mui/material";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import {
+  Alert,
+  Container,
+  Stack,
+} from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
+
+import PageHeader from "common/components/PageHeader";
+import ConfirmDeleteDialog from "components/ui/ConfirmDeleteDialog";
+import LoadingIndicator from "components/ui/LoadingIndicator";
+import {
+  createDevice,
+  deleteDevice,
+  getClients,
+  getDevices,
+  updateDevice,
+} from "index";
+import useCrud from "hooks/useCrud";
+import useSorting from "hooks/useSorting";
 import {
   Client,
   Device,
   DevicePayload,
 } from "types";
-import { getDevices, createDevice, updateDevice, deleteDevice, getClients } from "index";
-import LoadingIndicator from "components/ui/LoadingIndicator";
-import ConfirmDeleteDialog from "components/ui/ConfirmDeleteDialog";
-import useCrud from "hooks/useCrud";
-import useSorting from "hooks/useSorting";
-import PageHeader from "common/components/PageHeader";
-import DeviceList from "./components/DeviceList";
+
 import DeviceForm from "./components/DeviceForm";
-const DevicesPage: React.FC = () => {
-  const [clients, setClients] = useState<Client[]>([]);
-  const { handleRequestSort, sortItems } = useSorting<Device>({
-    defaultOrderBy: "createdAt"
+import DeviceList from "./components/DeviceList";
+
+const DevicesPage = () => {
+  const {
+    t,
+  } = useTranslation();
+
+  const [
+    clients,
+    setClients,
+  ] = useState<Client[]>([]);
+
+  const [
+    clientLoadError,
+    setClientLoadError,
+  ] = useState(false);
+
+  const {
+    handleRequestSort,
+    sortItems,
+  } = useSorting<Device>({
+    defaultOrderBy:
+      "createdAt",
   });
+
   const {
     items: devices,
-    selectedItem: selectedDevice,
+    selectedItem:
+      selectedDevice,
     openForm,
     loading,
+    error: loadError,
     deleteDialogOpen,
     deleteDialogMessage,
     isDeleteEnabled,
-    handleAdd: handleAddDevice,
-    handleEdit: handleEditDevice,
-    handleDelete: handleDeleteDevice,
-    confirmDelete: confirmDeleteDevice,
+    handleAdd:
+      handleAddDevice,
+    handleEdit:
+      handleEditDevice,
+    handleDelete:
+      handleDeleteDevice,
+    confirmDelete:
+      confirmDeleteDevice,
     handleSubmit,
     handleCloseForm,
     handleCloseDeleteDialog,
-  } = useCrud<Device, DevicePayload>({
+  } = useCrud<
+    Device,
+    DevicePayload
+  >({
     getAll: getDevices,
     create: createDevice,
     update: updateDevice,
     remove: deleteDevice,
   });
-  useEffect(() => {
-    const loadClients = async () => {
-      try {
-        const clientsData = await getClients();       
-        setClients(clientsData);
-      } catch (error) {
-        console.error("Error loading clients:", error);
-      }
-    };
-    loadClients();
-  }, []);
-  useEffect(() => {
-    if (openForm && clients.length === 0) {
-      const loadClientsForForm = async () => {
+
+  const loadClients =
+    useCallback(
+      async (): Promise<void> => {
         try {
-          const clientsData = await getClients();       
-          setClients(clientsData);
-        } catch (error) {
-          console.error("Error loading clients for form:", error);
+          const clientsData =
+            await getClients();
+
+          setClients(
+            clientsData
+          );
+
+          setClientLoadError(
+            false
+          );
+        } catch (
+          error: unknown
+        ) {
+          console.error(
+            "Error loading clients:",
+            error
+          );
+
+          setClientLoadError(
+            true
+          );
         }
-      };
-      loadClientsForForm();
+      },
+      []
+    );
+
+  useEffect(() => {
+    void loadClients();
+  }, [loadClients]);
+
+  useEffect(() => {
+    if (
+      openForm &&
+      clients.length === 0
+    ) {
+      void loadClients();
     }
-  }, [openForm, clients.length]);
-  const sortedDevices = sortItems(devices);
+  }, [
+    clients.length,
+    loadClients,
+    openForm,
+  ]);
+
+  const sortedDevices =
+    sortItems(devices);
+
   if (loading) {
-    return <LoadingIndicator message="Loading data..." />;
+    return (
+      <LoadingIndicator
+        message={t(
+          "devicesPage.loading"
+        )}
+      />
+    );
   }
+
   return (
     <Container
       maxWidth="lg"
-      sx={{ 
-        mt: { xs: 2, sm: 4 }, 
-        mb: { xs: 2, sm: 4 },
-        px: { xs: 1, sm: 2, md: 3 }
+      sx={{
+        mt: {
+          xs: 2,
+          sm: 4,
+        },
+        mb: {
+          xs: 2,
+          sm: 4,
+        },
+        px: {
+          xs: 1,
+          sm: 2,
+          md: 3,
+        },
       }}
     >
-      <PageHeader 
-        title="Devices" 
-        onAddClick={handleAddDevice} 
-        addButtonText="Add Device" 
+      <PageHeader
+        title={t(
+          "devicesPage.title"
+        )}
+        onAddClick={
+          handleAddDevice
+        }
+        addButtonText={t(
+          "devicesPage.addDevice"
+        )}
       />
-      <DeviceList 
-        devices={sortedDevices}
-        clients={clients}
-        onEdit={handleEditDevice}
-        onDelete={handleDeleteDevice}
-        onSort={handleRequestSort}
-      />
+
+      <Stack spacing={2}>
+        {loadError && (
+          <Alert severity="error">
+            {t(
+              "devicesPage.errors.loadFailed"
+            )}
+          </Alert>
+        )}
+
+        {clientLoadError && (
+          <Alert severity="error">
+            {t(
+              "devicesPage.errors.clientsLoadFailed"
+            )}
+          </Alert>
+        )}
+
+        <DeviceList
+          devices={
+            sortedDevices
+          }
+          clients={clients}
+          onEdit={
+            handleEditDevice
+          }
+          onDelete={
+            handleDeleteDevice
+          }
+          onSort={
+            handleRequestSort
+          }
+        />
+      </Stack>
+
       <DeviceForm
         open={openForm}
-        device={selectedDevice}
+        device={
+          selectedDevice
+        }
         clients={clients}
         onSubmit={handleSubmit}
-        onClose={handleCloseForm}
+        onClose={
+          handleCloseForm
+        }
       />
+
       <ConfirmDeleteDialog
-        open={deleteDialogOpen}
-        message={deleteDialogMessage}
-        onConfirm={confirmDeleteDevice}
-        onClose={handleCloseDeleteDialog}
-        isConfirmEnabled={isDeleteEnabled}
+        open={
+          deleteDialogOpen
+        }
+        message={
+          deleteDialogMessage
+        }
+        onConfirm={
+          confirmDeleteDevice
+        }
+        onClose={
+          handleCloseDeleteDialog
+        }
+        isConfirmEnabled={
+          isDeleteEnabled
+        }
       />
     </Container>
   );
 };
+
 export default DevicesPage;

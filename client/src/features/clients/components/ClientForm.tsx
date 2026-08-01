@@ -1,5 +1,10 @@
-import { useEffect, useState } from "react";
-import { AxiosError } from "axios";
+import {
+  useEffect,
+  useState,
+} from "react";
+import {
+  AxiosError,
+} from "axios";
 import {
   Alert,
   Button,
@@ -16,6 +21,9 @@ import {
   Controller,
   useForm,
 } from "react-hook-form";
+import {
+  useTranslation,
+} from "react-i18next";
 
 import {
   Client,
@@ -63,18 +71,23 @@ interface ApiErrorResponse {
 }
 
 interface LookupFeedback {
-  severity: "info" | "error";
-  message: string;
+  severity:
+    | "info"
+    | "error";
+
+  translationKey?: string;
+  message?: string;
 }
 
-const defaultValues: ClientFormValues = {
-  name: "",
-  phone: "",
-  secondaryPhone: "",
-  email: "",
-  address: "",
-  note: "",
-};
+const defaultValues: ClientFormValues =
+  {
+    name: "",
+    phone: "",
+    secondaryPhone: "",
+    email: "",
+    address: "",
+    note: "",
+  };
 
 const phonePattern =
   /^[0-9+\-\s()]{8,24}$/;
@@ -85,23 +98,26 @@ const emailPattern =
 const toNullableText = (
   value: string
 ): string | null => {
-  const normalized = value.trim();
+  const normalized =
+    value.trim();
 
-  return normalized.length > 0
+  return normalized.length >
+    0
     ? normalized
     : null;
 };
 
-const formFieldNames = new Set<
-  keyof ClientFormValues
->([
-  "name",
-  "phone",
-  "secondaryPhone",
-  "email",
-  "address",
-  "note",
-]);
+const formFieldNames =
+  new Set<
+    keyof ClientFormValues
+  >([
+    "name",
+    "phone",
+    "secondaryPhone",
+    "email",
+    "address",
+    "note",
+  ]);
 
 const ClientForm = ({
   open,
@@ -111,33 +127,40 @@ const ClientForm = ({
   onClientFound,
   client,
 }: ClientFormProps) => {
+  const {
+    t,
+  } = useTranslation();
+
   const [
     serverError,
     setServerError,
-  ] = useState<string | null>(null);
+  ] = useState<
+    string | null
+  >(null);
 
   const [
-  lookupFeedback,
-  setLookupFeedback,
-] = useState<LookupFeedback | null>(
-  null
-);
+    lookupFeedback,
+    setLookupFeedback,
+  ] =
+    useState<LookupFeedback | null>(
+      null
+    );
 
-const [
-  lookupLoading,
-  setLookupLoading,
-] = useState(false);
+  const [
+    lookupLoading,
+    setLookupLoading,
+  ] = useState(false);
 
   const {
-  control,
-  getValues,
-  handleSubmit,
-  reset,
-  setError,
-  trigger,
-} = useForm<ClientFormValues>({
-  defaultValues,
-});
+    control,
+    getValues,
+    handleSubmit,
+    reset,
+    setError,
+    trigger,
+  } = useForm<ClientFormValues>({
+    defaultValues,
+  });
 
   useEffect(() => {
     if (!open) {
@@ -149,194 +172,274 @@ const [
 
     if (client) {
       reset({
-        name: client.name ?? "",
-        phone: client.phone ?? "",
+        name:
+          client.name ?? "",
+
+        phone:
+          client.phone ?? "",
+
         secondaryPhone:
-          client.secondaryPhone ?? "",
-        email: client.email ?? "",
-        address: client.address ?? "",
-        note: client.note ?? "",
+          client.secondaryPhone ??
+          "",
+
+        email:
+          client.email ?? "",
+
+        address:
+          client.address ?? "",
+
+        note:
+          client.note ?? "",
       });
 
       return;
     }
 
     reset(defaultValues);
-  }, [client, open, reset]);
+  }, [
+    client,
+    open,
+    reset,
+  ]);
 
-  const applyServerFieldErrors = (
-    details: ApiErrorResponse["details"]
-  ): void => {
-    if (!details) {
-      return;
-    }
+  const applyServerFieldErrors =
+    (
+      details:
+        ApiErrorResponse["details"]
+    ): void => {
+      if (!details) {
+        return;
+      }
 
-    if (Array.isArray(details)) {
-      for (const detail of details) {
-        if (
-          detail.field &&
-          formFieldNames.has(
-            detail.field as keyof ClientFormValues
-          )
+      if (
+        Array.isArray(details)
+      ) {
+        for (
+          const detail of details
         ) {
-          setError(
-            detail.field as keyof ClientFormValues,
-            {
-              type: "server",
-              message: detail.message,
-            }
-          );
-        }
-      }
-
-      return;
-    }
-
-    for (const [field, message] of Object.entries(
-      details
-    )) {
-      if (
-        formFieldNames.has(
-          field as keyof ClientFormValues
-        )
-      ) {
-        setError(
-          field as keyof ClientFormValues,
-          {
-            type: "server",
-            message,
+          if (
+            detail.field &&
+            formFieldNames.has(
+              detail.field as keyof ClientFormValues
+            )
+          ) {
+            setError(
+              detail.field as keyof ClientFormValues,
+              {
+                type: "server",
+                message:
+                  detail.message,
+              }
+            );
           }
-        );
-      }
-    }
-  };
-
-  const handlePhoneLookup =
-  async (): Promise<void> => {
-    setServerError(null);
-    setLookupFeedback(null);
-
-    const isPhoneValid =
-      await trigger("phone");
-
-    if (!isPhoneValid) {
-      return;
-    }
-
-    const phone = getValues(
-      "phone"
-    ).trim();
-
-    setLookupLoading(true);
-
-    try {
-      const result =
-        await onLookupByPhone(phone);
-
-      if (
-        result.found &&
-        result.client
-      ) {
-        onClientFound(result.client);
+        }
 
         return;
       }
 
-      setLookupFeedback({
-        severity: "info",
-        message:
-          "No existing client was found. Complete the form to create a new client.",
-      });
-    } catch (error: unknown) {
-      console.error(
-        "Client phone lookup failed:",
-        error
-      );
-
-      const axiosError =
-        error as AxiosError<ApiErrorResponse>;
-
-      setLookupFeedback({
-        severity: "error",
-        message:
-          axiosError.response?.data
-            ?.error ??
-          "Unable to search for the client.",
-      });
-    } finally {
-      setLookupLoading(false);
-    }
-  };
-
-  const submitHandler = async (
-    values: ClientFormValues
-  ): Promise<void> => {
-    const payload: ClientPayload = {
-      name: values.name.trim(),
-      phone: values.phone.trim(),
-
-      secondaryPhone: toNullableText(
-        values.secondaryPhone
-      ),
-
-      email: toNullableText(
-        values.email
-      )?.toLowerCase() ?? null,
-
-      address: toNullableText(
-        values.address
-      ),
-
-      note: toNullableText(values.note),
+      for (
+        const [
+          field,
+          message,
+        ] of Object.entries(
+          details
+        )
+      ) {
+        if (
+          formFieldNames.has(
+            field as keyof ClientFormValues
+          )
+        ) {
+          setError(
+            field as keyof ClientFormValues,
+            {
+              type: "server",
+              message,
+            }
+          );
+        }
+      }
     };
 
-    try {
+  const handlePhoneLookup =
+    async (): Promise<void> => {
       setServerError(null);
+      setLookupFeedback(null);
 
-      await onSubmit(payload);
+      const isPhoneValid =
+        await trigger(
+          "phone"
+        );
 
+      if (!isPhoneValid) {
+        return;
+      }
+
+      const phone =
+        getValues(
+          "phone"
+        ).trim();
+
+      setLookupLoading(true);
+
+      try {
+        const result =
+          await onLookupByPhone(
+            phone
+          );
+
+        if (
+          result.found &&
+          result.client
+        ) {
+          onClientFound(
+            result.client
+          );
+
+          return;
+        }
+
+        setLookupFeedback({
+          severity: "info",
+          translationKey:
+            "clientForm.lookup.notFound",
+        });
+      } catch (
+        error: unknown
+      ) {
+        console.error(
+          "Client phone lookup failed:",
+          error
+        );
+
+        const axiosError =
+          error as AxiosError<ApiErrorResponse>;
+
+        const apiMessage =
+          axiosError.response
+            ?.data?.error;
+
+        setLookupFeedback({
+          severity: "error",
+          message:
+            apiMessage,
+          translationKey:
+            apiMessage
+              ? undefined
+              : "clientForm.lookup.failed",
+        });
+      } finally {
+        setLookupLoading(false);
+      }
+    };
+
+  const submitHandler =
+    async (
+      values: ClientFormValues
+    ): Promise<void> => {
+      const payload: ClientPayload =
+        {
+          name:
+            values.name.trim(),
+
+          phone:
+            values.phone.trim(),
+
+          secondaryPhone:
+            toNullableText(
+              values.secondaryPhone
+            ),
+
+          email:
+            toNullableText(
+              values.email
+            )?.toLowerCase() ??
+            null,
+
+          address:
+            toNullableText(
+              values.address
+            ),
+
+          note:
+            toNullableText(
+              values.note
+            ),
+        };
+
+      try {
+        setServerError(null);
+
+        await onSubmit(
+          payload
+        );
+
+        reset(
+          defaultValues
+        );
+      } catch (
+        error: unknown
+      ) {
+        console.error(
+          "Client form submission failed:",
+          error
+        );
+
+        const axiosError =
+          error as AxiosError<ApiErrorResponse>;
+
+        const response =
+          axiosError.response
+            ?.data;
+
+        applyServerFieldErrors(
+          response?.details
+        );
+
+        setServerError(
+          response?.error ??
+            t(
+              "clientForm.errors.save"
+            )
+        );
+      }
+    };
+
+  const handleCancel =
+    (): void => {
       reset(defaultValues);
-    } catch (error: unknown) {
-      console.error(
-        "Client form submission failed:",
-        error
-      );
+      setServerError(null);
+      setLookupFeedback(null);
+      onClose();
+    };
 
-      const axiosError =
-        error as AxiosError<ApiErrorResponse>;
-
-      const response =
-        axiosError.response?.data;
-
-      applyServerFieldErrors(
-        response?.details
-      );
-
-      setServerError(
-        response?.error ??
-          "Error saving client. Please try again."
-      );
-    }
-  };
-
-const handleCancel = (): void => {
-  reset(defaultValues);
-  setServerError(null);
-  setLookupFeedback(null);
-  onClose();
-};
+  const lookupMessage =
+    lookupFeedback
+      ? lookupFeedback.message ??
+        (lookupFeedback.translationKey
+          ? t(
+              lookupFeedback.translationKey
+            )
+          : "")
+      : "";
 
   return (
     <Dialog
       open={open}
-      onClose={handleCancel}
+      onClose={
+        handleCancel
+      }
       maxWidth="md"
       fullWidth
     >
       <DialogTitle>
         {client
-          ? "Edit Client"
-          : "Add New Client"}
+          ? t(
+              "clientForm.titles.edit"
+            )
+          : t(
+              "clientForm.titles.add"
+            )}
       </DialogTitle>
 
       <form
@@ -349,38 +452,49 @@ const handleCancel = (): void => {
           {serverError && (
             <Alert
               severity="error"
-              sx={{ mb: 2 }}
+              sx={{
+                mb: 2,
+              }}
             >
               {serverError}
             </Alert>
           )}
+
           {lookupFeedback && (
-  <Alert
-    severity={
-      lookupFeedback.severity
-    }
-    sx={{ mb: 2 }}
-  >
-    {lookupFeedback.message}
-  </Alert>
-)}
+            <Alert
+              severity={
+                lookupFeedback.severity
+              }
+              sx={{
+                mb: 2,
+              }}
+            >
+              {lookupMessage}
+            </Alert>
+          )}
 
           <Grid
             container
             spacing={2}
           >
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
               <Controller
                 name="name"
                 control={control}
                 rules={{
-                  required:
-                    "Full name is required",
+                  required: t(
+                    "clientForm.validation.nameRequired"
+                  ),
 
                   maxLength: {
                     value: 120,
-                    message:
-                      "Full name cannot exceed 120 characters",
+                    message: t(
+                      "clientForm.validation.nameMax"
+                    ),
                   },
                 }}
                 render={({
@@ -389,91 +503,113 @@ const handleCancel = (): void => {
                 }) => (
                   <TextField
                     {...field}
-                    label="Full name"
+                    label={t(
+                      "clientForm.fields.fullName"
+                    )}
                     fullWidth
                     autoComplete="name"
                     error={Boolean(
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error?.message
+                      fieldState
+                        .error
+                        ?.message
                     }
                   />
                 )}
               />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
-  <Controller
-    name="phone"
-    control={control}
-    rules={{
-      required:
-        "Phone is required",
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
+              <Controller
+                name="phone"
+                control={control}
+                rules={{
+                  required: t(
+                    "clientForm.validation.phoneRequired"
+                  ),
 
-      pattern: {
-        value: phonePattern,
-        message:
-          "Enter a valid phone number",
-      },
-    }}
-    render={({
-      field,
-      fieldState,
-    }) => (
-      <Stack
-        direction={{
-          xs: "column",
-          sm: "row",
-        }}
-        spacing={1}
-        alignItems="flex-start"
-      >
-        <TextField
-          {...field}
-          label="Phone"
-          fullWidth
-          type="tel"
-          autoComplete="tel"
-          placeholder="+420 777 123 456"
-          error={Boolean(
-            fieldState.error
-          )}
-          helperText={
-            fieldState.error?.message
-          }
-        />
+                  pattern: {
+                    value:
+                      phonePattern,
+                    message: t(
+                      "clientForm.validation.phoneInvalid"
+                    ),
+                  },
+                }}
+                render={({
+                  field,
+                  fieldState,
+                }) => (
+                  <Stack
+                    direction={{
+                      xs: "column",
+                      sm: "row",
+                    }}
+                    spacing={1}
+                    alignItems="flex-start"
+                  >
+                    <TextField
+                      {...field}
+                      label={t(
+                        "clientForm.fields.phone"
+                      )}
+                      fullWidth
+                      type="tel"
+                      autoComplete="tel"
+                      placeholder="+420 777 123 456"
+                      error={Boolean(
+                        fieldState.error
+                      )}
+                      helperText={
+                        fieldState
+                          .error
+                          ?.message
+                      }
+                    />
 
-        {!client && (
-          <Button
-            type="button"
-            variant="outlined"
-            onClick={() => {
-              void handlePhoneLookup();
-            }}
-            disabled={lookupLoading}
-            startIcon={
-              lookupLoading ? (
-                <CircularProgress
-                  size={18}
-                />
-              ) : undefined
-            }
-            sx={{
-              minWidth: 150,
-              minHeight: 56,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {lookupLoading
-              ? "Searching..."
-              : "Find client"}
-          </Button>
-        )}
-      </Stack>
-    )}
-  />
-</Grid>
+                    {!client && (
+                      <Button
+                        type="button"
+                        variant="outlined"
+                        onClick={() => {
+                          void handlePhoneLookup();
+                        }}
+                        disabled={
+                          lookupLoading
+                        }
+                        startIcon={
+                          lookupLoading ? (
+                            <CircularProgress
+                              size={18}
+                            />
+                          ) : undefined
+                        }
+                        sx={{
+                          minWidth: 150,
+                          minHeight: 56,
+                          whiteSpace:
+                            "nowrap",
+                        }}
+                      >
+                        {lookupLoading
+                          ? t(
+                              "clientForm.lookup.searching"
+                            )
+                          : t(
+                              "clientForm.lookup.findClient"
+                            )}
+                      </Button>
+                    )}
+                  </Stack>
+                )}
+              />
+            </Grid>
 
             <Grid
               size={{
@@ -485,10 +621,16 @@ const handleCancel = (): void => {
                 name="secondaryPhone"
                 control={control}
                 rules={{
-                  validate: (value) =>
+                  validate: (
+                    value
+                  ) =>
                     !value ||
-                    phonePattern.test(value) ||
-                    "Enter a valid secondary phone number",
+                    phonePattern.test(
+                      value
+                    ) ||
+                    t(
+                      "clientForm.validation.secondaryPhoneInvalid"
+                    ),
                 }}
                 render={({
                   field,
@@ -496,7 +638,9 @@ const handleCancel = (): void => {
                 }) => (
                   <TextField
                     {...field}
-                    label="Secondary phone"
+                    label={t(
+                      "clientForm.fields.secondaryPhone"
+                    )}
                     fullWidth
                     type="tel"
                     placeholder="+420 777 123 456"
@@ -504,30 +648,44 @@ const handleCancel = (): void => {
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error?.message ??
-                      "Optional"
+                      fieldState
+                        .error
+                        ?.message ??
+                      t(
+                        "clientForm.helpers.optional"
+                      )
                     }
                   />
                 )}
               />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 6,
+              }}
+            >
               <Controller
                 name="email"
                 control={control}
                 rules={{
-                  validate: (value) =>
+                  validate: (
+                    value
+                  ) =>
                     !value ||
                     emailPattern.test(
                       value.trim()
                     ) ||
-                    "Invalid email format",
+                    t(
+                      "clientForm.validation.emailInvalid"
+                    ),
 
                   maxLength: {
                     value: 160,
-                    message:
-                      "Email cannot exceed 160 characters",
+                    message: t(
+                      "clientForm.validation.emailMax"
+                    ),
                   },
                 }}
                 render={({
@@ -536,7 +694,9 @@ const handleCancel = (): void => {
                 }) => (
                   <TextField
                     {...field}
-                    label="Email"
+                    label={t(
+                      "clientForm.fields.email"
+                    )}
                     fullWidth
                     type="email"
                     autoComplete="email"
@@ -544,23 +704,32 @@ const handleCancel = (): void => {
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error?.message ??
-                      "Optional"
+                      fieldState
+                        .error
+                        ?.message ??
+                      t(
+                        "clientForm.helpers.optional"
+                      )
                     }
                   />
                 )}
               />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
               <Controller
                 name="address"
                 control={control}
                 rules={{
                   maxLength: {
                     value: 255,
-                    message:
-                      "Address cannot exceed 255 characters",
+                    message: t(
+                      "clientForm.validation.addressMax"
+                    ),
                   },
                 }}
                 render={({
@@ -569,30 +738,41 @@ const handleCancel = (): void => {
                 }) => (
                   <TextField
                     {...field}
-                    label="Address"
+                    label={t(
+                      "clientForm.fields.address"
+                    )}
                     fullWidth
                     autoComplete="street-address"
                     error={Boolean(
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error?.message ??
-                      "Optional"
+                      fieldState
+                        .error
+                        ?.message ??
+                      t(
+                        "clientForm.helpers.optional"
+                      )
                     }
                   />
                 )}
               />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid
+              size={{
+                xs: 12,
+              }}
+            >
               <Controller
                 name="note"
                 control={control}
                 rules={{
                   maxLength: {
                     value: 2000,
-                    message:
-                      "Note cannot exceed 2000 characters",
+                    message: t(
+                      "clientForm.validation.noteMax"
+                    ),
                   },
                 }}
                 render={({
@@ -601,7 +781,9 @@ const handleCancel = (): void => {
                 }) => (
                   <TextField
                     {...field}
-                    label="Client note"
+                    label={t(
+                      "clientForm.fields.note"
+                    )}
                     fullWidth
                     multiline
                     minRows={3}
@@ -610,8 +792,12 @@ const handleCancel = (): void => {
                       fieldState.error
                     )}
                     helperText={
-                      fieldState.error?.message ??
-                      "Internal information about the client"
+                      fieldState
+                        .error
+                        ?.message ??
+                      t(
+                        "clientForm.helpers.note"
+                      )
                     }
                   />
                 )}
@@ -621,15 +807,23 @@ const handleCancel = (): void => {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleCancel}>
-            Cancel
+          <Button
+            onClick={
+              handleCancel
+            }
+          >
+            {t(
+              "clientForm.actions.cancel"
+            )}
           </Button>
 
           <Button
             type="submit"
             variant="contained"
           >
-            Save
+            {t(
+              "clientForm.actions.save"
+            )}
           </Button>
         </DialogActions>
       </form>
