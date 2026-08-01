@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { Alert, Box, Button, Container, Stack, Typography } from "@mui/material";
-import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+import { ArrowBack as ArrowBackIcon, Edit as EditIcon } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router";
 import OrderDetailsContent from "./components/OrderDetailsContent";
-import { getOrder, markOrderDelivered, updateOrderStatus } from "index";
+import {
+  getClients,
+  getOrder,
+  markOrderDelivered,
+  updateOrder,
+  updateOrderStatus,
+} from "index";
 import LoadingIndicator from "components/ui/LoadingIndicator";
-import { Order, OrderStatus } from "types";
+import { Client, Order, OrderPayload, OrderStatus } from "types";
 import StatusSelect from "common/components/StatusSelect";
-
+import OrderForm from "./components/OrderForm";
 import OrderDeliveryControl from "./components/OrderDeliveryControl";
 
 interface ApiErrorResponse {
@@ -28,6 +34,11 @@ const OrderDetailsPage = () => {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+
+  const [editFormOpen, setEditFormOpen] = useState(false);
+
+  const [openingEditForm, setOpeningEditForm] = useState(false);
 
   const loadOrder = useCallback(async (): Promise<void> => {
     const orderId = Number(id);
@@ -109,6 +120,43 @@ const OrderDetailsPage = () => {
     [loadOrder],
   );
 
+  const handleOpenEditForm = useCallback(async (): Promise<void> => {
+    try {
+      setOpeningEditForm(true);
+      setActionError(null);
+
+      const clientsData = await getClients();
+
+      setClients(clientsData);
+      setEditFormOpen(true);
+    } catch (error: unknown) {
+      console.error("Error loading clients:", error);
+
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+
+      setActionError(
+        axiosError.response?.data?.error ?? "Failed to prepare the edit form.",
+      );
+    } finally {
+      setOpeningEditForm(false);
+    }
+  }, []);
+
+  const handleUpdateOrder = useCallback(
+    async (payload: OrderPayload): Promise<void> => {
+      if (!order?.id) {
+        throw new Error("Order ID is missing.");
+      }
+
+      await updateOrder(order.id, payload);
+
+      await loadOrder();
+
+      setEditFormOpen(false);
+    },
+    [loadOrder, order?.id],
+  );
+
   if (loading) {
     return <LoadingIndicator message="Loading order..." />;
   }
@@ -123,20 +171,61 @@ const OrderDetailsPage = () => {
         }}
       >
         <Stack spacing={2}>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => {
-              navigate("/orders");
+          <Stack
+            direction={{
+              xs: "column",
+              sm: "row",
+            }}
+            spacing={1}
+            justifyContent="space-between"
+            alignItems={{
+              xs: "stretch",
+              sm: "center",
             }}
             sx={{
-              alignSelf: "flex-start",
+              mb: 2,
             }}
           >
-            Back to Orders
-          </Button>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => {
+                navigate("/orders");
+              }}
+              sx={{
+                alignSelf: {
+                  xs: "flex-start",
+                  sm: "auto",
+                },
+              }}
+            >
+              Back to Orders
+            </Button>
+
+            <Button
+              variant="outlined"
+              startIcon={<EditIcon />}
+              disabled={openingEditForm}
+              onClick={() => {
+                void handleOpenEditForm();
+              }}
+            >
+              {openingEditForm ? "Loading..." : "Edit Order"}
+            </Button>
+          </Stack>
 
           <Alert severity="error">{errorMessage ?? "Order not found."}</Alert>
         </Stack>
+        {order && (
+  <OrderForm
+    open={editFormOpen}
+    order={order}
+    clients={clients}
+    onSubmit={handleUpdateOrder}
+    onClose={() => {
+      setEditFormOpen(false);
+    }}
+  />
+)}
       </Container>
     );
   }
