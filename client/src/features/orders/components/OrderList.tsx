@@ -11,6 +11,9 @@ interface OrderListProps {
   onDelete: (order: Order, nameField?: keyof Order) => void;
   onStatusChange: (id: number, status: OrderStatus) => void;
   onDeliver: (id: number) => Promise<void>;
+  onView: (
+  order: Order
+) => void;
   onSort: (field: keyof Order) => void;
   formatOrderId: (order: Order) => string;
 }
@@ -21,6 +24,7 @@ const OrderList: React.FC<OrderListProps> = ({
   onDelete,
   onStatusChange,
   onDeliver,
+  onView,
   onSort,
   formatOrderId,
 }) => {
@@ -71,6 +75,7 @@ const OrderList: React.FC<OrderListProps> = ({
             onDelete={onDelete}
             onStatusChange={onStatusChange}
             onDeliver={onDeliver}
+            onView={onView}
             formatOrderId={formatOrderId}
           />
         )}
@@ -83,6 +88,7 @@ const OrderList: React.FC<OrderListProps> = ({
             onDelete={onDelete}
             onStatusChange={onStatusChange}
             onDeliver={onDeliver}
+            onView={onView}
             formatOrderId={formatOrderId}
           />
         )}

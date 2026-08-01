@@ -23,7 +23,9 @@ import PageHeader from "common/components/PageHeader";
 import OrderList from "./components/OrderList";
 import OrderStatusFilter from "./components/OrderStatusFilter";
 import OrderForm from "./components/OrderForm";
+import { useNavigate } from "react-router";
 const OrdersPage: React.FC = () => {
+    const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [clients, setClients] = useState<Client[]>([]);
   const { handleRequestSort, sortItems } = useSorting<Order>({
@@ -87,6 +89,20 @@ const OrdersPage: React.FC = () => {
         await loadOrders();
       },
       [loadOrders]
+      );
+  
+    const handleViewOrder =
+    useCallback(
+      (order: Order): void => {
+        if (!order.id) {
+          return;
+        }
+
+        navigate(
+          `/orders/${order.id}`
+        );
+      },
+      [navigate]
     );
 
   const formatOrderId = useCallback((order: Order) => {
@@ -117,6 +133,7 @@ const OrdersPage: React.FC = () => {
       <OrderList 
         orders={sortedOrders}
         clients={clients}
+        onView={handleViewOrder}
         onEdit={handleEditOrder}
         onDelete={handleDeleteOrder}
         onStatusChange={handleChangeStatus}

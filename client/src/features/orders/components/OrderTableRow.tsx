@@ -1,16 +1,18 @@
 import React from "react";
 import { TableRow, TableCell, Box, IconButton, Typography } from "@mui/material";
-import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Visibility as VisibilityIcon,
+} from "@mui/icons-material";
 import { Order, Client, OrderStatus } from "types";
 import { formatDate, formatPrice } from "utils/formatters";
 import ClientInfo from "common/components/ClientInfo";
 import StatusSelect from "common/components/StatusSelect";
 import DeviceIcon from "../../../common/components/DeviceIcon";
 import OrderDeliveryControl from "./OrderDeliveryControl";
-import {
-  getOrderDisplayPrice,
-  getOrderReceivedDate,
-} from "../utils/orderDisplay";
+
+import { getOrderDisplayPrice, getOrderReceivedDate } from "../utils/orderDisplay";
 interface OrderTableRowProps {
   order: Order;
   clients: Client[];
@@ -18,6 +20,7 @@ interface OrderTableRowProps {
   onDelete: (order: Order, nameField?: keyof Order) => void;
   onStatusChange: (id: number, status: OrderStatus) => void;
   onDeliver: (id: number) => Promise<void>;
+  onView: (order: Order) => void;
   formatOrderId: (order: Order) => string;
 }
 const OrderTableRow: React.FC<OrderTableRowProps> = ({
@@ -27,13 +30,12 @@ const OrderTableRow: React.FC<OrderTableRowProps> = ({
   onDelete,
   onStatusChange,
   onDeliver,
-  formatOrderId,  
+  onView,
+  formatOrderId,
 }) => {
-    const displayPrice =
-    getOrderDisplayPrice(order);
+  const displayPrice = getOrderDisplayPrice(order);
 
-  const receivedDate =
-    getOrderReceivedDate(order);
+  const receivedDate = getOrderReceivedDate(order);
   return (
     <TableRow>
       <TableCell sx={{ pl: 2, py: 2 }}>{formatOrderId(order)}</TableCell>
@@ -57,7 +59,7 @@ const OrderTableRow: React.FC<OrderTableRowProps> = ({
           clients={clients}
         />
       </TableCell>
-           <TableCell
+      <TableCell
         sx={{
           display: {
             xs: "none",
@@ -65,20 +67,13 @@ const OrderTableRow: React.FC<OrderTableRowProps> = ({
           },
         }}
       >
-        <Typography variant="body2">
-          {formatPrice(
-            displayPrice.amount
-          )}
-        </Typography>
+        <Typography variant="body2">{formatPrice(displayPrice.amount)}</Typography>
 
         <Typography
           variant="caption"
           color="text.secondary"
         >
-          {displayPrice.type ===
-          "final"
-            ? "Final"
-            : "Estimated"}
+          {displayPrice.type === "final" ? "Final" : "Estimated"}
         </Typography>
       </TableCell>
       <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
@@ -91,7 +86,7 @@ const OrderTableRow: React.FC<OrderTableRowProps> = ({
           id={order.id || 0}
         />
       </TableCell>
-            <TableCell>
+      <TableCell>
         <OrderDeliveryControl
           order={order}
           onDeliver={onDeliver}
@@ -106,6 +101,20 @@ const OrderTableRow: React.FC<OrderTableRowProps> = ({
             gap: 1,
           }}
         >
+          <IconButton
+            onClick={() => {
+              onView(order);
+            }}
+            size="small"
+            disabled={!order.id}
+            aria-label="View order"
+          >
+            <VisibilityIcon
+              sx={{
+                color: "primary.main",
+              }}
+            />
+          </IconButton>
           <IconButton
             onClick={() => onEdit(order)}
             size="small"
