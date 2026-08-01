@@ -302,25 +302,42 @@ exports.lookupClientByPhone = async (
   req,
   res
 ) => {
-  const phone = normalizePhone(
-    req.query.phone
-  );
+  const rawPhone = String(
+    req.query.phone ?? ""
+  ).trim();
 
-  if (!phone) {
+  if (!rawPhone) {
     return res.status(400).json({
-      error: "Phone number is required.",
+      error:
+        "Phone query parameter is required.",
+    });
+  }
+
+  const phoneNormalized =
+    normalizePhone(rawPhone);
+
+  if (
+    phoneNormalized.length < 8 ||
+    phoneNormalized.length > 15
+  ) {
+    return res.status(400).json({
+      error:
+        "Phone must contain between 8 and 15 digits.",
     });
   }
 
   try {
     const client = await Client.findOne({
       where: {
-        phoneNormalized: phone,
+        phoneNormalized,
       },
       include: clientIncludes,
     });
 
-    return res.status(200).json(client);
+    return res.status(200).json({
+      found: Boolean(client),
+      client: client ?? null,
+    });
   } catch (error) {
     return handleClientError(
       res,
