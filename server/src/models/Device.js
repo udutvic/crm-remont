@@ -57,38 +57,6 @@ const normalizeDeviceValues = (
     );
   }
 
-  if (values.imei1 !== undefined) {
-    values.imei1 = normalizeOptionalText(
-      values.imei1
-    );
-
-    values.imei1Normalized =
-      normalizeDeviceIdentifier(
-        values.imei1
-      );
-  }
-
-  if (values.imei2 !== undefined) {
-    values.imei2 = normalizeOptionalText(
-      values.imei2
-    );
-
-    values.imei2Normalized =
-      normalizeDeviceIdentifier(
-        values.imei2
-      );
-  }
-
-  if (values.serial !== undefined) {
-    values.serial = normalizeOptionalText(
-      values.serial
-    );
-
-    values.serialNormalized =
-      normalizeDeviceIdentifier(
-        values.serial
-      );
-  }
 
   if (values.color !== undefined) {
     values.color = normalizeOptionalText(
@@ -97,17 +65,40 @@ const normalizeDeviceValues = (
   }
 };
 
-const includeBulkField = (
+const normalizeBulkIdentifier = (
   options,
-  fieldName
+  fieldName,
+  normalizedFieldName
 ) => {
+  const attributes =
+    options.attributes ?? {};
+
   if (
-    options.attributes[fieldName] !==
-      undefined &&
-    Array.isArray(options.fields) &&
-    !options.fields.includes(fieldName)
+    attributes[fieldName] ===
+    undefined
   ) {
-    options.fields.push(fieldName);
+    return;
+  }
+
+  const value =
+    normalizeOptionalText(
+      attributes[fieldName]
+    );
+
+  attributes[fieldName] = value;
+
+  attributes[normalizedFieldName] =
+    normalizeDeviceIdentifier(value);
+
+  if (
+    Array.isArray(options.fields) &&
+    !options.fields.includes(
+      normalizedFieldName
+    )
+  ) {
+    options.fields.push(
+      normalizedFieldName
+    );
   }
 };
 
@@ -159,9 +150,26 @@ const Device = sequelize.define(
     },
 
     imei1: {
-      type: DataTypes.STRING(32),
-      allowNull: true,
-    },
+  type: DataTypes.STRING(32),
+  allowNull: true,
+
+  set(value) {
+    const normalizedValue =
+      normalizeOptionalText(value);
+
+    this.setDataValue(
+      "imei1",
+      normalizedValue
+    );
+
+    this.setDataValue(
+      "imei1Normalized",
+      normalizeDeviceIdentifier(
+        normalizedValue
+      )
+    );
+  },
+},
 
     imei1Normalized: {
       type: DataTypes.STRING(32),
@@ -169,9 +177,26 @@ const Device = sequelize.define(
     },
 
     imei2: {
-      type: DataTypes.STRING(32),
-      allowNull: true,
-    },
+  type: DataTypes.STRING(32),
+  allowNull: true,
+
+  set(value) {
+    const normalizedValue =
+      normalizeOptionalText(value);
+
+    this.setDataValue(
+      "imei2",
+      normalizedValue
+    );
+
+    this.setDataValue(
+      "imei2Normalized",
+      normalizeDeviceIdentifier(
+        normalizedValue
+      )
+    );
+  },
+},
 
     imei2Normalized: {
       type: DataTypes.STRING(32),
@@ -179,9 +204,26 @@ const Device = sequelize.define(
     },
 
     serial: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+  type: DataTypes.STRING,
+  allowNull: true,
+
+  set(value) {
+    const normalizedValue =
+      normalizeOptionalText(value);
+
+    this.setDataValue(
+      "serial",
+      normalizedValue
+    );
+
+    this.setDataValue(
+      "serialNormalized",
+      normalizeDeviceIdentifier(
+        normalizedValue
+      )
+    );
+  },
+},
 
     serialNormalized: {
       type: DataTypes.STRING(100),
@@ -202,26 +244,29 @@ const Device = sequelize.define(
         normalizeDeviceValues(device);
       },
 
-      beforeBulkUpdate(options) {
-        normalizeDeviceValues(
-          options.attributes
-        );
+  beforeBulkUpdate(options) {
+  normalizeDeviceValues(
+    options.attributes
+  );
 
-        includeBulkField(
-          options,
-          "imei1Normalized"
-        );
+  normalizeBulkIdentifier(
+    options,
+    "imei1",
+    "imei1Normalized"
+  );
 
-        includeBulkField(
-          options,
-          "imei2Normalized"
-        );
+  normalizeBulkIdentifier(
+    options,
+    "imei2",
+    "imei2Normalized"
+  );
 
-        includeBulkField(
-          options,
-          "serialNormalized"
-        );
-      },
+  normalizeBulkIdentifier(
+    options,
+    "serial",
+    "serialNormalized"
+  );
+},
     },
   }
 );
