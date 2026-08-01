@@ -3,11 +3,13 @@ import { AxiosError } from "axios";
 import {
   Alert,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Grid,
+  Stack,
   TextField,
 } from "@mui/material";
 import {
@@ -17,15 +19,26 @@ import {
 
 import {
   Client,
+  ClientLookupResult,
   ClientPayload,
 } from "types";
 
 interface ClientFormProps {
   open: boolean;
   onClose: () => void;
+
   onSubmit: (
     data: ClientPayload
   ) => Promise<void>;
+
+  onLookupByPhone: (
+    phone: string
+  ) => Promise<ClientLookupResult>;
+
+  onClientFound: (
+    client: Client
+  ) => void;
+
   client?: Client;
 }
 
@@ -47,6 +60,11 @@ interface ApiErrorResponse {
         field?: string;
         message: string;
       }>;
+}
+
+interface LookupFeedback {
+  severity: "info" | "error";
+  message: string;
 }
 
 const defaultValues: ClientFormValues = {
@@ -89,6 +107,8 @@ const ClientForm = ({
   open,
   onClose,
   onSubmit,
+  onLookupByPhone,
+  onClientFound,
   client,
 }: ClientFormProps) => {
   const [
@@ -96,14 +116,28 @@ const ClientForm = ({
     setServerError,
   ] = useState<string | null>(null);
 
+  const [
+  lookupFeedback,
+  setLookupFeedback,
+] = useState<LookupFeedback | null>(
+  null
+);
+
+const [
+  lookupLoading,
+  setLookupLoading,
+] = useState(false);
+
   const {
-    control,
-    handleSubmit,
-    reset,
-    setError,
-  } = useForm<ClientFormValues>({
-    defaultValues,
-  });
+  control,
+  getValues,
+  handleSubmit,
+  reset,
+  setError,
+  trigger,
+} = useForm<ClientFormValues>({
+  defaultValues,
+});
 
   useEffect(() => {
     if (!open) {
@@ -111,6 +145,7 @@ const ClientForm = ({
     }
 
     setServerError(null);
+    setLookupFeedback(null);
 
     if (client) {
       reset({
@@ -176,6 +211,63 @@ const ClientForm = ({
     }
   };
 
+  const handlePhoneLookup =
+  async (): Promise<void> => {
+    setServerError(null);
+    setLookupFeedback(null);
+
+    const isPhoneValid =
+      await trigger("phone");
+
+    if (!isPhoneValid) {
+      return;
+    }
+
+    const phone = getValues(
+      "phone"
+    ).trim();
+
+    setLookupLoading(true);
+
+    try {
+      const result =
+        await onLookupByPhone(phone);
+
+      if (
+        result.found &&
+        result.client
+      ) {
+        onClientFound(result.client);
+
+        return;
+      }
+
+      setLookupFeedback({
+        severity: "info",
+        message:
+          "No existing client was found. Complete the form to create a new client.",
+      });
+    } catch (error: unknown) {
+      console.error(
+        "Client phone lookup failed:",
+        error
+      );
+
+      const axiosError =
+        error as AxiosError<ApiErrorResponse>;
+
+      setLookupFeedback({
+        severity: "error",
+        message:
+          axiosError.response?.data
+            ?.error ??
+          "Unable to search for the client.",
+      });
+    } finally {
+      setLookupLoading(false);
+    }
+  };
+
   const submitHandler = async (
     values: ClientFormValues
   ): Promise<void> => {
@@ -227,11 +319,12 @@ const ClientForm = ({
     }
   };
 
-  const handleCancel = (): void => {
-    reset(defaultValues);
-    setServerError(null);
-    onClose();
-  };
+const handleCancel = (): void => {
+  reset(defaultValues);
+  setServerError(null);
+  setLookupFeedback(null);
+  onClose();
+};
 
   return (
     <Dialog
@@ -261,6 +354,16 @@ const ClientForm = ({
               {serverError}
             </Alert>
           )}
+          {lookupFeedback && (
+  <Alert
+    severity={
+      lookupFeedback.severity
+    }
+    sx={{ mb: 2 }}
+  >
+    {lookupFeedback.message}
+  </Alert>
+)}
 
           <Grid
             container
@@ -300,46 +403,77 @@ const ClientForm = ({
               />
             </Grid>
 
-            <Grid
-              size={{
-                xs: 12,
-                md: 6,
-              }}
-            >
-              <Controller
-                name="phone"
-                control={control}
-                rules={{
-                  required:
-                    "Phone is required",
+            <Grid size={{ xs: 12 }}>
+  <Controller
+    name="phone"
+    control={control}
+    rules={{
+      required:
+        "Phone is required",
 
-                  pattern: {
-                    value: phonePattern,
-                    message:
-                      "Enter a valid phone number",
-                  },
-                }}
-                render={({
-                  field,
-                  fieldState,
-                }) => (
-                  <TextField
-                    {...field}
-                    label="Phone"
-                    fullWidth
-                    type="tel"
-                    autoComplete="tel"
-                    placeholder="+420 777 123 456"
-                    error={Boolean(
-                      fieldState.error
-                    )}
-                    helperText={
-                      fieldState.error?.message
-                    }
-                  />
-                )}
-              />
-            </Grid>
+      pattern: {
+        value: phonePattern,
+        message:
+          "Enter a valid phone number",
+      },
+    }}
+    render={({
+      field,
+      fieldState,
+    }) => (
+      <Stack
+        direction={{
+          xs: "column",
+          sm: "row",
+        }}
+        spacing={1}
+        alignItems="flex-start"
+      >
+        <TextField
+          {...field}
+          label="Phone"
+          fullWidth
+          type="tel"
+          autoComplete="tel"
+          placeholder="+420 777 123 456"
+          error={Boolean(
+            fieldState.error
+          )}
+          helperText={
+            fieldState.error?.message
+          }
+        />
+
+        {!client && (
+          <Button
+            type="button"
+            variant="outlined"
+            onClick={() => {
+              void handlePhoneLookup();
+            }}
+            disabled={lookupLoading}
+            startIcon={
+              lookupLoading ? (
+                <CircularProgress
+                  size={18}
+                />
+              ) : undefined
+            }
+            sx={{
+              minWidth: 150,
+              minHeight: 56,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {lookupLoading
+              ? "Searching..."
+              : "Find client"}
+          </Button>
+        )}
+      </Stack>
+    )}
+  />
+</Grid>
 
             <Grid
               size={{

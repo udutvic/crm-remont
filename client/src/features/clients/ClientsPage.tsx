@@ -4,7 +4,13 @@ import {
   Client,
   ClientPayload,
 } from "types";
-import { getClients, createClient, updateClient, deleteClient } from "index";
+import {
+  createClient,
+  deleteClient,
+  getClients,
+  lookupClientByPhone,
+  updateClient,
+} from "index";
 import LoadingIndicator from "components/ui/LoadingIndicator";
 import ConfirmDeleteDialog from "components/ui/ConfirmDeleteDialog";
 import useCrud from "hooks/useCrud";
@@ -61,12 +67,14 @@ const ClientsPage: React.FC = () => {
         onDelete={handleDeleteClient}
         onSort={handleRequestSort}
       />
-      <ClientForm
-        open={openForm}
-        client={selectedClient}
-        onSubmit={handleSubmit}
-        onClose={handleCloseForm}
-      />
+   <ClientForm
+  open={openForm}
+  client={selectedClient}
+  onSubmit={handleSubmit}
+  onClose={handleCloseForm}
+  onLookupByPhone={lookupClientByPhone}
+  onClientFound={handleEditClient}
+/>
       <ConfirmDeleteDialog
         open={deleteDialogOpen}
         message={deleteDialogMessage}
