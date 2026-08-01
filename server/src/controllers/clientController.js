@@ -298,7 +298,37 @@ exports.deleteClient = async (
   }
 };
 
+exports.lookupClientByPhone = async (
+  req,
+  res
+) => {
+  const phone = normalizePhone(
+    req.query.phone
+  );
 
+  if (!phone) {
+    return res.status(400).json({
+      error: "Phone number is required.",
+    });
+  }
+
+  try {
+    const client = await Client.findOne({
+      where: {
+        phoneNormalized: phone,
+      },
+      include: clientIncludes,
+    });
+
+    return res.status(200).json(client);
+  } catch (error) {
+    return handleClientError(
+      res,
+      error,
+      "phone lookup"
+    );
+  }
+};
 
 exports.searchClients = async (
   req,
