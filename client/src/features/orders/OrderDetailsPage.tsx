@@ -1,21 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { AxiosError } from "axios";
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  Container,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, Container, Stack, Typography } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router";
-
+import OrderDetailsContent from "./components/OrderDetailsContent";
+import { getOrder, markOrderDelivered, updateOrderStatus } from "index";
 import LoadingIndicator from "components/ui/LoadingIndicator";
-import { getOrder } from "index";
-import { Order } from "types";
+import { Order, OrderStatus } from "types";
+import StatusSelect from "common/components/StatusSelect";
+
+import OrderDeliveryControl from "./components/OrderDeliveryControl";
 
 interface ApiErrorResponse {
   error?: string;
@@ -33,6 +27,7 @@ const OrderDetailsPage = () => {
   const [loading, setLoading] = useState(true);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const loadOrder = useCallback(async (): Promise<void> => {
     const orderId = Number(id);
@@ -69,6 +64,50 @@ const OrderDetailsPage = () => {
   useEffect(() => {
     void loadOrder();
   }, [loadOrder]);
+
+  const handleStatusChange = useCallback(
+    async (orderId: number, status: OrderStatus): Promise<void> => {
+      try {
+        setActionError(null);
+
+        await updateOrderStatus(orderId, status);
+
+        await loadOrder();
+      } catch (error: unknown) {
+        console.error("Error changing order status:", error);
+
+        const axiosError = error as AxiosError<ApiErrorResponse>;
+
+        setActionError(
+          axiosError.response?.data?.error ?? "Failed to change order status.",
+        );
+      }
+    },
+    [loadOrder],
+  );
+
+  const handleDeliver = useCallback(
+    async (orderId: number): Promise<void> => {
+      try {
+        setActionError(null);
+
+        await markOrderDelivered(orderId);
+
+        await loadOrder();
+      } catch (error: unknown) {
+        console.error("Error delivering order:", error);
+
+        const axiosError = error as AxiosError<ApiErrorResponse>;
+
+        setActionError(
+          axiosError.response?.data?.error ?? "Failed to mark order as delivered.",
+        );
+
+        throw error;
+      }
+    },
+    [loadOrder],
+  );
 
   if (loading) {
     return <LoadingIndicator message="Loading order..." />;
@@ -154,88 +193,58 @@ const OrderDetailsPage = () => {
                 {order.device.brand} {order.device.model}
               </Typography>
             </Box>
-
-            <Chip
-              label={order.status.replace("_", " ")}
-              color={
-                order.status === "completed"
-                  ? "success"
-                  : order.status === "cancelled"
-                    ? "error"
-                    : order.status === "in_progress"
-                      ? "primary"
-                      : order.status === "pending"
-                        ? "warning"
-                        : "default"
-              }
-              sx={{
-                textTransform: "capitalize",
-              }}
-            />
           </Stack>
         </Box>
-
-        <Paper
-          variant="outlined"
+        <Stack
+          direction={{
+            xs: "column",
+            sm: "row",
+          }}
+          spacing={1.5}
+          alignItems={{
+            xs: "stretch",
+            sm: "center",
+          }}
           sx={{
-            p: {
-              xs: 2,
-              sm: 3,
+            width: {
+              xs: "100%",
+              sm: "auto",
             },
           }}
         >
-          <Stack spacing={2}>
-            <Box>
-              <Typography
-                variant="overline"
-                color="text.secondary"
-              >
-                Client
-              </Typography>
+          <Box
+            sx={{
+              minWidth: {
+                xs: "100%",
+                sm: 160,
+              },
+            }}
+          >
+            <StatusSelect
+              status={order.status}
+              id={order.id ?? 0}
+              onStatusChange={(orderId, status) => {
+                void handleStatusChange(orderId, status);
+              }}
+            />
+          </Box>
 
-              <Typography>{order.client?.name ?? `Client #${order.clientId}`}</Typography>
-
-              {order.client?.phone && (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                >
-                  {order.client.phone}
-                </Typography>
-              )}
-            </Box>
-
-            <Box>
-              <Typography
-                variant="overline"
-                color="text.secondary"
-              >
-                Device
-              </Typography>
-
-              <Typography>
-                {order.device.brand} {order.device.model}
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography
-                variant="overline"
-                color="text.secondary"
-              >
-                Reported Problem
-              </Typography>
-
-              <Typography
-                sx={{
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {order.problem}
-              </Typography>
-            </Box>
-          </Stack>
-        </Paper>
+          <OrderDeliveryControl
+            order={order}
+            onDeliver={handleDeliver}
+          />
+        </Stack>
+        {actionError && (
+          <Alert
+            severity="error"
+            onClose={() => {
+              setActionError(null);
+            }}
+          >
+            {actionError}
+          </Alert>
+        )}
+        <OrderDetailsContent order={order} />
       </Stack>
     </Container>
   );
