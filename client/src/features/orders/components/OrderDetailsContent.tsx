@@ -26,6 +26,8 @@ import type {
   Order,
 } from "types";
 
+import AccessCodeReveal from "./AccessCodeReveal";
+
 interface DetailItemProps {
   label: string;
   value: ReactNode;
@@ -522,7 +524,20 @@ const OrderDetailsContent = ({
             "orderDetails.fields.deviceAccess"
           )}
           value={
-            getAccessDescription()
+            <AccessCodeReveal
+              orderId={order.id}
+              accessType={
+                order.accessType
+              }
+              hasAccessCode={
+                Boolean(
+                  order.hasAccessCode
+                )
+              }
+              description={
+                getAccessDescription()
+              }
+            />
           }
           wide
         />

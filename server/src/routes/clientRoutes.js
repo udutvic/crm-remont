@@ -4,6 +4,10 @@ const clientController = require(
   "../controllers/clientController"
 );
 
+const requireRole = require(
+  "../middleware/requireRole"
+);
+
 const router = express.Router();
 
 router.get(
@@ -38,6 +42,7 @@ router.put(
 
 router.delete(
   "/:id",
+  requireRole("admin"),
   clientController.deleteClient
 );
 

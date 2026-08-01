@@ -50,6 +50,135 @@ const uk = {
       returningWithoutRepair: "Видача...",
     },
 
+    auth: {
+      subtitle: "Увійдіть, щоб продовжити роботу із сервісом ремонту.",
+      checkingSession: "Перевірка сесії...",
+      fields: {
+        email: "Електронна пошта",
+        password: "Пароль",
+      },
+      actions: {
+        signIn: "Увійти",
+        signingIn: "Вхід...",
+        signOut: "Вийти",
+        showPassword: "Показати пароль",
+        hidePassword: "Приховати пароль",
+        retry: "Спробувати знову",
+      },
+      roles: {
+        admin: "Адміністратор",
+        technician: "Технік",
+      },
+      userMenu: {
+        open: "Відкрити меню користувача",
+      },
+      errors: {
+        required: "Введіть електронну пошту та пароль.",
+        loginFailed: "Не вдалося увійти.",
+        sessionCheckFailed:
+          "Не вдалося перевірити сесію. Переконайтеся, що сервер працює, і спробуйте знову.",
+        codes: {
+          AUTH_INVALID_INPUT: "Введіть коректну електронну пошту та пароль.",
+          AUTH_INVALID_CREDENTIALS: "Неправильна електронна пошта або пароль.",
+          AUTH_ACCOUNT_DISABLED: "Цей обліковий запис вимкнений.",
+          AUTH_RATE_LIMITED: "Забагато спроб. Спробуйте пізніше.",
+          ORIGIN_FORBIDDEN: "Сервер не дозволяє цю адресу застосунку.",
+        },
+      },
+    },
+
+    security: {
+      accessDenied: "У вас немає дозволу на відкриття цієї сторінки.",
+      backToDashboard: "На головну",
+    },
+
+    accessCode: {
+      types: {
+        none: "код доступу",
+        pin: "PIN",
+        password: "пароль",
+        pattern: "графічний ключ",
+        unknown: "код доступу",
+      },
+      actions: {
+        show: "Показати {{type}}",
+        confirmShow: "Показати код",
+        loading: "Завантаження...",
+        hide: "Приховати",
+        copy: "Копіювати",
+      },
+      confirm: {
+        title: "Показати код доступу до пристрою?",
+        message:
+          "Ця дія буде записана в журнал. {{type}} буде показано протягом {{seconds}} секунд.",
+      },
+      autoHide:
+        "Код автоматично приховається через {{seconds}} секунд.",
+      copied: "Скопійовано",
+      errors: {
+        revealFailed: "Не вдалося показати код доступу.",
+        copyFailed: "Не вдалося скопіювати код доступу.",
+      },
+    },
+
+    auditPage: {
+      title: "Журнал дій",
+      refresh: "Оновити",
+      empty: "За вибраними фільтрами подій не знайдено.",
+      systemUser: "Система або видалений користувач",
+      filters: {
+        action: "Дія",
+        actionPlaceholder: "Наприклад: LOGIN або ORDER",
+        entity: "Об’єкт",
+        startDate: "Дата від",
+        endDate: "Дата до",
+        reset: "Скинути",
+      },
+      columns: {
+        date: "Дата і час",
+        user: "Користувач",
+        action: "Дія",
+        entity: "Об’єкт",
+        request: "Запит",
+        status: "Статус",
+      },
+      pagination: {
+        rowsPerPage: "Рядків на сторінці:",
+        displayedRows: "{{from}}–{{to}} з {{count}}",
+      },
+      entities: {
+        all: "Усі об’єкти",
+        auth: "Авторизація",
+        client: "Клієнт",
+        device: "Пристрій",
+        intake: "Приймання",
+        order: "Замовлення",
+        stats: "Статистика",
+      },
+      actions: {
+        AUTH_LOGIN_SUCCESS: "Успішний вхід",
+        AUTH_LOGIN_FAILED: "Невдала спроба входу",
+        AUTH_LOGOUT_SUCCESS: "Вихід із системи",
+        AUTH_LOGOUT_FAILED: "Невдала спроба виходу",
+        CLIENT_CREATE: "Створено клієнта",
+        CLIENT_UPDATE: "Оновлено клієнта",
+        CLIENT_DELETE: "Видалено клієнта",
+        DEVICE_CREATE: "Створено пристрій",
+        DEVICE_UPDATE: "Оновлено пристрій",
+        DEVICE_DELETE: "Видалено пристрій",
+        INTAKE_CREATE: "Створено приймання",
+        ORDER_CREATE: "Створено замовлення",
+        ORDER_UPDATE: "Оновлено замовлення",
+        ORDER_STATUS_UPDATE: "Змінено статус замовлення",
+        ORDER_DELIVER: "Замовлення видано",
+        ORDER_DELETE: "Замовлення видалено",
+        ORDER_ACCESS_CODE_REVEAL: "Переглянуто код доступу",
+      },
+      errors: {
+        loadFailed: "Не вдалося завантажити журнал дій.",
+      },
+    },
+
     ordersPage: {
       listTools: {
         searchLabel: "Пошук замовлень",

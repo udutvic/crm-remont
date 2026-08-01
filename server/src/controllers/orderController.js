@@ -10,6 +10,7 @@ const normalizeDeviceIdentifier =
   );
 
 const {
+  decryptAccessCode,
   encryptAccessCode,
 } = require(
   "../utils/accessCodeCrypto"
@@ -478,6 +479,98 @@ exports.getAllOrders = async (
     );
   }
 };
+
+exports.revealAccessCode =
+  async (
+    req,
+    res
+  ) => {
+    const orderId =
+      parsePositiveId(
+        req.params.id
+      );
+
+    if (!orderId) {
+      return res
+        .status(400)
+        .json({
+          code:
+            "INVALID_ORDER_ID",
+          error:
+            "Invalid order ID.",
+        });
+    }
+
+    try {
+      const order =
+        await OrderWithAccessCode.findByPk(
+          orderId,
+          {
+            attributes: [
+              "id",
+              "accessType",
+              "accessCodeEncrypted",
+            ],
+          }
+        );
+
+      if (!order) {
+        return res
+          .status(404)
+          .json({
+            code:
+              "ORDER_NOT_FOUND",
+            error:
+              "Order not found.",
+          });
+      }
+
+      if (
+        !order
+          .accessCodeEncrypted
+      ) {
+        return res
+          .status(404)
+          .json({
+            code:
+              "ACCESS_CODE_NOT_SET",
+            error:
+              "No access code is stored for this order.",
+          });
+      }
+
+      const accessCode =
+        decryptAccessCode(
+          order
+            .accessCodeEncrypted
+        );
+
+      res.set({
+        "Cache-Control":
+          "no-store, private",
+        Pragma:
+          "no-cache",
+      });
+
+      return res
+        .status(200)
+        .json({
+          orderId:
+            order.id,
+
+          accessType:
+            order.accessType,
+
+          accessCode,
+        });
+    } catch (error) {
+      return handleOrderError(
+        res,
+        error,
+        "access-code reveal"
+      );
+    }
+  };
 
 exports.getOrder = async (
   req,

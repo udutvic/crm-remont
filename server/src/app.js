@@ -2,33 +2,65 @@ const express = require("express");
 const cors = require("cors");
 
 const db = require("./config/database");
+const {
+  isAllowedOrigin,
+} = require("./config/http");
 
+const auditRoutes = require("./routes/auditRoutes");
+const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
 const deviceRoutes = require("./routes/deviceRoutes");
 const intakeRoutes = require("./routes/intakeRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 
+const {
+  auditProtectedMutation,
+} = require("./middleware/auditRequest");
+const requireRole = require("./middleware/requireRole");
+const protectedApi = require("./middleware/protectedApi");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
-const allowedOrigins = [
-  "https://crm-remont.vercel.app",
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-];
+app.disable("x-powered-by");
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin(
+      origin,
+      callback
+    ) {
+      if (
+        isAllowedOrigin(
+          origin
+        )
+      ) {
+        callback(
+          null,
+          true
+        );
+
+        return;
+      }
+
+      callback(
+        new Error(
+          "Origin is not allowed by CORS."
+        )
+      );
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   })
 );
 
-app.use(express.json());
+app.use(
+  express.json({
+    limit: "1mb",
+  })
+);
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -57,11 +89,18 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-app.use("/api/clients", clientRoutes);
-app.use("/api/devices", deviceRoutes);
-app.use("/api/intake", intakeRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/stats", statsRoutes);
+app.use("/api/auth", authRoutes);
+app.use(
+  "/api/audit",
+  ...protectedApi,
+  requireRole("admin"),
+  auditRoutes
+);
+app.use("/api/clients", ...protectedApi, auditProtectedMutation, clientRoutes);
+app.use("/api/devices", ...protectedApi, auditProtectedMutation, deviceRoutes);
+app.use("/api/intake", ...protectedApi, auditProtectedMutation, intakeRoutes);
+app.use("/api/orders", ...protectedApi, auditProtectedMutation, orderRoutes);
+app.use("/api/stats", ...protectedApi, auditProtectedMutation, statsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

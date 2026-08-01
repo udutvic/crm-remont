@@ -50,6 +50,135 @@ const cs = {
       returningWithoutRepair: "Vydávání...",
     },
 
+    auth: {
+      subtitle: "Přihlaste se a pokračujte v práci se servisní aplikací.",
+      checkingSession: "Ověřování relace...",
+      fields: {
+        email: "E-mail",
+        password: "Heslo",
+      },
+      actions: {
+        signIn: "Přihlásit se",
+        signingIn: "Přihlašování...",
+        signOut: "Odhlásit se",
+        showPassword: "Zobrazit heslo",
+        hidePassword: "Skrýt heslo",
+        retry: "Zkusit znovu",
+      },
+      roles: {
+        admin: "Administrátor",
+        technician: "Technik",
+      },
+      userMenu: {
+        open: "Otevřít nabídku uživatele",
+      },
+      errors: {
+        required: "Zadejte e-mail a heslo.",
+        loginFailed: "Přihlášení se nezdařilo.",
+        sessionCheckFailed:
+          "Relaci se nepodařilo ověřit. Zkontrolujte, zda server běží, a zkuste to znovu.",
+        codes: {
+          AUTH_INVALID_INPUT: "Zadejte platný e-mail a heslo.",
+          AUTH_INVALID_CREDENTIALS: "Nesprávný e-mail nebo heslo.",
+          AUTH_ACCOUNT_DISABLED: "Tento účet je deaktivován.",
+          AUTH_RATE_LIMITED: "Příliš mnoho pokusů. Zkuste to později.",
+          ORIGIN_FORBIDDEN: "Server tuto adresu aplikace nepovoluje.",
+        },
+      },
+    },
+
+    security: {
+      accessDenied: "Nemáte oprávnění otevřít tuto stránku.",
+      backToDashboard: "Zpět na přehled",
+    },
+
+    accessCode: {
+      types: {
+        none: "přístupový kód",
+        pin: "PIN",
+        password: "heslo",
+        pattern: "gesto",
+        unknown: "přístupový kód",
+      },
+      actions: {
+        show: "Zobrazit {{type}}",
+        confirmShow: "Zobrazit kód",
+        loading: "Načítání...",
+        hide: "Skrýt",
+        copy: "Kopírovat",
+      },
+      confirm: {
+        title: "Zobrazit přístupový kód zařízení?",
+        message:
+          "Tato akce bude zaznamenána do protokolu. {{type}} bude zobrazen po dobu {{seconds}} sekund.",
+      },
+      autoHide:
+        "Kód se automaticky skryje za {{seconds}} sekund.",
+      copied: "Zkopírováno",
+      errors: {
+        revealFailed: "Přístupový kód se nepodařilo zobrazit.",
+        copyFailed: "Přístupový kód se nepodařilo zkopírovat.",
+      },
+    },
+
+    auditPage: {
+      title: "Protokol činností",
+      refresh: "Obnovit",
+      empty: "Vybraným filtrům neodpovídají žádné události.",
+      systemUser: "Systém nebo odstraněný uživatel",
+      filters: {
+        action: "Akce",
+        actionPlaceholder: "Například: LOGIN nebo ORDER",
+        entity: "Objekt",
+        startDate: "Datum od",
+        endDate: "Datum do",
+        reset: "Obnovit",
+      },
+      columns: {
+        date: "Datum a čas",
+        user: "Uživatel",
+        action: "Akce",
+        entity: "Objekt",
+        request: "Požadavek",
+        status: "Stav",
+      },
+      pagination: {
+        rowsPerPage: "Řádků na stránku:",
+        displayedRows: "{{from}}–{{to}} z {{count}}",
+      },
+      entities: {
+        all: "Všechny objekty",
+        auth: "Přihlášení",
+        client: "Zákazník",
+        device: "Zařízení",
+        intake: "Příjem",
+        order: "Zakázka",
+        stats: "Statistiky",
+      },
+      actions: {
+        AUTH_LOGIN_SUCCESS: "Úspěšné přihlášení",
+        AUTH_LOGIN_FAILED: "Neúspěšné přihlášení",
+        AUTH_LOGOUT_SUCCESS: "Odhlášení",
+        AUTH_LOGOUT_FAILED: "Neúspěšné odhlášení",
+        CLIENT_CREATE: "Zákazník vytvořen",
+        CLIENT_UPDATE: "Zákazník upraven",
+        CLIENT_DELETE: "Zákazník odstraněn",
+        DEVICE_CREATE: "Zařízení vytvořeno",
+        DEVICE_UPDATE: "Zařízení upraveno",
+        DEVICE_DELETE: "Zařízení odstraněno",
+        INTAKE_CREATE: "Příjem opravy vytvořen",
+        ORDER_CREATE: "Zakázka vytvořena",
+        ORDER_UPDATE: "Zakázka upravena",
+        ORDER_STATUS_UPDATE: "Stav zakázky změněn",
+        ORDER_DELIVER: "Zakázka vydána",
+        ORDER_DELETE: "Zakázka odstraněna",
+        ORDER_ACCESS_CODE_REVEAL: "Přístupový kód zobrazen",
+      },
+      errors: {
+        loadFailed: "Protokol činností se nepodařilo načíst.",
+      },
+    },
+
     ordersPage: {
       listTools: {
         searchLabel: "Hledat zakázky",

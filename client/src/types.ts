@@ -295,3 +295,96 @@ export interface OrderListResponse {
       OrderListSortDirection;
   };
 }
+
+export type UserRole =
+  | "admin"
+  | "technician";
+
+export interface AuthUser {
+  id: number;
+  email: string;
+  name: string;
+  role: UserRole;
+  isActive: boolean;
+  lastLoginAt?: string | null;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  user: AuthUser;
+}
+
+export interface AuthErrorResponse {
+  code?: string;
+  error?: string;
+}
+
+export interface OrderAccessCodeResponse {
+  orderId: number;
+  accessType: OrderAccessType;
+  accessCode: string;
+}
+
+export type AuditLogEntityFilter =
+  | "all"
+  | "auth"
+  | "client"
+  | "device"
+  | "intake"
+  | "order"
+  | "stats";
+
+export interface AuditLogUser {
+  id: number;
+  email: string;
+  name: string;
+  role: UserRole;
+}
+
+export interface AuditLog {
+  id: string | number;
+  userId?: number | null;
+  action: string;
+  entityType?: string | null;
+  entityId?: string | null;
+  method: string;
+  path: string;
+  statusCode: number;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  metadata?: Record<
+    string,
+    unknown
+  > | null;
+  createdAt: string;
+  updatedAt: string;
+  user?: AuditLogUser | null;
+}
+
+export interface AuditLogListQuery {
+  page: number;
+  pageSize: number;
+  action?: string;
+  entityType?: Exclude<
+    AuditLogEntityFilter,
+    "all"
+  >;
+  userId?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface AuditLogListResponse {
+  items: AuditLog[];
+
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}

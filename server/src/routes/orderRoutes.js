@@ -10,6 +10,16 @@ const orderListController =
     "../controllers/orderListController"
   );
 
+const requireRole = require(
+  "../middleware/requireRole"
+);
+
+const {
+  auditSensitiveAccess,
+} = require(
+  "../middleware/auditRequest"
+);
+
 const router = express.Router();
 
 router.get(
@@ -25,6 +35,16 @@ router.get(
 router.get(
   "/",
   orderController.getAllOrders
+);
+
+router.get(
+  "/:id/access-code",
+  auditSensitiveAccess({
+    action:
+      "ORDER_ACCESS_CODE_REVEAL",
+    entityType: "order",
+  }),
+  orderController.revealAccessCode
 );
 
 router.get(
@@ -63,6 +83,7 @@ router.patch(
 
 router.delete(
   "/:id",
+  requireRole("admin"),
   orderController.deleteOrder
 );
 

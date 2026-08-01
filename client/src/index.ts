@@ -1,10 +1,17 @@
 import { apiClient } from "api";
+import type {
+  AuditLogListQuery,
+  AuditLogListResponse,
+  OrderAccessCodeResponse,
+} from "types";
 import {
+  AuthResponse,
   Client,
   ClientLookupResult,
   ClientPayload,
   Device,
   DevicePayload,
+  LoginPayload,
   Order,
   OrderListQuery,
   OrderListResponse,
@@ -28,6 +35,37 @@ export interface HealthResponse {
   timestamp: string;
   error?: string;
 }
+
+// Authentication
+
+export const login = async (
+  payload: LoginPayload
+): Promise<AuthResponse> => {
+  const response =
+    await apiClient.post<AuthResponse>(
+      "/auth/login",
+      payload
+    );
+
+  return response.data;
+};
+
+export const logout =
+  async (): Promise<void> => {
+    await apiClient.post(
+      "/auth/logout"
+    );
+  };
+
+export const getCurrentUser =
+  async (): Promise<AuthResponse> => {
+    const response =
+      await apiClient.get<AuthResponse>(
+        "/auth/me"
+      );
+
+    return response.data;
+  };
 
 // Health
 
@@ -316,6 +354,17 @@ export const deleteOrder = async (id: number): Promise<void> => {
   await apiClient.delete(`/orders/${id}`);
 };
 
+export const revealOrderAccessCode = async (
+  id: number
+): Promise<OrderAccessCodeResponse> => {
+  const response =
+    await apiClient.get<OrderAccessCodeResponse>(
+      `/orders/${id}/access-code`
+    );
+
+  return response.data;
+};
+
 export const searchOrders = async (query: string): Promise<Order[]> => {
   const response = await apiClient.get<Order[]>("/orders/search", {
     params: {
@@ -336,6 +385,22 @@ export const createRepairIntake = async (
     await apiClient.post<RepairIntakeResult>(
       "/intake",
       intake
+    );
+
+  return response.data;
+};
+
+// Audit log
+
+export const getAuditLogs = async (
+  query: AuditLogListQuery
+): Promise<AuditLogListResponse> => {
+  const response =
+    await apiClient.get<AuditLogListResponse>(
+      "/audit",
+      {
+        params: query,
+      }
     );
 
   return response.data;

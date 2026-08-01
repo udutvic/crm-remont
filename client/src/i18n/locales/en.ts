@@ -50,6 +50,135 @@ const en = {
       returningWithoutRepair: "Returning...",
     },
 
+    auth: {
+      subtitle: "Sign in to continue working with the repair service.",
+      checkingSession: "Checking session...",
+      fields: {
+        email: "Email",
+        password: "Password",
+      },
+      actions: {
+        signIn: "Sign in",
+        signingIn: "Signing in...",
+        signOut: "Sign out",
+        showPassword: "Show password",
+        hidePassword: "Hide password",
+        retry: "Try again",
+      },
+      roles: {
+        admin: "Administrator",
+        technician: "Technician",
+      },
+      userMenu: {
+        open: "Open user menu",
+      },
+      errors: {
+        required: "Enter your email and password.",
+        loginFailed: "Could not sign in.",
+        sessionCheckFailed:
+          "Could not verify the session. Check that the server is running and try again.",
+        codes: {
+          AUTH_INVALID_INPUT: "Enter a valid email and password.",
+          AUTH_INVALID_CREDENTIALS: "Incorrect email or password.",
+          AUTH_ACCOUNT_DISABLED: "This account is disabled.",
+          AUTH_RATE_LIMITED: "Too many attempts. Try again later.",
+          ORIGIN_FORBIDDEN: "This application address is not allowed by the server.",
+        },
+      },
+    },
+
+    security: {
+      accessDenied: "You do not have permission to open this page.",
+      backToDashboard: "Back to dashboard",
+    },
+
+    accessCode: {
+      types: {
+        none: "access code",
+        pin: "PIN",
+        password: "password",
+        pattern: "pattern",
+        unknown: "access code",
+      },
+      actions: {
+        show: "Show {{type}}",
+        confirmShow: "Show code",
+        loading: "Loading...",
+        hide: "Hide",
+        copy: "Copy",
+      },
+      confirm: {
+        title: "Show device access code?",
+        message:
+          "This action will be recorded in the audit log. The {{type}} will be visible for {{seconds}} seconds.",
+      },
+      autoHide:
+        "The code will be hidden automatically after {{seconds}} seconds.",
+      copied: "Copied",
+      errors: {
+        revealFailed: "Could not reveal the access code.",
+        copyFailed: "Could not copy the access code.",
+      },
+    },
+
+    auditPage: {
+      title: "Audit log",
+      refresh: "Refresh",
+      empty: "No audit events match the selected filters.",
+      systemUser: "System or deleted user",
+      filters: {
+        action: "Action",
+        actionPlaceholder: "For example: LOGIN or ORDER",
+        entity: "Entity",
+        startDate: "From date",
+        endDate: "To date",
+        reset: "Reset",
+      },
+      columns: {
+        date: "Date and time",
+        user: "User",
+        action: "Action",
+        entity: "Entity",
+        request: "Request",
+        status: "Status",
+      },
+      pagination: {
+        rowsPerPage: "Rows per page:",
+        displayedRows: "{{from}}–{{to}} of {{count}}",
+      },
+      entities: {
+        all: "All entities",
+        auth: "Authentication",
+        client: "Client",
+        device: "Device",
+        intake: "Intake",
+        order: "Order",
+        stats: "Statistics",
+      },
+      actions: {
+        AUTH_LOGIN_SUCCESS: "Successful sign-in",
+        AUTH_LOGIN_FAILED: "Failed sign-in",
+        AUTH_LOGOUT_SUCCESS: "Sign-out",
+        AUTH_LOGOUT_FAILED: "Failed sign-out",
+        CLIENT_CREATE: "Client created",
+        CLIENT_UPDATE: "Client updated",
+        CLIENT_DELETE: "Client deleted",
+        DEVICE_CREATE: "Device created",
+        DEVICE_UPDATE: "Device updated",
+        DEVICE_DELETE: "Device deleted",
+        INTAKE_CREATE: "Repair intake created",
+        ORDER_CREATE: "Order created",
+        ORDER_UPDATE: "Order updated",
+        ORDER_STATUS_UPDATE: "Order status changed",
+        ORDER_DELIVER: "Order delivered",
+        ORDER_DELETE: "Order deleted",
+        ORDER_ACCESS_CODE_REVEAL: "Access code revealed",
+      },
+      errors: {
+        loadFailed: "Could not load the audit log.",
+      },
+    },
+
     ordersPage: {
       listTools: {
         searchLabel: "Search orders",

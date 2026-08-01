@@ -4,6 +4,11 @@ import {
 } from "react-router";
 
 import MainLayout from "components/layout/MainLayout";
+import AuditLogPage from "features/audit/AuditLogPage";
+import PublicOnlyRoute from "features/auth/components/PublicOnlyRoute";
+import RequireAuth from "features/auth/components/RequireAuth";
+import RequireRole from "features/auth/components/RequireRole";
+import LoginPage from "features/auth/LoginPage";
 import ClientsPage from "features/clients/ClientsPage";
 import DashboardPage from "features/dashboard/DashboardPage";
 import DevicesPage from "features/devices/DevicesPage";
@@ -49,6 +54,19 @@ const MainApp = () => {
             <OrderDetailsPage />
           }
         />
+
+        <Route
+          path="/audit"
+          element={
+            <RequireRole
+              allowedRoles={[
+                "admin",
+              ]}
+            >
+              <AuditLogPage />
+            </RequireRole>
+          }
+        />
       </Routes>
     </MainLayout>
   );
@@ -58,16 +76,29 @@ function App() {
   return (
     <Routes>
       <Route
+        path="/login"
+        element={
+          <PublicOnlyRoute>
+            <LoginPage />
+          </PublicOnlyRoute>
+        }
+      />
+
+      <Route
         path="/orders/:id/receipt"
         element={
-          <OrderReceiptPage />
+          <RequireAuth>
+            <OrderReceiptPage />
+          </RequireAuth>
         }
       />
 
       <Route
         path="*"
         element={
-          <MainApp />
+          <RequireAuth>
+            <MainApp />
+          </RequireAuth>
         }
       />
     </Routes>

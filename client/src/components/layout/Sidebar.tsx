@@ -1,4 +1,5 @@
 import {
+  AdminPanelSettingsOutlined as AuditIcon,
   Assignment,
   Dashboard,
   Devices,
@@ -15,12 +16,14 @@ import {
   Toolbar,
 } from "@mui/material";
 import {
+  useTranslation,
+} from "react-i18next";
+import {
   Link,
   useLocation,
 } from "react-router";
-import {
-  useTranslation,
-} from "react-i18next";
+
+import useAuth from "features/auth/context/useAuth";
 
 const drawerWidth = 240;
 
@@ -35,21 +38,30 @@ const Sidebar = ({
   onClose,
   isMobile,
 }: SidebarProps) => {
-  const location = useLocation();
+  const location =
+    useLocation();
 
   const {
     t,
   } = useTranslation();
 
+  const {
+    user,
+  } = useAuth();
+
   const isPathActive = (
     path: string
   ): boolean => {
     if (path === "/") {
-      return location.pathname === "/";
+      return (
+        location.pathname ===
+        "/"
+      );
     }
 
     return (
-      location.pathname === path ||
+      location.pathname ===
+        path ||
       location.pathname.startsWith(
         `${path}/`
       )
@@ -85,6 +97,19 @@ const Sidebar = ({
       icon: Assignment,
       path: "/orders",
     },
+
+    ...(user?.role ===
+    "admin"
+      ? [
+          {
+            text: t(
+              "auditPage.title"
+            ),
+            icon: AuditIcon,
+            path: "/audit",
+          },
+        ]
+      : []),
   ];
 
   const drawerContent = (
@@ -127,7 +152,9 @@ const Sidebar = ({
                 </ListItemIcon>
 
                 <ListItemText
-                  primary={item.text}
+                  primary={
+                    item.text
+                  }
                 />
               </ListItemButton>
             );
