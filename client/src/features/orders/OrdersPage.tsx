@@ -11,6 +11,7 @@ import {
   createOrder,
   updateOrder,
   updateOrderStatus,
+  markOrderDelivered, 
   deleteOrder,
   getClients,
 } from "index";
@@ -76,6 +77,18 @@ const OrdersPage: React.FC = () => {
       console.error("Error changing status:", error);
     }
   }, [loadOrders]);
+
+    const handleDeliverOrder =
+    useCallback(
+      async (
+        id: number
+      ): Promise<void> => {
+        await markOrderDelivered(id);
+        await loadOrders();
+      },
+      [loadOrders]
+    );
+
   const formatOrderId = useCallback((order: Order) => {
     const index = filteredOrders.findIndex((o) => o.id === order.id);
     return `#PR-${(filteredOrders.length - index).toString().padStart(4, "0")}`;
@@ -107,6 +120,7 @@ const OrdersPage: React.FC = () => {
         onEdit={handleEditOrder}
         onDelete={handleDeleteOrder}
         onStatusChange={handleChangeStatus}
+        onDeliver={handleDeliverOrder}
         onSort={handleRequestSort}
         formatOrderId={formatOrderId}
       />

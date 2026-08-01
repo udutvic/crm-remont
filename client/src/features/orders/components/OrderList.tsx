@@ -10,6 +10,7 @@ interface OrderListProps {
   onEdit: (order: Order) => void;
   onDelete: (order: Order, nameField?: keyof Order) => void;
   onStatusChange: (id: number, status: OrderStatus) => void;
+  onDeliver: (id: number) => Promise<void>;
   onSort: (field: keyof Order) => void;
   formatOrderId: (order: Order) => string;
 }
@@ -19,30 +20,46 @@ const OrderList: React.FC<OrderListProps> = ({
   onEdit,
   onDelete,
   onStatusChange,
+  onDeliver,
   onSort,
-  formatOrderId
+  formatOrderId,
 }) => {
   return (
     <Box>
       <DataView
         data={orders}
         columns={[
-          { id: 'id', label: 'ID', sx: { pl: 2 } },
-          { id: 'deviceName', label: 'Device' },
-          { id: 'client', label: 'Client', sx: { display: { xs: "none", md: "table-cell" } } },
-          { 
-            id: 'price', 
-            label: 'Price', 
-            sx: { display: { xs: "none", md: "table-cell" } } 
+          { id: "id", label: "ID", sx: { pl: 2 } },
+          { id: "deviceName", label: "Device" },
+          {
+            id: "client",
+            label: "Client",
+            sx: { display: { xs: "none", md: "table-cell" } },
           },
-          { 
-            id: 'createdAt', 
-            label: 'Date', 
-            onClick: () => onSort("createdAt"),
-            sx: { cursor: 'pointer', display: { xs: "none", md: "table-cell" } } 
+          {
+            id: "price",
+            label: "Price",
+            sx: { display: { xs: "none", md: "table-cell" } },
           },
-          { id: 'status', label: 'Status' },
-          { id: 'actions', label: 'Actions', sx: { pr: 2, width: 'auto' } }
+         {
+  id: "receivedAt",
+  label: "Received",
+  onClick: () =>
+    onSort("receivedAt"),
+  sx: {
+    cursor: "pointer",
+    display: {
+      xs: "none",
+      md: "table-cell",
+    },
+  },
+},
+          { id: "status", label: "Status" },
+          {
+            id: "delivery",
+            label: "Delivery",
+          },
+          { id: "actions", label: "Actions", sx: { pr: 2, width: "auto" } },
         ]}
         emptyMessage="No orders found"
         renderTableRow={(order) => (
@@ -53,6 +70,7 @@ const OrderList: React.FC<OrderListProps> = ({
             onEdit={onEdit}
             onDelete={onDelete}
             onStatusChange={onStatusChange}
+            onDeliver={onDeliver}
             formatOrderId={formatOrderId}
           />
         )}
@@ -64,6 +82,7 @@ const OrderList: React.FC<OrderListProps> = ({
             onEdit={onEdit}
             onDelete={onDelete}
             onStatusChange={onStatusChange}
+            onDeliver={onDeliver}
             formatOrderId={formatOrderId}
           />
         )}

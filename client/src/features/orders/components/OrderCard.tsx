@@ -6,12 +6,16 @@ import { formatDate, formatPrice } from "utils/formatters";
 import StatusSelect from "common/components/StatusSelect";
 import ClientInfo from "common/components/ClientInfo";
 import DeviceIcon from "../../../common/components/DeviceIcon";
+import OrderDeliveryControl from "./OrderDeliveryControl";
 interface OrderCardProps {
   order: Order;
   clients: Client[];
   onEdit: (order: Order) => void;
   onDelete: (order: Order, nameField?: keyof Order) => void;
   onStatusChange: (id: number, status: OrderStatus) => void;
+    onDeliver: (
+    id: number
+  ) => Promise<void>;
   formatOrderId: (order: Order) => string;
 }
 const OrderCard: React.FC<OrderCardProps> = ({
@@ -20,6 +24,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
   onEdit,
   onDelete,
   onStatusChange,
+  onDeliver,
   formatOrderId
 }) => {
   return (
@@ -143,6 +148,36 @@ const OrderCard: React.FC<OrderCardProps> = ({
                 onStatusChange={onStatusChange}
                 id={order.id || 0}
                 isMobileView={true}
+              />
+            </Box>            
+          </ListItem>
+                    <ListItem
+            sx={{
+              px: 0,
+              py: 0.5,
+              alignItems: "flex-start",
+            }}
+          >
+            <ListItemText
+              primary="Delivery:"
+              slotProps={{
+                primary: {
+                  sx: {
+                    variant: "body2",
+                    color: "text.secondary",
+                    fontWeight: 500,
+                  },
+                },
+              }}
+              sx={{
+                flex: "0 0 35%",
+              }}
+            />
+
+            <Box sx={{ ml: 2 }}>
+              <OrderDeliveryControl
+                order={order}
+                onDeliver={onDeliver}
               />
             </Box>
           </ListItem>
