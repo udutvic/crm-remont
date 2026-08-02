@@ -36,6 +36,8 @@ const codeKeys:
       "inventoryPage.apiErrors.orderNotFound",
     INVENTORY_INSUFFICIENT_STOCK:
       "inventoryPage.apiErrors.stock",
+    INVENTORY_RETURN_EXCEEDS_ISSUED:
+      "orderParts.errors.returnExceeds",
     INVENTORY_IMPORT_ROWS_REQUIRED:
       "inventoryPage.import.errors.rowsRequired",
     INVENTORY_IMPORT_TOO_LARGE:

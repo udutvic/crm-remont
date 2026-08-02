@@ -2,7 +2,10 @@ const { Op } = require("sequelize");
 
 const Client = require("../models/Client");
 const Device = require("../models/Device");
+const InventoryItem = require("../models/InventoryItem");
 const Order = require("../models/Order");
+const StockMovement = require("../models/StockMovement");
+const User = require("../models/User");
 
 const normalizeDeviceIdentifier =
   require(
@@ -35,6 +38,44 @@ const orderIncludes = [
   {
     model: Device,
     as: "device",
+  },
+];
+
+const orderDetailIncludes = [
+  ...orderIncludes,
+  {
+    model: StockMovement,
+    as: "stockMovements",
+    required: false,
+    separate: true,
+    where: {
+      type: {
+        [Op.in]: [
+          "issue",
+          "return",
+        ],
+      },
+    },
+    include: [
+      {
+        model: InventoryItem,
+        as: "inventoryItem",
+      },
+      {
+        model: User,
+        as: "createdBy",
+        attributes: [
+          "id",
+          "name",
+          "email",
+          "role",
+        ],
+      },
+    ],
+    order: [
+      ["createdAt", "DESC"],
+      ["id", "DESC"],
+    ],
   },
 ];
 
@@ -85,6 +126,44 @@ const serializeOrder = (order) => {
   plain.finalPrice = toNumberOrNull(
     plain.finalPrice
   );
+
+  if (
+    Array.isArray(
+      plain.stockMovements
+    )
+  ) {
+    plain.stockMovements =
+      plain.stockMovements.map(
+        (movement) => {
+          const inventoryItem =
+            movement.inventoryItem
+              ? {
+                  ...movement.inventoryItem,
+                  purchasePrice:
+                    toNumberOrNull(
+                      movement.inventoryItem.purchasePrice
+                    ) ?? 0,
+                  salePrice:
+                    toNumberOrNull(
+                      movement.inventoryItem.salePrice
+                    ) ?? 0,
+                  isLowStock:
+                    movement.inventoryItem.currentQuantity <=
+                    movement.inventoryItem.minStock,
+                }
+              : null;
+
+          return {
+            ...movement,
+            unitCost:
+              toNumberOrNull(
+                movement.unitCost
+              ),
+            inventoryItem,
+          };
+        }
+      );
+  }
 
   plain.hasAccessCode =
     hasAccessCode;
@@ -302,7 +381,7 @@ const findOrderWithRelations = (
   OrderWithAccessCode.findByPk(
     orderId,
     {
-      include: orderIncludes,
+      include: orderDetailIncludes,
     }
   );
 

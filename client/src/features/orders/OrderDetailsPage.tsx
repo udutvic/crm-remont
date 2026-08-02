@@ -41,6 +41,7 @@ import type {
 import OrderDetailsContent from "./components/OrderDetailsContent";
 import OrderDetailsHeader from "./components/OrderDetailsHeader";
 import OrderForm from "./components/OrderForm";
+import OrderPartsSection from "./components/OrderPartsSection";
 
 interface ApiErrorResponse {
   error?: string;
@@ -516,6 +517,11 @@ const OrderDetailsPage = () => {
 
         <OrderDetailsContent
           order={order}
+        />
+
+        <OrderPartsSection
+          order={order}
+          onChanged={loadOrder}
         />
       </Stack>
 
