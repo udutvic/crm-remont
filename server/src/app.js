@@ -1,3 +1,5 @@
+const path = require("path");
+
 const express = require("express");
 const cors = require("cors");
 
@@ -26,7 +28,18 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
+const isProduction =
+  process.env.NODE_ENV ===
+  "production";
+
+const clientDistPath =
+  path.resolve(
+    __dirname,
+    "../../client/dist"
+  );
+
 app.disable("x-powered-by");
+app.set("trust proxy", 1);
 
 app.use(
   cors({
@@ -64,7 +77,7 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.status(200).json({
     message: "CRM Remont API is running!",
   });
@@ -111,6 +124,47 @@ app.use("/api/intake", ...protectedApi, auditProtectedMutation, intakeRoutes);
 app.use("/api/orders", ...protectedApi, auditProtectedMutation, orderRoutes);
 app.use("/api/inventory", ...protectedApi, auditProtectedMutation, inventoryRoutes);
 app.use("/api/stats", ...protectedApi, auditProtectedMutation, statsRoutes);
+
+if (isProduction) {
+  app.use(
+    express.static(
+      clientDistPath
+    )
+  );
+
+  app.use(
+    (
+      req,
+      res,
+      next
+    ) => {
+      if (
+        req.method !== "GET" ||
+        req.path.startsWith(
+          "/api/"
+        ) ||
+        req.path === "/api"
+      ) {
+        next();
+        return;
+      }
+
+      res.sendFile(
+        path.join(
+          clientDistPath,
+          "index.html"
+        ),
+        (
+          error
+        ) => {
+          if (error) {
+            next(error);
+          }
+        }
+      );
+    }
+  );
+}
 
 app.use(notFound);
 app.use(errorHandler);

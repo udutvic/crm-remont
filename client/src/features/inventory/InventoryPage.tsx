@@ -14,6 +14,7 @@ import {
   RefreshOutlined as RefreshIcon,
   SearchOutlined as SearchIcon,
   SwapVertOutlined as MovementIcon,
+  UploadFileOutlined as ImportIcon,
   WarningAmberOutlined as WarningIcon,
 } from "@mui/icons-material";
 import {
@@ -64,6 +65,7 @@ import {
 import PageHeader from "common/components/PageHeader";
 import useAuth from "features/auth/context/useAuth";
 import getInventoryErrorMessage from "features/inventory/getInventoryErrorMessage";
+import InventoryImportDialog from "features/inventory/InventoryImportDialog";
 import useAppFormatters from "hooks/useAppFormatters";
 import {
   createInventoryItem,
@@ -1971,6 +1973,11 @@ const InventoryPage = () => {
   ] = useState(false);
 
   const [
+    importOpen,
+    setImportOpen,
+  ] = useState(false);
+
+  const [
     editTarget,
     setEditTarget,
   ] = useState<
@@ -2400,6 +2407,40 @@ const InventoryPage = () => {
             : undefined
         }
       />
+
+      {isAdmin && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent:
+              "flex-end",
+            mb: 3,
+            mt: {
+              xs: -1,
+              sm: -2,
+            },
+          }}
+        >
+          <Button
+            variant="outlined"
+            startIcon={
+              <ImportIcon />
+            }
+            fullWidth={
+              !desktop
+            }
+            onClick={() => {
+              setImportOpen(
+                true
+              );
+            }}
+          >
+            {t(
+              "inventoryPage.import.open"
+            )}
+          </Button>
+        </Box>
+      )}
 
       <Stack spacing={3}>
         {errorMessage && (
@@ -3112,6 +3153,38 @@ const InventoryPage = () => {
           ]}
         />
       </Stack>
+
+      <InventoryImportDialog
+        open={importOpen}
+        onClose={() => {
+          setImportOpen(
+            false
+          );
+        }}
+        onImported={(
+          response
+        ) => {
+          setSuccessMessage(
+            t(
+              "inventoryPage.import.completedMessage",
+              {
+                created:
+                  response.report
+                    .created,
+                updated:
+                  response.report
+                    .updated +
+                  response.report
+                    .quantityAdded +
+                  response.report
+                    .quantityReplaced,
+              }
+            )
+          );
+
+          reload();
+        }}
+      />
 
       <ItemDialog
         open={itemOpen}

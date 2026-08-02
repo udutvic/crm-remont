@@ -36,6 +36,20 @@ const codeKeys:
       "inventoryPage.apiErrors.orderNotFound",
     INVENTORY_INSUFFICIENT_STOCK:
       "inventoryPage.apiErrors.stock",
+    INVENTORY_IMPORT_ROWS_REQUIRED:
+      "inventoryPage.import.errors.rowsRequired",
+    INVENTORY_IMPORT_TOO_LARGE:
+      "inventoryPage.import.errors.tooLarge",
+    INVENTORY_IMPORT_INVALID_ACTION:
+      "inventoryPage.import.errors.invalidAction",
+    INVENTORY_IMPORT_INVALID_STRATEGY:
+      "inventoryPage.import.errors.invalidStrategy",
+    INVENTORY_IMPORT_BLOCKED:
+      "inventoryPage.import.errors.blocked",
+    INVENTORY_IMPORT_CONFLICT:
+      "inventoryPage.import.errors.conflict",
+    INVENTORY_IMPORT_INTERNAL_ERROR:
+      "inventoryPage.import.errors.server",
     INVENTORY_INTERNAL_ERROR:
       "inventoryPage.apiErrors.server",
     AUTH_FORBIDDEN:
@@ -53,6 +67,8 @@ const getInventoryErrorMessage = (
     | "movementFailed"
     | "historyFailed"
     | "ordersFailed"
+    | "previewFailed"
+    | "importFailed"
 ): string => {
   if (
     axios.isAxiosError<

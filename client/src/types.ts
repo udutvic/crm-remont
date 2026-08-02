@@ -587,3 +587,166 @@ export interface InventoryMovementListResponse {
   movements: StockMovement[];
   pagination: InventoryPagination;
 }
+
+export type InventoryImportField =
+  | "sku"
+  | "supplierSku"
+  | "barcode"
+  | "name"
+  | "category"
+  | "brand"
+  | "compatibility"
+  | "purchasePrice"
+  | "salePrice"
+  | "quantity"
+  | "minStock"
+  | "supplier"
+  | "location"
+  | "note"
+  | "isActive"
+  | "action";
+
+export type InventoryColumnMapping =
+  Partial<
+    Record<
+      InventoryImportField,
+      string
+    >
+  >;
+
+export type InventoryImportDuplicateAction =
+  | "skip"
+  | "update"
+  | "add_quantity"
+  | "replace";
+
+export type InventoryImportRowAction =
+  | "create"
+  | InventoryImportDuplicateAction;
+
+export type InventoryImportRowStatus =
+  | "new"
+  | "duplicate"
+  | "invalid"
+  | "conflict"
+  | "file_duplicate";
+
+export interface InventoryImportInputRow {
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | undefined;
+
+  rowNumber: number;
+  sku?: string;
+  supplierSku?: string;
+  barcode?: string;
+  name?: string;
+  category?: string;
+  brand?: string;
+  compatibility?: string;
+  purchasePrice?: number | string;
+  salePrice?: number | string;
+  quantity?: number | string;
+  minStock?: number | string;
+  supplier?: string;
+  location?: string;
+  note?: string;
+  isActive?: boolean | string;
+  action?: string;
+}
+
+export interface InventoryImportExistingItem {
+  id: number;
+  sku: string;
+  supplierSku?: string | null;
+  barcode?: string | null;
+  name: string;
+  category: string;
+  currentQuantity: number;
+  isActive: boolean;
+}
+
+export interface InventoryImportNormalizedRow {
+  sku: string;
+  supplierSku?: string | null;
+  barcode?: string | null;
+  name: string;
+  category: string;
+  brand?: string | null;
+  compatibility?: string | null;
+  purchasePrice: number;
+  salePrice: number;
+  quantity: number;
+  minStock: number;
+  supplier?: string | null;
+  location?: string | null;
+  note?: string | null;
+  isActive: boolean;
+}
+
+export interface InventoryImportPreviewRow {
+  rowNumber: number;
+  status: InventoryImportRowStatus;
+  requestedAction?: InventoryImportRowAction | null;
+  normalized?: InventoryImportNormalizedRow | null;
+  matchedBy: string[];
+  existingItem?: InventoryImportExistingItem | null;
+  errors: Record<string, string>;
+  warnings: string[];
+  suggestedAction: InventoryImportRowAction;
+}
+
+export interface InventoryImportPreviewSummary {
+  totalRows: number;
+  validRows: number;
+  invalidRows: number;
+  newRows: number;
+  duplicateRows: number;
+  conflictRows: number;
+  fileDuplicateRows: number;
+}
+
+export interface InventoryImportPreviewRequest {
+  sourceName: string;
+  rows: InventoryImportInputRow[];
+}
+
+export interface InventoryImportPreviewResponse {
+  sourceName: string;
+  summary: InventoryImportPreviewSummary;
+  rows: InventoryImportPreviewRow[];
+}
+
+export interface InventoryImportExecuteRequest
+  extends InventoryImportPreviewRequest {
+  duplicateAction: InventoryImportDuplicateAction;
+  skipInvalid: boolean;
+}
+
+export interface InventoryImportReport {
+  totalRows: number;
+  created: number;
+  updated: number;
+  quantityAdded: number;
+  quantityReplaced: number;
+  skipped: number;
+  skippedInvalid: number;
+  movementsCreated: number;
+  quantityDelta: number;
+}
+
+export interface InventoryImportExecuteResponse {
+  sourceName: string;
+  duplicateAction: InventoryImportDuplicateAction;
+  skipInvalid: boolean;
+  previewSummary: InventoryImportPreviewSummary;
+  report: InventoryImportReport;
+  rows: Array<
+    Record<
+      string,
+      unknown
+    >
+  >;
+}
