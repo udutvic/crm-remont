@@ -1,0 +1,5 @@
+
+# Local API session files
+.cookie-jar.txt
+*.cookie-jar.txt
+cookies.txt
