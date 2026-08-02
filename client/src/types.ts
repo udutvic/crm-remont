@@ -129,6 +129,10 @@ export interface Order {
   completedAt?: string | null;
   deliveredAt?: string | null;
 
+  archivedAt?: string | null;
+  archivedBy?: number | null;
+  archiveReason?: string | null;
+
   client?: Client;
   device: Device;
   stockMovements?: StockMovement[];

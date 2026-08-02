@@ -802,14 +802,19 @@ const en = {
       actions: {
         view: "View order",
         edit: "Edit order",
-        delete: "Delete order",
+        archive: "Archive order",
       },
-      deleteConfirmation:
-        'Are you sure you want to delete order "{{id}}"?',
+      archiveConfirmation:
+        'Archive order "{{id}}"? It will disappear from active lists, but its history, parts and photos will be preserved.',
+      archiveDialog: {
+        title: "Archive order?",
+        confirm: "Archive",
+      },
       errors: {
         loadFailed: "Failed to load orders.",
         clientsLoadFailed: "Failed to load clients.",
         statusUpdateFailed: "Failed to change order status.",
+        archiveFailed: "Failed to archive the order.",
       },
     },
 

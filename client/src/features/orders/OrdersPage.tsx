@@ -28,7 +28,7 @@ import ConfirmDeleteDialog from "components/ui/ConfirmDeleteDialog";
 import LoadingIndicator from "components/ui/LoadingIndicator";
 import {
   createRepairIntake,
-  deleteOrder,
+  archiveOrder,
   getClients,
   getPagedOrders,
   markOrderDelivered,
@@ -36,7 +36,6 @@ import {
   updateOrderStatus,
 } from "index";
 import formatOrderNumber from "utils/formatOrderNumber";
-import getDeleteErrorMessage from "utils/getDeleteErrorMessage";
 import type {
   Client,
   Order,
@@ -747,7 +746,7 @@ const OrdersPage = () => {
         setDeleteDialogMessage(
           order._deleteMessage ??
             t(
-              "ordersPage.deleteConfirmation",
+              "ordersPage.archiveConfirmation",
               {
                 id:
                   formatOrderNumber(
@@ -792,7 +791,7 @@ const OrdersPage = () => {
         try {
           setDeleting(true);
 
-          await deleteOrder(
+          await archiveOrder(
             orderToDelete.id
           );
 
@@ -827,15 +826,19 @@ const OrdersPage = () => {
           error: unknown
         ) {
           console.error(
-            "Error deleting order:",
+            "Error archiving order:",
             error
           );
 
+          const axiosError =
+            error as AxiosError<ApiErrorResponse>;
+
           setDeleteDialogMessage(
-            getDeleteErrorMessage(
-              error,
-              t
-            )
+            axiosError.response
+              ?.data?.error ??
+              t(
+                "ordersPage.errors.archiveFailed"
+              )
           );
 
           setOrderToDelete(
@@ -1104,6 +1107,12 @@ const OrdersPage = () => {
             orderToDelete
           )
         }
+        title={t(
+          "ordersPage.archiveDialog.title"
+        )}
+        confirmLabel={t(
+          "ordersPage.archiveDialog.confirm"
+        )}
       />
     </Container>
   );

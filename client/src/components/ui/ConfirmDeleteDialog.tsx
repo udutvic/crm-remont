@@ -16,6 +16,8 @@ interface ConfirmDeleteDialogProps {
   onClose: () => void;
   onConfirm: () => void;
   isConfirmEnabled?: boolean;
+  title?: string;
+  confirmLabel?: string;
 }
 
 const ConfirmDeleteDialog = ({
@@ -24,6 +26,8 @@ const ConfirmDeleteDialog = ({
   onClose,
   onConfirm,
   isConfirmEnabled = true,
+  title,
+  confirmLabel,
 }: ConfirmDeleteDialogProps) => {
   const {
     t,
@@ -37,9 +41,10 @@ const ConfirmDeleteDialog = ({
       fullWidth
     >
       <DialogTitle>
-        {t(
-          "deleteDialog.title"
-        )}
+        {title ??
+          t(
+            "deleteDialog.title"
+          )}
       </DialogTitle>
 
       <DialogContent>
@@ -65,9 +70,10 @@ const ConfirmDeleteDialog = ({
             color="error"
             variant="contained"
           >
-            {t(
-              "deleteDialog.delete"
-            )}
+            {confirmLabel ??
+              t(
+                "deleteDialog.delete"
+              )}
           </Button>
         )}
       </DialogActions>

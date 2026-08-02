@@ -377,8 +377,29 @@ export const markOrderDelivered = async (
   return response.data;
 };
 
-export const deleteOrder = async (id: number): Promise<void> => {
-  await apiClient.delete(`/orders/${id}`);
+export const archiveOrder = async (
+  id: number,
+  reason?: string
+): Promise<void> => {
+  await apiClient.patch(
+    `/orders/${id}/archive`,
+    reason
+      ? {
+          reason,
+        }
+      : {}
+  );
+};
+
+export const restoreOrder = async (
+  id: number
+): Promise<Order> => {
+  const response =
+    await apiClient.patch<Order>(
+      `/orders/${id}/restore`
+    );
+
+  return response.data;
 };
 
 export const revealOrderAccessCode = async (

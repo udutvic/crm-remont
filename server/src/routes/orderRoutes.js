@@ -131,10 +131,16 @@ router.patch(
   orderController.updateOrderStatus
 );
 
-router.delete(
-  "/:id",
+router.patch(
+  "/:id/archive",
   requireRole("admin"),
-  orderController.deleteOrder
+  orderController.archiveOrder
+);
+
+router.patch(
+  "/:id/restore",
+  requireRole("admin"),
+  orderController.restoreOrder
 );
 
 module.exports = router;

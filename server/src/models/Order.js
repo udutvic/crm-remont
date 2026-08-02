@@ -331,6 +331,27 @@ const Order = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+
+    archivedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    archivedBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+
+      references: {
+        model: "users",
+        key: "id",
+      },
+    },
+
+    archiveReason: {
+      type:
+        DataTypes.STRING(500),
+      allowNull: true,
+    },
   },
   {
     tableName: "orders",
@@ -342,6 +363,10 @@ const Order = sequelize.define(
           "accessCodeEncrypted",
         ],
       },
+
+      where: {
+        archivedAt: null,
+      },
     },
 
     scopes: {
@@ -350,6 +375,10 @@ const Order = sequelize.define(
           include: [
             "accessCodeEncrypted",
           ],
+        },
+
+        where: {
+          archivedAt: null,
         },
       },
     },

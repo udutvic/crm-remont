@@ -1,5 +1,5 @@
 import {
-  Delete as DeleteIcon,
+  ArchiveOutlined as ArchiveIcon,
   Edit as EditIcon,
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
@@ -247,7 +247,7 @@ const OrderCard = ({
                       ...order,
                       _deleteMessage:
                         t(
-                          "ordersPage.deleteConfirmation",
+                          "ordersPage.archiveConfirmation",
                           {
                             id:
                               formattedId,
@@ -261,13 +261,13 @@ const OrderCard = ({
                 }}
                 size="small"
                 aria-label={t(
-                  "ordersPage.actions.delete"
+                  "ordersPage.actions.archive"
                 )}
                 sx={{
                   p: 0.75,
                 }}
               >
-                <DeleteIcon
+                <ArchiveIcon
                   sx={{
                     color: "red",
                     fontSize:

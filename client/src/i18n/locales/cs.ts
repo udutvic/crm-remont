@@ -802,14 +802,19 @@ const cs = {
       actions: {
         view: "Zobrazit zakázku",
         edit: "Upravit zakázku",
-        delete: "Smazat zakázku",
+        archive: "Archivovat zakázku",
       },
-      deleteConfirmation:
-        'Opravdu chcete smazat zakázku "{{id}}"?',
+      archiveConfirmation:
+        'Archivovat zakázku "{{id}}"? Zmizí z aktivních seznamů, ale její historie, díly a fotografie zůstanou zachovány.',
+      archiveDialog: {
+        title: "Archivovat zakázku?",
+        confirm: "Archivovat",
+      },
       errors: {
         loadFailed: "Zakázky se nepodařilo načíst.",
         clientsLoadFailed: "Zákazníky se nepodařilo načíst.",
         statusUpdateFailed: "Stav zakázky se nepodařilo změnit.",
+        archiveFailed: "Zakázku se nepodařilo archivovat.",
       },
     },
 

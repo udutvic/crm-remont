@@ -1057,7 +1057,7 @@ exports.markOrderDelivered = async (
   }
 };
 
-exports.deleteOrder = async (
+exports.archiveOrder = async (
   req,
   res
 ) => {
@@ -1067,7 +1067,28 @@ exports.deleteOrder = async (
 
   if (!orderId) {
     return res.status(400).json({
-      error: "Invalid order ID.",
+      code:
+        "INVALID_ORDER_ID",
+      error:
+        "Invalid order ID.",
+    });
+  }
+
+  const archiveReason =
+    String(
+      req.body?.reason ??
+        ""
+    ).trim();
+
+  if (
+    archiveReason.length >
+    500
+  ) {
+    return res.status(400).json({
+      code:
+        "ORDER_ARCHIVE_REASON_TOO_LONG",
+      error:
+        "Archive reason cannot exceed 500 characters.",
     });
   }
 
@@ -1079,18 +1100,105 @@ exports.deleteOrder = async (
 
     if (!order) {
       return res.status(404).json({
-        error: "Order not found.",
+        code:
+          "ORDER_NOT_FOUND",
+        error:
+          "Order not found.",
       });
     }
 
-    await order.destroy();
+    await order.update({
+      archivedAt:
+        new Date(),
 
-    return res.status(204).send();
+      archivedBy:
+        req.auth
+          ?.user?.id ??
+        null,
+
+      archiveReason:
+        archiveReason ||
+        null,
+    });
+
+    return res
+      .status(204)
+      .send();
   } catch (error) {
     return handleOrderError(
       res,
       error,
-      "delete"
+      "archive"
+    );
+  }
+};
+
+exports.restoreOrder = async (
+  req,
+  res
+) => {
+  const orderId = parsePositiveId(
+    req.params.id
+  );
+
+  if (!orderId) {
+    return res.status(400).json({
+      code:
+        "INVALID_ORDER_ID",
+      error:
+        "Invalid order ID.",
+    });
+  }
+
+  try {
+    const order =
+      await Order
+        .unscoped()
+        .findByPk(
+          orderId
+        );
+
+    if (!order) {
+      return res.status(404).json({
+        code:
+          "ORDER_NOT_FOUND",
+        error:
+          "Order not found.",
+      });
+    }
+
+    if (!order.archivedAt) {
+      return res.status(409).json({
+        code:
+          "ORDER_NOT_ARCHIVED",
+        error:
+          "Order is not archived.",
+      });
+    }
+
+    await order.update({
+      archivedAt: null,
+      archivedBy: null,
+      archiveReason: null,
+    });
+
+    const restoredOrder =
+      await findOrderWithRelations(
+        orderId
+      );
+
+    return res
+      .status(200)
+      .json(
+        serializeOrder(
+          restoredOrder
+        )
+      );
+  } catch (error) {
+    return handleOrderError(
+      res,
+      error,
+      "restore"
     );
   }
 };
