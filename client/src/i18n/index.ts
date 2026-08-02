@@ -12,289 +12,150 @@ export const supportedLanguages = [
 export type AppLanguage =
   (typeof supportedLanguages)[number];
 
-type TranslationTree =
-  Record<string, unknown>;
+type Translation = Record<string, unknown>;
 
 interface LocaleModule {
   default: {
-    translation:
-      TranslationTree;
+    translation: Translation;
   };
 }
 
-type LocaleLoader =
-  () => Promise<LocaleModule>;
-
-const localeLoaders:
-  Record<
-    AppLanguage,
-    LocaleLoader
-  > = {
-    en: () =>
-      import(
-        "./locales/en"
-      ),
-
-    uk: () =>
-      import(
-        "./locales/uk"
-      ),
-
-    cs: () =>
-      import(
-        "./locales/cs"
-      ),
-  };
-
-const languageStorageKey =
+const LANGUAGE_STORAGE_KEY =
   "crm-remont-language";
 
-const defaultNamespace =
-  "translation";
+const localeLoaders: Record<
+  AppLanguage,
+  () => Promise<LocaleModule>
+> = {
+  en: () => import("./locales/en"),
+  uk: () => import("./locales/uk"),
+  cs: () => import("./locales/cs"),
+};
 
 const isAppLanguage = (
   value: string | null
-): value is AppLanguage => {
-  return supportedLanguages.some(
-    (language) =>
-      language === value
+): value is AppLanguage =>
+  supportedLanguages.includes(
+    value as AppLanguage
   );
+
+const getInitialLanguage = (): AppLanguage => {
+  const storedLanguage =
+    localStorage.getItem(
+      LANGUAGE_STORAGE_KEY
+    );
+
+  return isAppLanguage(storedLanguage)
+    ? storedLanguage
+    : "en";
 };
 
-const getInitialLanguage =
-  (): AppLanguage => {
-    const storedLanguage =
-      localStorage.getItem(
-        languageStorageKey
-      );
+const loadTranslation = async (
+  language: AppLanguage
+): Promise<Translation> => {
+  const locale =
+    await localeLoaders[language]();
 
-    if (
-      isAppLanguage(
-        storedLanguage
-      )
-    ) {
-      return storedLanguage;
-    }
+  return locale.default.translation;
+};
 
-    return "en";
-  };
-
-const loadTranslation =
-  async (
-    language: AppLanguage
-  ): Promise<TranslationTree> => {
-    const localeModule =
-      await localeLoaders[
-        language
-      ]();
-
-    return localeModule
-      .default
-      .translation;
-  };
-
-const addLanguageResources =
-  async (
-    language: AppLanguage
-  ): Promise<void> => {
-    if (
-      i18n.hasResourceBundle(
-        language,
-        defaultNamespace
-      )
-    ) {
-      return;
-    }
-
-    const translation =
-      await loadTranslation(
-        language
-      );
-
-    i18n.addResourceBundle(
+const ensureLanguageLoaded = async (
+  language: AppLanguage
+): Promise<void> => {
+  if (
+    i18n.hasResourceBundle(
       language,
-      defaultNamespace,
-      translation,
-      true,
-      true
-    );
-  };
+      "translation"
+    )
+  ) {
+    return;
+  }
 
-const createInitialResources =
-  async (
-    language: AppLanguage
-  ): Promise<
-    Record<
-      string,
-      {
-        translation:
-          TranslationTree;
-      }
-    >
-  > => {
-    const resources:
-      Record<
-        string,
-        {
-          translation:
-            TranslationTree;
-        }
-      > = {};
-
-    resources.en = {
-      translation:
-        await loadTranslation(
-          "en"
-        ),
-    };
-
-    if (
-      language !== "en"
-    ) {
-      resources[
-        language
-      ] = {
-        translation:
-          await loadTranslation(
-            language
-          ),
-      };
-    }
-
-    return resources;
-  };
-
-let languageListenerRegistered =
-  false;
-
-const registerLanguageListener =
-  (): void => {
-    if (
-      languageListenerRegistered
-    ) {
-      return;
-    }
-
-    languageListenerRegistered =
-      true;
-
-    i18n.on(
-      "languageChanged",
-      (language: string) => {
-        if (
-          !isAppLanguage(
-            language
-          )
-        ) {
-          return;
-        }
-
-        localStorage.setItem(
-          languageStorageKey,
-          language
-        );
-
-        document.documentElement
-          .lang = language;
-      }
-    );
-  };
+  i18n.addResourceBundle(
+    language,
+    "translation",
+    await loadTranslation(language),
+    true,
+    true
+  );
+};
 
 let initializationPromise:
   Promise<void> | null = null;
 
-const initialize =
-  async (): Promise<void> => {
-    const requestedLanguage =
-      getInitialLanguage();
-
-    let initialLanguage =
-      requestedLanguage;
-
-    let resources:
-      Awaited<
-        ReturnType<
-          typeof createInitialResources
-        >
-      >;
-
-    try {
-      resources =
-        await createInitialResources(
-          requestedLanguage
-        );
-    } catch (
-      error: unknown
-    ) {
-      if (
-        requestedLanguage ===
-        "en"
-      ) {
-        throw error;
-      }
-
-      console.error(
-        "Failed to load the saved language. Falling back to English:",
-        error
-      );
-
-      initialLanguage =
-        "en";
-
-      resources =
-        await createInitialResources(
-          "en"
-        );
-    }
-
-    document.documentElement.lang =
-      initialLanguage;
-
-    registerLanguageListener();
-
-    await i18n
-      .use(initReactI18next)
-      .init({
-        resources,
-
-        lng:
-          initialLanguage,
-
-        fallbackLng:
-          "en",
-
-        supportedLngs: [
-          ...supportedLanguages,
-        ],
-
-        interpolation: {
-          escapeValue:
-            false,
-        },
-
-        react: {
-          useSuspense:
-            false,
-        },
-      });
-  };
-
 export const initializeI18n =
   (): Promise<void> => {
-    if (
-      initializationPromise
-    ) {
+    if (initializationPromise) {
       return initializationPromise;
     }
 
     initializationPromise =
-      initialize().catch(
-        (
-          error: unknown
-        ) => {
-          initializationPromise =
-            null;
+      (async () => {
+        const language =
+          getInitialLanguage();
 
+        const resources = {
+          en: {
+            translation:
+              await loadTranslation("en"),
+          },
+        } as Record<
+          string,
+          {
+            translation: Translation;
+          }
+        >;
+
+        if (language !== "en") {
+          resources[language] = {
+            translation:
+              await loadTranslation(language),
+          };
+        }
+
+        await i18n
+          .use(initReactI18next)
+          .init({
+            resources,
+            lng: language,
+            fallbackLng: "en",
+            supportedLngs: [
+              ...supportedLanguages,
+            ],
+            interpolation: {
+              escapeValue: false,
+            },
+            react: {
+              useSuspense: false,
+            },
+          });
+
+        document.documentElement.lang =
+          language;
+
+        i18n.on(
+          "languageChanged",
+          (nextLanguage: string) => {
+            if (
+              !isAppLanguage(
+                nextLanguage
+              )
+            ) {
+              return;
+            }
+
+            localStorage.setItem(
+              LANGUAGE_STORAGE_KEY,
+              nextLanguage
+            );
+
+            document.documentElement.lang =
+              nextLanguage;
+          }
+        );
+      })().catch(
+        (error: unknown) => {
+          initializationPromise = null;
           throw error;
         }
       );
@@ -302,19 +163,12 @@ export const initializeI18n =
     return initializationPromise;
   };
 
-export const changeAppLanguage =
-  async (
-    language: AppLanguage
-  ): Promise<void> => {
-    await initializeI18n();
-
-    await addLanguageResources(
-      language
-    );
-
-    await i18n.changeLanguage(
-      language
-    );
-  };
+export const changeAppLanguage = async (
+  language: AppLanguage
+): Promise<void> => {
+  await initializeI18n();
+  await ensureLanguageLoaded(language);
+  await i18n.changeLanguage(language);
+};
 
 export default i18n;
