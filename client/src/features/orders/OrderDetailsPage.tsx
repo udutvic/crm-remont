@@ -43,6 +43,7 @@ import OrderDetailsHeader from "./components/OrderDetailsHeader";
 import OrderFinanceSection from "./components/OrderFinanceSection";
 import OrderForm from "./components/OrderForm";
 import OrderPartsSection from "./components/OrderPartsSection";
+import OrderPhotosSection from "./components/OrderPhotosSection";
 
 interface ApiErrorResponse {
   error?: string;
@@ -519,6 +520,12 @@ const OrderDetailsPage = () => {
         <OrderDetailsContent
           order={order}
         />
+
+        {order.id && (
+          <OrderPhotosSection
+            orderId={order.id}
+          />
+        )}
 
         <OrderPartsSection
           order={order}

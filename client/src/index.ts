@@ -21,6 +21,9 @@ import {
   DevicePayload,
   LoginPayload,
   Order,
+  OrderPhotoListResponse,
+  OrderPhotoUploadMeta,
+  OrderPhotoUploadResponse,
   OrderListQuery,
   OrderListResponse,
   OrderPayload,
@@ -520,6 +523,78 @@ export const getAuditLogs = async (
     );
 
   return response.data;
+};
+
+// Order photos
+
+export const getOrderPhotos = async (
+  orderId: number
+): Promise<OrderPhotoListResponse> => {
+  const response =
+    await apiClient.get<OrderPhotoListResponse>(
+      `/orders/${orderId}/photos`
+    );
+
+  return response.data;
+};
+
+export const uploadOrderPhoto = async (
+  orderId: number,
+  photo: File,
+  meta: OrderPhotoUploadMeta
+): Promise<OrderPhotoUploadResponse> => {
+  const formData =
+    new FormData();
+
+  formData.append(
+    "photo",
+    photo
+  );
+
+  formData.append(
+    "category",
+    meta.category
+  );
+
+  formData.append(
+    "caption",
+    meta.caption ?? ""
+  );
+
+  formData.append(
+    "originalName",
+    meta.originalName
+  );
+
+  formData.append(
+    "width",
+    String(meta.width)
+  );
+
+  formData.append(
+    "height",
+    String(meta.height)
+  );
+
+  const response =
+    await apiClient.post<OrderPhotoUploadResponse>(
+      `/orders/${orderId}/photos`,
+      formData,
+      {
+        timeout: 120_000,
+      }
+    );
+
+  return response.data;
+};
+
+export const deleteOrderPhoto = async (
+  orderId: number,
+  photoId: number
+): Promise<void> => {
+  await apiClient.delete(
+    `/orders/${orderId}/photos/${photoId}`
+  );
 };
 
 // Inventory
