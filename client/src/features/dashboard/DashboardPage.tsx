@@ -1,5 +1,6 @@
 import {
-  useMemo,
+  useEffect,
+  useState,
 } from "react";
 import type {
   ReactNode,
@@ -17,15 +18,12 @@ import {
 
 import LoadingIndicator from "components/ui/LoadingIndicator";
 import {
-  getClients,
-  getDevices,
-  getOrders,
+  getDashboardStats,
 } from "index";
-import useCrud from "hooks/useCrud";
 import type {
-  Client,
-  Device,
-  Order,
+  DashboardStats,
+} from "index";
+import type {
   OrderStatus,
 } from "types";
 
@@ -38,107 +36,68 @@ const DashboardPage = () => {
     t,
   } = useTranslation();
 
-  const {
-    items: clients,
-    loading: clientsLoading,
-    error: clientsError,
-  } = useCrud<Client>({
-    getAll: getClients,
-
-    create: () =>
-      Promise.resolve(
-        {} as Client
-      ),
-
-    update: () =>
-      Promise.resolve(
-        {} as Client
-      ),
-
-    remove: () =>
-      Promise.resolve(),
-  });
-
-  const {
-    items: devices,
-    loading: devicesLoading,
-    error: devicesError,
-  } = useCrud<Device>({
-    getAll: getDevices,
-
-    create: () =>
-      Promise.resolve(
-        {} as Device
-      ),
-
-    update: () =>
-      Promise.resolve(
-        {} as Device
-      ),
-
-    remove: () =>
-      Promise.resolve(),
-  });
-
-  const {
-    items: orders,
-    loading: ordersLoading,
-    error: ordersError,
-  } = useCrud<Order>({
-    getAll: getOrders,
-
-    create: () =>
-      Promise.resolve(
-        {} as Order
-      ),
-
-    update: () =>
-      Promise.resolve(
-        {} as Order
-      ),
-
-    remove: () =>
-      Promise.resolve(),
-  });
-
-  const loading =
-    clientsLoading ||
-    devicesLoading ||
-    ordersLoading;
-
-  const hasLoadError =
-    Boolean(
-      clientsError ||
-        devicesError ||
-        ordersError
+  const [
+    stats,
+    setStats,
+  ] =
+    useState<DashboardStats | null>(
+      null
     );
 
-  const totalIncome =
-    useMemo(() => {
-      return orders
-        .filter(
-          (order) =>
-            order.status ===
-            "completed"
-        )
-        .reduce(
-          (sum, order) =>
-            sum +
-            (order.finalPrice ??
-              order.price ??
-              0),
-          0
-        );
-    }, [orders]);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const sortedOrders =
-    useMemo(() => {
-      return [...orders].sort(
-        (first, second) =>
-          (second.id ?? 0) -
-          (first.id ?? 0)
-      );
-    }, [orders]);
+  const [
+    hasLoadError,
+    setHasLoadError,
+  ] = useState(false);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadStats =
+      async (): Promise<void> => {
+        try {
+          setLoading(true);
+          setHasLoadError(
+            false
+          );
+
+          const result =
+            await getDashboardStats();
+
+          if (isActive) {
+            setStats(result);
+          }
+        } catch (
+          error: unknown
+        ) {
+          console.error(
+            "Dashboard statistics load failed:",
+            error
+          );
+
+          if (isActive) {
+            setStats(null);
+            setHasLoadError(
+              true
+            );
+          }
+        } finally {
+          if (isActive) {
+            setLoading(false);
+          }
+        }
+      };
+
+    void loadStats();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const getStatusChip = (
     status: OrderStatus
@@ -195,43 +154,44 @@ const DashboardPage = () => {
           </Alert>
         )}
 
-        <StatisticsCards
-          clientsCount={
-            clients.length
-          }
-          devicesCount={
-            devices.length
-          }
-          ordersCount={
-            orders.length
-          }
-          totalIncome={
-            totalIncome
-          }
-        />
-
-        <Grid
-          container
-          spacing={3}
-        >
-          <Grid
-            size={{
-              xs: 12,
-            }}
-          >
-            <RecentOrders
-              orders={
-                sortedOrders
+        {stats && (
+          <>
+            <StatisticsCards
+              clientsCount={
+                stats.clientCount
               }
-              clients={
-                clients
+              devicesCount={
+                stats.deviceCount
               }
-              getStatusChip={
-                getStatusChip
+              ordersCount={
+                stats.orderCount
+              }
+              totalIncome={
+                stats.totalIncome
               }
             />
-          </Grid>
-        </Grid>
+
+            <Grid
+              container
+              spacing={3}
+            >
+              <Grid
+                size={{
+                  xs: 12,
+                }}
+              >
+                <RecentOrders
+                  orders={
+                    stats.recentOrders
+                  }
+                  getStatusChip={
+                    getStatusChip
+                  }
+                />
+              </Grid>
+            </Grid>
+          </>
+        )}
       </Stack>
     </Container>
   );

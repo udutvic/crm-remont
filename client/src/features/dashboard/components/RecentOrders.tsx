@@ -28,14 +28,12 @@ import DeviceIcon from "common/components/DeviceIcon";
 import useAppFormatters from "hooks/useAppFormatters";
 import formatOrderNumber from "utils/formatOrderNumber";
 import type {
-  Client,
   Order,
   OrderStatus,
 } from "types";
 
 interface RecentOrdersProps {
   orders: Order[];
-  clients: Client[];
 
   getStatusChip: (
     status: OrderStatus
@@ -44,7 +42,6 @@ interface RecentOrdersProps {
 
 const RecentOrders = ({
   orders,
-  clients,
   getStatusChip,
 }: RecentOrdersProps) => {
   const {
@@ -258,11 +255,8 @@ const RecentOrders = ({
                           }}
                         >
                           <ClientInfo
-                            clientId={
-                              order.clientId
-                            }
-                            clients={
-                              clients
+                            client={
+                              order.client
                             }
                             isMobileView
                           />
@@ -424,11 +418,8 @@ const RecentOrders = ({
 
                   <TableCell>
                     <ClientInfo
-                      clientId={
-                        order.clientId
-                      }
-                      clients={
-                        clients
+                      client={
+                        order.client
                       }
                     />
                   </TableCell>

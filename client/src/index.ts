@@ -54,6 +54,7 @@ export interface DashboardStats {
   deviceCount: number;
   orderCount: number;
   totalIncome: number;
+  recentOrders: Order[];
 }
 
 export interface HealthResponse {
