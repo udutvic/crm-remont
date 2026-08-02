@@ -1,0 +1,1 @@
+{"items":[{"id":1,"email":"your-email@example.com","name":"Viktor","role":"admin","isActive":true,"activeSessionCount":3,"lastLoginAt":"2026-08-01T23:54:17.348Z","passwordChangedAt":"2026-08-01T22:59:30.707Z","createdAt":"2026-08-01T22:59:30.708Z","updatedAt":"2026-08-01T23:54:17.358Z"}],"pagination":{"page":1,"pageSize":25,"total":1,"totalPages":1}}
