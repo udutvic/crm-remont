@@ -20,6 +20,11 @@ const orderListController =
     "../controllers/orderListController"
   );
 
+const orderArchiveController =
+  require(
+    "../controllers/orderArchiveController"
+  );
+
 const requireRole = require(
   "../middleware/requireRole"
 );
@@ -40,6 +45,13 @@ const router = express.Router();
 router.get(
   "/paged",
   orderListController.getPagedOrders
+);
+
+router.get(
+  "/archived",
+  requireRole("admin"),
+  orderArchiveController
+    .getArchivedOrders
 );
 
 router.get(
@@ -131,10 +143,16 @@ router.patch(
   orderController.updateOrderStatus
 );
 
-router.delete(
-  "/:id",
+router.patch(
+  "/:id/archive",
   requireRole("admin"),
-  orderController.deleteOrder
+  orderController.archiveOrder
+);
+
+router.patch(
+  "/:id/restore",
+  requireRole("admin"),
+  orderController.restoreOrder
 );
 
 module.exports = router;

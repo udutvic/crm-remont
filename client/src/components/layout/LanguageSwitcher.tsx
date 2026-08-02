@@ -1,4 +1,7 @@
 import {
+  useState,
+} from "react";
+import type {
   MouseEvent,
 } from "react";
 import {
@@ -11,8 +14,11 @@ import {
 } from "react-i18next";
 
 import {
-  AppLanguage,
+  changeAppLanguage,
   supportedLanguages,
+} from "i18n";
+import type {
+  AppLanguage,
 } from "i18n";
 
 const languageLabels: Record<
@@ -47,6 +53,11 @@ const LanguageSwitcher = () => {
     i18n,
   } = useTranslation();
 
+  const [
+    changingLanguage,
+    setChangingLanguage,
+  ] = useState(false);
+
   const currentLanguage =
     getCurrentLanguage(
       i18n.resolvedLanguage ??
@@ -64,9 +75,28 @@ const LanguageSwitcher = () => {
       return;
     }
 
-    void i18n.changeLanguage(
-      language
+    setChangingLanguage(
+      true
     );
+
+    void changeAppLanguage(
+      language
+    )
+      .catch(
+        (
+          error: unknown
+        ) => {
+          console.error(
+            "Failed to change language:",
+            error
+          );
+        }
+      )
+      .finally(() => {
+        setChangingLanguage(
+          false
+        );
+      });
   };
 
   return (
@@ -79,6 +109,9 @@ const LanguageSwitcher = () => {
         value={currentLanguage}
         onChange={
           handleLanguageChange
+        }
+        disabled={
+          changingLanguage
         }
         aria-label={t(
           "common.language"

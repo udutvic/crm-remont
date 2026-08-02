@@ -1,121 +1,115 @@
 import {
+  lazy,
+  Suspense,
+  type ReactNode,
+} from "react";
+import {
+  Box,
+  CircularProgress,
+} from "@mui/material";
+import {
   Route,
   Routes,
 } from "react-router";
 
 import MainLayout from "components/layout/MainLayout";
-import AuditLogPage from "features/audit/AuditLogPage";
 import PublicOnlyRoute from "features/auth/components/PublicOnlyRoute";
 import RequireAuth from "features/auth/components/RequireAuth";
 import RequireRole from "features/auth/components/RequireRole";
-import LoginPage from "features/auth/LoginPage";
-import ClientDetailsPage from "features/clients/ClientDetailsPage";
-import ClientsPage from "features/clients/ClientsPage";
-import DashboardPage from "features/dashboard/DashboardPage";
-import NotFoundPage from "features/errors/NotFoundPage";
-import InventoryPage from "features/inventory/InventoryPage";
-import DeviceDetailsPage from "features/devices/DeviceDetailsPage";
-import DevicesPage from "features/devices/DevicesPage";
-import OrderDetailsPage from "features/orders/OrderDetailsPage";
-import OrderReceiptPage from "features/orders/OrderReceiptPage";
-import OrdersPage from "features/orders/OrdersPage";
-import StaffPage from "features/staff/StaffPage";
 
-const MainApp = () => {
-  return (
-    <MainLayout>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <DashboardPage />
-          }
-        />
+const AuditLogPage = lazy(() => import("features/audit/AuditLogPage"));
+const LoginPage = lazy(() => import("features/auth/LoginPage"));
+const ClientDetailsPage = lazy(
+  () => import("features/clients/ClientDetailsPage")
+);
+const ClientsPage = lazy(() => import("features/clients/ClientsPage"));
+const DashboardPage = lazy(
+  () => import("features/dashboard/DashboardPage")
+);
+const DeviceDetailsPage = lazy(
+  () => import("features/devices/DeviceDetailsPage")
+);
+const DevicesPage = lazy(() => import("features/devices/DevicesPage"));
+const NotFoundPage = lazy(() => import("features/errors/NotFoundPage"));
+const InventoryPage = lazy(
+  () => import("features/inventory/InventoryPage")
+);
+const ArchivedOrdersPage = lazy(
+  () => import("features/orders/ArchivedOrdersPage")
+);
+const OrderDetailsPage = lazy(
+  () => import("features/orders/OrderDetailsPage")
+);
+const OrderReceiptPage = lazy(
+  () => import("features/orders/OrderReceiptPage")
+);
+const OrdersPage = lazy(() => import("features/orders/OrdersPage"));
+const StaffPage = lazy(() => import("features/staff/StaffPage"));
 
-        <Route
-          path="/clients/:id"
-          element={<ClientDetailsPage />}
-        />
+interface AdminOnlyProps {
+  children: ReactNode;
+}
 
-        <Route
-          path="/clients"
-          element={
-            <ClientsPage />
-          }
-        />
+const AdminOnly = ({ children }: AdminOnlyProps) => (
+  <RequireRole allowedRoles={["admin"]}>{children}</RequireRole>
+);
 
-        <Route
-          path="/devices/:id"
-          element={<DeviceDetailsPage />}
-        />
+const RouteFallback = () => (
+  <Box
+    role="status"
+    aria-label="Loading page"
+    sx={{
+      minHeight: 280,
+      display: "grid",
+      placeItems: "center",
+    }}
+  >
+    <CircularProgress />
+  </Box>
+);
 
-        <Route
-          path="/devices"
-          element={
-            <DevicesPage />
-          }
-        />
+const MainApp = () => (
+  <MainLayout>
+    <Routes>
+      <Route path="/" element={<DashboardPage />} />
+      <Route path="/clients/:id" element={<ClientDetailsPage />} />
+      <Route path="/clients" element={<ClientsPage />} />
+      <Route path="/devices/:id" element={<DeviceDetailsPage />} />
+      <Route path="/devices" element={<DevicesPage />} />
+      <Route path="/orders" element={<OrdersPage />} />
+      <Route
+        path="/orders/archive"
+        element={
+          <AdminOnly>
+            <ArchivedOrdersPage />
+          </AdminOnly>
+        }
+      />
+      <Route path="/orders/:id" element={<OrderDetailsPage />} />
+      <Route path="/inventory" element={<InventoryPage />} />
+      <Route
+        path="/staff"
+        element={
+          <AdminOnly>
+            <StaffPage />
+          </AdminOnly>
+        }
+      />
+      <Route
+        path="/audit"
+        element={
+          <AdminOnly>
+            <AuditLogPage />
+          </AdminOnly>
+        }
+      />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  </MainLayout>
+);
 
-        <Route
-          path="/orders"
-          element={
-            <OrdersPage />
-          }
-        />
-
-        <Route
-          path="/orders/:id"
-          element={
-            <OrderDetailsPage />
-          }
-        />
-
-        <Route
-          path="/inventory"
-          element={
-            <InventoryPage />
-          }
-        />
-
-        <Route
-          path="/staff"
-          element={
-            <RequireRole
-              allowedRoles={[
-                "admin",
-              ]}
-            >
-              <StaffPage />
-            </RequireRole>
-          }
-        />
-
-        <Route
-          path="/audit"
-          element={
-            <RequireRole
-              allowedRoles={[
-                "admin",
-              ]}
-            >
-              <AuditLogPage />
-            </RequireRole>
-          }
-        />
-        <Route
-          path="*"
-          element={
-            <NotFoundPage />
-          }
-        />
-
-      </Routes>
-    </MainLayout>
-  );
-};
-
-function App() {
-  return (
+const App = () => (
+  <Suspense fallback={<RouteFallback />}>
     <Routes>
       <Route
         path="/login"
@@ -125,7 +119,6 @@ function App() {
           </PublicOnlyRoute>
         }
       />
-
       <Route
         path="/orders/:id/receipt"
         element={
@@ -134,7 +127,6 @@ function App() {
           </RequireAuth>
         }
       />
-
       <Route
         path="*"
         element={
@@ -144,7 +136,7 @@ function App() {
         }
       />
     </Routes>
-  );
-}
+  </Suspense>
+);
 
 export default App;

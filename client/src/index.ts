@@ -1,5 +1,7 @@
 import { apiClient } from "api";
 import type {
+  ArchivedOrderListQuery,
+  ArchivedOrderListResponse,
   AuditLogListQuery,
   AuditLogListResponse,
   CreateStaffPayload,
@@ -54,6 +56,7 @@ export interface DashboardStats {
   deviceCount: number;
   orderCount: number;
   totalIncome: number;
+  recentOrders: Order[];
 }
 
 export interface HealthResponse {
@@ -327,32 +330,6 @@ export const updateOrderFinance = async (
   return response.data;
 };
 
-export const getOrdersByStatus = async (
-  status: OrderStatus
-): Promise<Order[]> => {
-  const response = await apiClient.get<Order[]>("/orders", {
-    params: {
-      status,
-    },
-  });
-
-  return response.data;
-};
-
-export const getOrdersByDate = async (
-  startDate: string,
-  endDate: string
-): Promise<Order[]> => {
-  const response = await apiClient.get<Order[]>("/orders", {
-    params: {
-      startDate,
-      endDate,
-    },
-  });
-
-  return response.data;
-};
-
 export const createOrder = async (
   order: OrderPayload
 ): Promise<Order> => {
@@ -402,9 +379,58 @@ export const markOrderDelivered = async (
   return response.data;
 };
 
-export const deleteOrder = async (id: number): Promise<void> => {
-  await apiClient.delete(`/orders/${id}`);
+export const archiveOrder = async (
+  id: number,
+  reason?: string
+): Promise<void> => {
+  await apiClient.patch(
+    `/orders/${id}/archive`,
+    reason
+      ? {
+          reason,
+        }
+      : {}
+  );
 };
+
+export const restoreOrder = async (
+  id: number
+): Promise<Order> => {
+  const response =
+    await apiClient.patch<Order>(
+      `/orders/${id}/restore`
+    );
+
+  return response.data;
+};
+
+export const getArchivedOrders =
+  async (
+    query:
+      ArchivedOrderListQuery
+  ): Promise<ArchivedOrderListResponse> => {
+    const response =
+      await apiClient.get<ArchivedOrderListResponse>(
+        "/orders/archived",
+        {
+          params: {
+            page:
+              query.page,
+            pageSize:
+              query.pageSize,
+
+            ...(query.q
+              ? {
+                  q:
+                    query.q,
+                }
+              : {}),
+          },
+        }
+      );
+
+    return response.data;
+  };
 
 export const revealOrderAccessCode = async (
   id: number
@@ -416,17 +442,6 @@ export const revealOrderAccessCode = async (
 
   return response.data;
 };
-
-export const searchOrders = async (query: string): Promise<Order[]> => {
-  const response = await apiClient.get<Order[]>("/orders/search", {
-    params: {
-      q: query,
-    },
-  });
-
-  return response.data;
-};
-
 
 // Repair intake
 

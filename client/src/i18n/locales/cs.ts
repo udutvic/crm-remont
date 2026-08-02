@@ -28,6 +28,7 @@ const cs = {
       devices: "Zařízení",
       orders: "Zakázky",
       inventory: "Sklad",
+      orderArchive: "Archiv zakázek",
     },
 
     statuses: {
@@ -596,6 +597,55 @@ const cs = {
       errors: { invalidClient: "Neplatné ID zákazníka.", invalidDevice: "Neplatné ID zařízení.", clientLoad: "Kartu zákazníka se nepodařilo načíst.", deviceLoad: "Kartu zařízení se nepodařilo načíst." },
     },
 
+    archivePage: {
+      title: "Archiv zakázek",
+      description:
+        "Archivované zakázky nejsou v aktivních seznamech, ale jejich historie opravy, skladové pohyby, finance a fotografie zůstávají zachovány.",
+      empty: "Nebyly nalezeny žádné archivované zakázky.",
+      systemUser: "Systém",
+      search: {
+        label: "Hledat v archivu",
+        placeholder:
+          "Číslo zakázky, zákazník, telefon, zařízení nebo důvod...",
+      },
+      columns: {
+        order: "Zakázka",
+        device: "Zařízení",
+        client: "Zákazník",
+        status: "Stav",
+        price: "Cena",
+        archived: "Archivováno",
+        reason: "Důvod",
+        actions: "Akce",
+      },
+      labels: {
+        price: "Cena",
+        archivedAt: "Archivováno",
+        archivedBy: "Archivoval",
+        reason: "Důvod",
+      },
+      actions: {
+        restore: "Obnovit zakázku",
+        refresh: "Obnovit",
+        reset: "Vymazat",
+      },
+      pagination: {
+        rowsPerPage: "Řádků na stránku:",
+      },
+      restoreDialog: {
+        title: "Obnovit zakázku?",
+        message:
+          'Obnovit zakázku "{{id}}" do aktivního seznamu?',
+        confirm: "Obnovit",
+      },
+      errors: {
+        loadFailed:
+          "Archivované zakázky se nepodařilo načíst.",
+        restoreFailed:
+          "Zakázku se nepodařilo obnovit.",
+      },
+    },
+
     staffPage: {
       title: "Pracovníci",
       addStaff: "Přidat pracovníka",
@@ -802,14 +852,22 @@ const cs = {
       actions: {
         view: "Zobrazit zakázku",
         edit: "Upravit zakázku",
-        delete: "Smazat zakázku",
+        archive: "Archivovat zakázku",
       },
-      deleteConfirmation:
-        'Opravdu chcete smazat zakázku "{{id}}"?',
+      archiveConfirmation:
+        'Archivovat zakázku "{{id}}"? Zmizí z aktivních seznamů, ale její historie, díly a fotografie zůstanou zachovány.',
+      archiveDialog: {
+        title: "Archivovat zakázku?",
+        confirm: "Archivovat",
+        reason: "Důvod archivace",
+        reasonRequired: "Zadejte důvod archivace.",
+        reasonCounter: "{{count}} / 500 znaků",
+      },
       errors: {
         loadFailed: "Zakázky se nepodařilo načíst.",
         clientsLoadFailed: "Zákazníky se nepodařilo načíst.",
         statusUpdateFailed: "Stav zakázky se nepodařilo změnit.",
+        archiveFailed: "Zakázku se nepodařilo archivovat.",
       },
     },
 

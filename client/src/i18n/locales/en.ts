@@ -28,6 +28,7 @@ const en = {
       devices: "Devices",
       orders: "Orders",
       inventory: "Inventory",
+      orderArchive: "Order archive",
     },
 
     statuses: {
@@ -596,6 +597,55 @@ const en = {
       errors: { invalidClient: "Invalid client ID.", invalidDevice: "Invalid device ID.", clientLoad: "Could not load the client profile.", deviceLoad: "Could not load the device profile." },
     },
 
+    archivePage: {
+      title: "Order archive",
+      description:
+        "Archived orders are hidden from active lists, but their repair history, inventory movements, finances and photos remain preserved.",
+      empty: "No archived orders were found.",
+      systemUser: "System",
+      search: {
+        label: "Search archive",
+        placeholder:
+          "Order number, customer, phone, device or reason...",
+      },
+      columns: {
+        order: "Order",
+        device: "Device",
+        client: "Customer",
+        status: "Status",
+        price: "Price",
+        archived: "Archived",
+        reason: "Reason",
+        actions: "Actions",
+      },
+      labels: {
+        price: "Price",
+        archivedAt: "Archived",
+        archivedBy: "Archived by",
+        reason: "Reason",
+      },
+      actions: {
+        restore: "Restore order",
+        refresh: "Refresh",
+        reset: "Reset",
+      },
+      pagination: {
+        rowsPerPage: "Rows per page:",
+      },
+      restoreDialog: {
+        title: "Restore order?",
+        message:
+          'Restore order "{{id}}" to the active order list?',
+        confirm: "Restore",
+      },
+      errors: {
+        loadFailed:
+          "Could not load archived orders.",
+        restoreFailed:
+          "Could not restore the order.",
+      },
+    },
+
     staffPage: {
       title: "Staff",
       addStaff: "Add employee",
@@ -802,14 +852,22 @@ const en = {
       actions: {
         view: "View order",
         edit: "Edit order",
-        delete: "Delete order",
+        archive: "Archive order",
       },
-      deleteConfirmation:
-        'Are you sure you want to delete order "{{id}}"?',
+      archiveConfirmation:
+        'Archive order "{{id}}"? It will disappear from active lists, but its history, parts and photos will be preserved.',
+      archiveDialog: {
+        title: "Archive order?",
+        confirm: "Archive",
+        reason: "Archive reason",
+        reasonRequired: "Enter a reason for archiving.",
+        reasonCounter: "{{count}} / 500 characters",
+      },
       errors: {
         loadFailed: "Failed to load orders.",
         clientsLoadFailed: "Failed to load clients.",
         statusUpdateFailed: "Failed to change order status.",
+        archiveFailed: "Failed to archive the order.",
       },
     },
 

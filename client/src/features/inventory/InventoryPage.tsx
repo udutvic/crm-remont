@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -65,7 +67,6 @@ import {
 import PageHeader from "common/components/PageHeader";
 import useAuth from "features/auth/context/useAuth";
 import getInventoryErrorMessage from "features/inventory/getInventoryErrorMessage";
-import InventoryImportDialog from "features/inventory/InventoryImportDialog";
 import useAppFormatters from "hooks/useAppFormatters";
 import {
   createInventoryItem,
@@ -86,6 +87,14 @@ import type {
   StockMovement,
   StockMovementType,
 } from "types";
+
+const InventoryImportDialog =
+  lazy(
+    () =>
+      import(
+        "features/inventory/InventoryImportDialog"
+      )
+  );
 
 interface ItemFormState {
   sku: string;
@@ -3154,37 +3163,60 @@ const InventoryPage = () => {
         />
       </Stack>
 
-      <InventoryImportDialog
-        open={importOpen}
-        onClose={() => {
-          setImportOpen(
-            false
-          );
-        }}
-        onImported={(
-          response
-        ) => {
-          setSuccessMessage(
-            t(
-              "inventoryPage.import.completedMessage",
-              {
-                created:
-                  response.report
-                    .created,
-                updated:
-                  response.report
-                    .updated +
-                  response.report
-                    .quantityAdded +
-                  response.report
-                    .quantityReplaced,
-              }
-            )
-          );
+      {importOpen && (
+        <Suspense
+          fallback={
+            <Dialog
+              open
+              maxWidth="sm"
+              fullWidth
+            >
+              <DialogContent
+                sx={{
+                  minHeight: 180,
+                  display: "grid",
+                  placeItems:
+                    "center",
+                }}
+              >
+                <CircularProgress />
+              </DialogContent>
+            </Dialog>
+          }
+        >
+          <InventoryImportDialog
+            open
+            onClose={() => {
+              setImportOpen(
+                false
+              );
+            }}
+            onImported={(
+              response
+            ) => {
+              setSuccessMessage(
+                t(
+                  "inventoryPage.import.completedMessage",
+                  {
+                    created:
+                      response.report
+                        .created,
+                    updated:
+                      response.report
+                        .updated +
+                      response.report
+                        .quantityAdded +
+                      response.report
+                        .quantityReplaced,
+                  }
+                )
+              );
 
-          reload();
-        }}
-      />
+              reload();
+            }}
+          />
+        </Suspense>
+      )}
 
       <ItemDialog
         open={itemOpen}

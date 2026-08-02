@@ -8,6 +8,7 @@ const sequelize = require(
 
 const Client = require("./Client");
 const Device = require("./Device");
+const User = require("./User");
 
 const ORDER_STATUSES = [
   "pending",
@@ -331,6 +332,27 @@ const Order = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+
+    archivedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    archivedBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+
+      references: {
+        model: "users",
+        key: "id",
+      },
+    },
+
+    archiveReason: {
+      type:
+        DataTypes.STRING(500),
+      allowNull: true,
+    },
   },
   {
     tableName: "orders",
@@ -342,6 +364,10 @@ const Order = sequelize.define(
           "accessCodeEncrypted",
         ],
       },
+
+      where: {
+        archivedAt: null,
+      },
     },
 
     scopes: {
@@ -350,6 +376,10 @@ const Order = sequelize.define(
           include: [
             "accessCodeEncrypted",
           ],
+        },
+
+        where: {
+          archivedAt: null,
         },
       },
     },
@@ -386,6 +416,16 @@ Client.hasMany(Order, {
 Device.hasMany(Order, {
   foreignKey: "deviceId",
   as: "orders",
+});
+
+Order.belongsTo(User, {
+  foreignKey: "archivedBy",
+  as: "archivedByUser",
+});
+
+User.hasMany(Order, {
+  foreignKey: "archivedBy",
+  as: "archivedOrders",
 });
 
 module.exports = Order;

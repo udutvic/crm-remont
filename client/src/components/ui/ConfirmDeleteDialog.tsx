@@ -1,9 +1,13 @@
+import type {
+  ButtonProps,
+} from "@mui/material";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  TextField,
   Typography,
 } from "@mui/material";
 import {
@@ -16,6 +20,19 @@ interface ConfirmDeleteDialogProps {
   onClose: () => void;
   onConfirm: () => void;
   isConfirmEnabled?: boolean;
+  title?: string;
+  confirmLabel?: string;
+  confirmColor?: ButtonProps["color"];
+
+  inputLabel?: string;
+  inputValue?: string;
+  inputRequired?: boolean;
+  inputMaxLength?: number;
+  inputHelperText?: string;
+
+  onInputChange?: (
+    value: string
+  ) => void;
 }
 
 const ConfirmDeleteDialog = ({
@@ -24,10 +41,25 @@ const ConfirmDeleteDialog = ({
   onClose,
   onConfirm,
   isConfirmEnabled = true,
+  title,
+  confirmLabel,
+  confirmColor = "error",
+  inputLabel,
+  inputValue = "",
+  inputRequired = false,
+  inputMaxLength,
+  inputHelperText,
+  onInputChange,
 }: ConfirmDeleteDialogProps) => {
   const {
     t,
   } = useTranslation();
+
+  const showInput =
+    Boolean(
+      inputLabel &&
+      onInputChange
+    );
 
   return (
     <Dialog
@@ -37,15 +69,47 @@ const ConfirmDeleteDialog = ({
       fullWidth
     >
       <DialogTitle>
-        {t(
-          "deleteDialog.title"
-        )}
+        {title ??
+          t(
+            "deleteDialog.title"
+          )}
       </DialogTitle>
 
       <DialogContent>
         <Typography>
           {message}
         </Typography>
+
+        {showInput && (
+          <TextField
+            autoFocus
+            fullWidth
+            multiline
+            minRows={3}
+            margin="normal"
+            label={inputLabel}
+            value={inputValue}
+            required={
+              inputRequired
+            }
+            helperText={
+              inputHelperText
+            }
+            slotProps={{
+              htmlInput: {
+                maxLength:
+                  inputMaxLength,
+              },
+            }}
+            onChange={(
+              event
+            ) => {
+              onInputChange?.(
+                event.target.value
+              );
+            }}
+          />
+        )}
       </DialogContent>
 
       <DialogActions>
@@ -62,12 +126,15 @@ const ConfirmDeleteDialog = ({
             onClick={
               onConfirm
             }
-            color="error"
+            color={
+              confirmColor
+            }
             variant="contained"
           >
-            {t(
-              "deleteDialog.delete"
-            )}
+            {confirmLabel ??
+              t(
+                "deleteDialog.delete"
+              )}
           </Button>
         )}
       </DialogActions>

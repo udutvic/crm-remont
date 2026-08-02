@@ -10,18 +10,45 @@ import {
 
 import App from "App";
 import AuthProvider from "features/auth/context/AuthContext";
-import "i18n";
+import {
+  initializeI18n,
+} from "i18n";
 
-createRoot(
+const rootElement =
   document.getElementById(
     "root"
-  )!
-).render(
-  <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
-  </StrictMode>
+  );
+
+if (!rootElement) {
+  throw new Error(
+    "Application root element was not found."
+  );
+}
+
+const bootstrap =
+  async (): Promise<void> => {
+    await initializeI18n();
+
+    createRoot(
+      rootElement
+    ).render(
+      <StrictMode>
+        <BrowserRouter>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </BrowserRouter>
+      </StrictMode>
+    );
+  };
+
+void bootstrap().catch(
+  (
+    error: unknown
+  ) => {
+    console.error(
+      "Failed to start the application:",
+      error
+    );
+  }
 );
