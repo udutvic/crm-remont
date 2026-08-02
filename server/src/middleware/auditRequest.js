@@ -20,6 +20,7 @@ const singularize = (
     clients: "client",
     devices: "device",
     intake: "intake",
+    inventory: "inventory_item",
     orders: "order",
     stats: "stats",
     staff: "staff_user",

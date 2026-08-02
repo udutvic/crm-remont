@@ -12,6 +12,7 @@ const clientRoutes = require("./routes/clientRoutes");
 const deviceRoutes = require("./routes/deviceRoutes");
 const intakeRoutes = require("./routes/intakeRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const inventoryRoutes = require("./routes/inventoryRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 const staffRoutes = require("./routes/staffRoutes");
 
@@ -108,6 +109,7 @@ app.use("/api/clients", ...protectedApi, auditProtectedMutation, clientRoutes);
 app.use("/api/devices", ...protectedApi, auditProtectedMutation, deviceRoutes);
 app.use("/api/intake", ...protectedApi, auditProtectedMutation, intakeRoutes);
 app.use("/api/orders", ...protectedApi, auditProtectedMutation, orderRoutes);
+app.use("/api/inventory", ...protectedApi, auditProtectedMutation, inventoryRoutes);
 app.use("/api/stats", ...protectedApi, auditProtectedMutation, statsRoutes);
 
 app.use(notFound);
