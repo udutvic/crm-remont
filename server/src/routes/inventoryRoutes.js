@@ -7,12 +7,35 @@ const inventoryController =
     "../controllers/inventoryController"
   );
 
+const inventoryImportController =
+  require(
+    "../controllers/inventoryImportController"
+  );
+
 const requireRole = require(
   "../middleware/requireRole"
 );
 
 const router =
   express.Router();
+
+router.post(
+  "/import/preview",
+  requireRole(
+    "admin"
+  ),
+  inventoryImportController
+    .preview
+);
+
+router.post(
+  "/import/execute",
+  requireRole(
+    "admin"
+  ),
+  inventoryImportController
+    .execute
+);
 
 router.get(
   "/summary",

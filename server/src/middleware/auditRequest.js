@@ -76,6 +76,30 @@ const classifyMutation = (
         ]
       : null;
 
+  if (
+    collection ===
+      "inventory" &&
+    possibleId ===
+      "import" &&
+    (
+      suffix ===
+        "preview" ||
+      suffix ===
+        "execute"
+    )
+  ) {
+    return {
+      action:
+        "INVENTORY_IMPORT_" +
+        suffix.toUpperCase(),
+
+      entityType:
+        "inventory_import",
+
+      entityId: null,
+    };
+  }
+
   const entityType =
     collection
       ? singularize(
