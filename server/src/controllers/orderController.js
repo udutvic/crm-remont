@@ -1080,6 +1080,15 @@ exports.archiveOrder = async (
         ""
     ).trim();
 
+  if (!archiveReason) {
+    return res.status(400).json({
+      code:
+        "ORDER_ARCHIVE_REASON_REQUIRED",
+      error:
+        "Archive reason is required.",
+    });
+  }
+
   if (
     archiveReason.length >
     500

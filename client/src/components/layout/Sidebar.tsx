@@ -1,5 +1,6 @@
 import {
   AdminPanelSettingsOutlined as AuditIcon,
+  ArchiveOutlined as ArchiveIcon,
   Inventory2Outlined as InventoryIcon,
   ManageAccountsOutlined as StaffIcon,
   Assignment,
@@ -61,6 +62,15 @@ const Sidebar = ({
       );
     }
 
+    if (
+      path === "/orders" &&
+      location.pathname.startsWith(
+        "/orders/archive"
+      )
+    ) {
+      return false;
+    }
+
     return (
       location.pathname ===
         path ||
@@ -111,6 +121,14 @@ const Sidebar = ({
     ...(user?.role ===
     "admin"
       ? [
+          {
+            text: t(
+              "navigation.orderArchive"
+            ),
+            icon: ArchiveIcon,
+            path:
+              "/orders/archive",
+          },
           {
             text: t(
               "staffPage.title"

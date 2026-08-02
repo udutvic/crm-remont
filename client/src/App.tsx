@@ -16,6 +16,7 @@ import NotFoundPage from "features/errors/NotFoundPage";
 import InventoryPage from "features/inventory/InventoryPage";
 import DeviceDetailsPage from "features/devices/DeviceDetailsPage";
 import DevicesPage from "features/devices/DevicesPage";
+import ArchivedOrdersPage from "features/orders/ArchivedOrdersPage";
 import OrderDetailsPage from "features/orders/OrderDetailsPage";
 import OrderReceiptPage from "features/orders/OrderReceiptPage";
 import OrdersPage from "features/orders/OrdersPage";
@@ -60,6 +61,19 @@ const MainApp = () => {
           path="/orders"
           element={
             <OrdersPage />
+          }
+        />
+
+        <Route
+          path="/orders/archive"
+          element={
+            <RequireRole
+              allowedRoles={[
+                "admin",
+              ]}
+            >
+              <ArchivedOrdersPage />
+            </RequireRole>
           }
         />
 

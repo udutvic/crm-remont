@@ -28,6 +28,7 @@ const uk = {
       devices: "Пристрої",
       orders: "Замовлення",
       inventory: "Склад",
+      orderArchive: "Архів замовлень",
     },
 
     statuses: {
@@ -595,6 +596,55 @@ const uk = {
       errors: { invalidClient: "Некоректний ID клієнта.", invalidDevice: "Некоректний ID пристрою.", clientLoad: "Не вдалося завантажити картку клієнта.", deviceLoad: "Не вдалося завантажити картку пристрою." },
     },
 
+    archivePage: {
+      title: "Архів замовлень",
+      description:
+        "Архівні замовлення приховані з активних списків, але історія ремонту, складські рухи, фінанси та фотографії зберігаються.",
+      empty: "Архівних замовлень не знайдено.",
+      systemUser: "Система",
+      search: {
+        label: "Пошук в архіві",
+        placeholder:
+          "№ замовлення, клієнт, телефон, пристрій або причина...",
+      },
+      columns: {
+        order: "Замовлення",
+        device: "Пристрій",
+        client: "Клієнт",
+        status: "Статус",
+        price: "Ціна",
+        archived: "Архівовано",
+        reason: "Причина",
+        actions: "Дії",
+      },
+      labels: {
+        price: "Ціна",
+        archivedAt: "Архівовано",
+        archivedBy: "Архівував",
+        reason: "Причина",
+      },
+      actions: {
+        restore: "Відновити замовлення",
+        refresh: "Оновити",
+        reset: "Скинути",
+      },
+      pagination: {
+        rowsPerPage: "Рядків на сторінці:",
+      },
+      restoreDialog: {
+        title: "Відновити замовлення?",
+        message:
+          'Повернути замовлення "{{id}}" до активного списку?',
+        confirm: "Відновити",
+      },
+      errors: {
+        loadFailed:
+          "Не вдалося завантажити архівні замовлення.",
+        restoreFailed:
+          "Не вдалося відновити замовлення.",
+      },
+    },
+
     staffPage: {
       title: "Працівники",
       addStaff: "Додати працівника",
@@ -808,6 +858,9 @@ const uk = {
       archiveDialog: {
         title: "Архівувати замовлення?",
         confirm: "Архівувати",
+        reason: "Причина архівації",
+        reasonRequired: "Вкажіть причину архівації.",
+        reasonCounter: "{{count}} / 500 символів",
       },
       errors: {
         loadFailed: "Не вдалося завантажити замовлення.",

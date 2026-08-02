@@ -204,6 +204,11 @@ const OrdersPage = () => {
   ] = useState("");
 
   const [
+    archiveReason,
+    setArchiveReason,
+  ] = useState("");
+
+  const [
     orderToDelete,
     setOrderToDelete,
   ] = useState<
@@ -743,6 +748,8 @@ const OrdersPage = () => {
           order
         );
 
+        setArchiveReason("");
+
         setDeleteDialogMessage(
           order._deleteMessage ??
             t(
@@ -776,6 +783,8 @@ const OrdersPage = () => {
       setOrderToDelete(
         null
       );
+
+      setArchiveReason("");
     }, [deleting]);
 
   const confirmDeleteOrder =
@@ -792,7 +801,8 @@ const OrdersPage = () => {
           setDeleting(true);
 
           await archiveOrder(
-            orderToDelete.id
+            orderToDelete.id,
+            archiveReason.trim()
           );
 
           setDeleteDialogOpen(
@@ -802,6 +812,8 @@ const OrdersPage = () => {
           setOrderToDelete(
             null
           );
+
+          setArchiveReason("");
 
           if (
             orders.length ===
@@ -849,6 +861,7 @@ const OrdersPage = () => {
         }
       },
       [
+        archiveReason,
         deleting,
         orderToDelete?.id,
         orders.length,
@@ -1101,18 +1114,45 @@ const OrdersPage = () => {
         onClose={
           handleCloseDeleteDialog
         }
-        isConfirmEnabled={
-          !deleting &&
-          Boolean(
-            orderToDelete
-          )
-        }
         title={t(
           "ordersPage.archiveDialog.title"
         )}
         confirmLabel={t(
           "ordersPage.archiveDialog.confirm"
         )}
+        inputLabel={t(
+          "ordersPage.archiveDialog.reason"
+        )}
+        inputValue={
+          archiveReason
+        }
+        inputRequired
+        inputMaxLength={500}
+        inputHelperText={
+          archiveReason.trim()
+            ? t(
+                "ordersPage.archiveDialog.reasonCounter",
+                {
+                  count:
+                    archiveReason.length,
+                }
+              )
+            : t(
+                "ordersPage.archiveDialog.reasonRequired"
+              )
+        }
+        onInputChange={
+          setArchiveReason
+        }
+        confirmColor="warning"
+        isConfirmEnabled={
+          !deleting &&
+          Boolean(
+            orderToDelete
+          ) &&
+          archiveReason.trim()
+            .length > 0
+        }
       />
     </Container>
   );

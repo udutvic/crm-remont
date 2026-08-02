@@ -1,5 +1,7 @@
 import { apiClient } from "api";
 import type {
+  ArchivedOrderListQuery,
+  ArchivedOrderListResponse,
   AuditLogListQuery,
   AuditLogListResponse,
   CreateStaffPayload,
@@ -401,6 +403,34 @@ export const restoreOrder = async (
 
   return response.data;
 };
+
+export const getArchivedOrders =
+  async (
+    query:
+      ArchivedOrderListQuery
+  ): Promise<ArchivedOrderListResponse> => {
+    const response =
+      await apiClient.get<ArchivedOrderListResponse>(
+        "/orders/archived",
+        {
+          params: {
+            page:
+              query.page,
+            pageSize:
+              query.pageSize,
+
+            ...(query.q
+              ? {
+                  q:
+                    query.q,
+                }
+              : {}),
+          },
+        }
+      );
+
+    return response.data;
+  };
 
 export const revealOrderAccessCode = async (
   id: number

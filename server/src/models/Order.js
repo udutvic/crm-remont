@@ -8,6 +8,7 @@ const sequelize = require(
 
 const Client = require("./Client");
 const Device = require("./Device");
+const User = require("./User");
 
 const ORDER_STATUSES = [
   "pending",
@@ -415,6 +416,16 @@ Client.hasMany(Order, {
 Device.hasMany(Order, {
   foreignKey: "deviceId",
   as: "orders",
+});
+
+Order.belongsTo(User, {
+  foreignKey: "archivedBy",
+  as: "archivedByUser",
+});
+
+User.hasMany(Order, {
+  foreignKey: "archivedBy",
+  as: "archivedOrders",
 });
 
 module.exports = Order;

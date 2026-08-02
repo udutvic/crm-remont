@@ -133,12 +133,40 @@ export interface Order {
   archivedBy?: number | null;
   archiveReason?: string | null;
 
+  archivedByUser?:
+    | ArchivedOrderUser
+    | null;
+
   client?: Client;
   device: Device;
   stockMovements?: StockMovement[];
 
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ArchivedOrderUser {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface ArchivedOrderListQuery {
+  q?: string;
+  page: number;
+  pageSize: number;
+}
+
+export interface ArchivedOrderListResponse {
+  items: Order[];
+
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface OrderPayload {

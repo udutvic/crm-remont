@@ -20,6 +20,11 @@ const orderListController =
     "../controllers/orderListController"
   );
 
+const orderArchiveController =
+  require(
+    "../controllers/orderArchiveController"
+  );
+
 const requireRole = require(
   "../middleware/requireRole"
 );
@@ -40,6 +45,13 @@ const router = express.Router();
 router.get(
   "/paged",
   orderListController.getPagedOrders
+);
+
+router.get(
+  "/archived",
+  requireRole("admin"),
+  orderArchiveController
+    .getArchivedOrders
 );
 
 router.get(
