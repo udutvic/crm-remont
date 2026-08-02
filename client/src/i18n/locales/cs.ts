@@ -121,6 +121,14 @@ const cs = {
       },
     },
 
+    notFoundPage: {
+      title: "Stránka nebyla nalezena",
+      description:
+        "Požadovaná stránka CRM neexistuje nebo je adresa nesprávná.",
+      back: "Zpět",
+      dashboard: "Na přehled",
+    },
+
     profilePages: {
       clientProfile: "Karta zákazníka",
       deviceProfile: "Karta zařízení",
@@ -502,6 +510,7 @@ const cs = {
       actions: {
         cancel: "Zrušit",
         save: "Uložit",
+        saving: "Ukládání...",
       },
       errors: {
         save: "Zákazníka se nepodařilo uložit. Zkuste to znovu.",
@@ -733,6 +742,7 @@ const cs = {
         cancel: "Zrušit",
         add: "Přidat",
         update: "Uložit změny",
+        saving: "Ukládání...",
       },
 
       errors: {

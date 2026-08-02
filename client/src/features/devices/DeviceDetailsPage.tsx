@@ -105,7 +105,18 @@ const DeviceDetailsPage = () => {
         </Button>
 
         <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 } }}>
-          <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" spacing={2}>
+          <Stack
+            direction={{
+              xs: "column",
+              md: "row",
+            }}
+            justifyContent="space-between"
+            alignItems={{
+              xs: "stretch",
+              md: "center",
+            }}
+            spacing={2}
+          >
             <Box>
               <Typography variant="overline" color="text.secondary">{t("profilePages.deviceProfile")}</Typography>
               <Typography variant="h4" component="h1">{device.brand} {device.model}</Typography>
@@ -117,8 +128,28 @@ const DeviceDetailsPage = () => {
                 {t("profilePages.deviceSince", { date: formatDate(device.createdAt) })}
               </Typography>
             </Box>
-            <Button component={Link} to="/orders" variant="contained" startIcon={<OrderIcon />}>
-              {t("profilePages.actions.newRepair")}
+            <Button
+              component={Link}
+              to="/orders"
+              variant="contained"
+              startIcon={
+                <OrderIcon />
+              }
+              sx={{
+                alignSelf: {
+                  xs: "stretch",
+                  md: "center",
+                },
+                minHeight: 40,
+                px: 2.5,
+                flexShrink: 0,
+                whiteSpace:
+                  "nowrap",
+              }}
+            >
+              {t(
+                "profilePages.actions.newRepair"
+              )}
             </Button>
           </Stack>
         </Paper>

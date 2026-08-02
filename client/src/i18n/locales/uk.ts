@@ -121,6 +121,14 @@ const uk = {
       },
     },
 
+    notFoundPage: {
+      title: "Сторінку не знайдено",
+      description:
+        "Запитана сторінка CRM не існує або адресу введено неправильно.",
+      back: "Повернутися",
+      dashboard: "На головну",
+    },
+
     profilePages: {
       clientProfile: "Картка клієнта",
       deviceProfile: "Картка пристрою",
@@ -503,6 +511,7 @@ const uk = {
       actions: {
         cancel: "Скасувати",
         save: "Зберегти",
+        saving: "Збереження...",
       },
       errors: {
         save: "Не вдалося зберегти клієнта. Спробуйте ще раз.",
@@ -734,6 +743,7 @@ const uk = {
         cancel: "Скасувати",
         add: "Додати",
         update: "Оновити",
+        saving: "Збереження...",
       },
 
       errors: {

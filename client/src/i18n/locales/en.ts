@@ -121,6 +121,14 @@ const en = {
       },
     },
 
+    notFoundPage: {
+      title: "Page not found",
+      description:
+        "The requested CRM page does not exist or the address is incorrect.",
+      back: "Go back",
+      dashboard: "Dashboard",
+    },
+
     profilePages: {
       clientProfile: "Client profile",
       deviceProfile: "Device profile",
@@ -502,6 +510,7 @@ const en = {
       actions: {
         cancel: "Cancel",
         save: "Save",
+        saving: "Saving...",
       },
       errors: {
         save: "Error saving client. Please try again.",
@@ -733,6 +742,7 @@ const en = {
         cancel: "Cancel",
         add: "Add",
         update: "Update",
+        saving: "Saving...",
       },
 
       errors: {

@@ -12,6 +12,7 @@ import LoginPage from "features/auth/LoginPage";
 import ClientDetailsPage from "features/clients/ClientDetailsPage";
 import ClientsPage from "features/clients/ClientsPage";
 import DashboardPage from "features/dashboard/DashboardPage";
+import NotFoundPage from "features/errors/NotFoundPage";
 import DeviceDetailsPage from "features/devices/DeviceDetailsPage";
 import DevicesPage from "features/devices/DevicesPage";
 import OrderDetailsPage from "features/orders/OrderDetailsPage";
@@ -93,6 +94,13 @@ const MainApp = () => {
             </RequireRole>
           }
         />
+        <Route
+          path="*"
+          element={
+            <NotFoundPage />
+          }
+        />
+
       </Routes>
     </MainLayout>
   );

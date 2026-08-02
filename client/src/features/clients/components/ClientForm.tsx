@@ -158,6 +158,9 @@ const ClientForm = ({
     reset,
     setError,
     trigger,
+    formState: {
+      isSubmitting,
+    },
   } = useForm<ClientFormValues>({
     defaultValues,
   });
@@ -407,6 +410,10 @@ const ClientForm = ({
 
   const handleCancel =
     (): void => {
+      if (isSubmitting) {
+        return;
+      }
+
       reset(defaultValues);
       setServerError(null);
       setLookupFeedback(null);
@@ -581,7 +588,8 @@ const ClientForm = ({
                           void handlePhoneLookup();
                         }}
                         disabled={
-                          lookupLoading
+                          lookupLoading ||
+                          isSubmitting
                         }
                         startIcon={
                           lookupLoading ? (
@@ -811,6 +819,9 @@ const ClientForm = ({
             onClick={
               handleCancel
             }
+            disabled={
+              isSubmitting
+            }
           >
             {t(
               "clientForm.actions.cancel"
@@ -820,10 +831,18 @@ const ClientForm = ({
           <Button
             type="submit"
             variant="contained"
+            disabled={
+              isSubmitting ||
+              lookupLoading
+            }
           >
-            {t(
-              "clientForm.actions.save"
-            )}
+            {isSubmitting
+              ? t(
+                  "clientForm.actions.saving"
+                )
+              : t(
+                  "clientForm.actions.save"
+                )}
           </Button>
         </DialogActions>
       </form>

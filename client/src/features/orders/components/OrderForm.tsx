@@ -277,6 +277,9 @@ const OrderForm = ({
     reset,
     setValue,
     watch,
+    formState: {
+      isSubmitting,
+    },
   } = useForm<OrderFormValues>({
     defaultValues:
       createDefaultValues(),
@@ -591,6 +594,10 @@ const OrderForm = ({
 
   const handleCancel =
     (): void => {
+      if (isSubmitting) {
+        return;
+      }
+
       reset(
         createDefaultValues()
       );
@@ -1642,6 +1649,9 @@ const OrderForm = ({
             onClick={
               handleCancel
             }
+            disabled={
+              isSubmitting
+            }
           >
             {t(
               "orderForm.actions.cancel"
@@ -1651,14 +1661,21 @@ const OrderForm = ({
           <Button
             type="submit"
             variant="contained"
+            disabled={
+              isSubmitting
+            }
           >
-            {order
+            {isSubmitting
               ? t(
-                  "orderForm.actions.update"
+                  "orderForm.actions.saving"
                 )
-              : t(
-                  "orderForm.actions.add"
-                )}
+              : order
+                ? t(
+                    "orderForm.actions.update"
+                  )
+                : t(
+                    "orderForm.actions.add"
+                  )}
           </Button>
         </DialogActions>
       </form>

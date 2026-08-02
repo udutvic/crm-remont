@@ -67,10 +67,24 @@ const ClientDetailsPage = () => {
   const active = orders.filter(
     (order) => order.status === "pending" || order.status === "in_progress"
   ).length;
-  const income = orders.reduce(
-    (sum, order) => sum + Number(order.finalPrice ?? 0),
-    0
-  );
+  const income = orders
+    .filter(
+      (order) =>
+        order.status ===
+        "completed"
+    )
+    .reduce(
+      (
+        sum,
+        order
+      ) =>
+        sum +
+        Number(
+          order.finalPrice ??
+            0
+        ),
+      0
+    );
 
   if (loading) {
     return <Box sx={{ minHeight: 360, display: "grid", placeItems: "center" }}><CircularProgress /></Box>;
@@ -111,7 +125,18 @@ const ClientDetailsPage = () => {
         </Button>
 
         <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 } }}>
-          <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" spacing={2}>
+          <Stack
+            direction={{
+              xs: "column",
+              md: "row",
+            }}
+            justifyContent="space-between"
+            alignItems={{
+              xs: "stretch",
+              md: "center",
+            }}
+            spacing={2}
+          >
             <Box>
               <Typography variant="overline" color="text.secondary">
                 {t("profilePages.clientProfile")}
@@ -121,8 +146,28 @@ const ClientDetailsPage = () => {
                 {t("profilePages.clientSince", { date: formatDate(client.createdAt) })}
               </Typography>
             </Box>
-            <Button component={Link} to="/orders" variant="contained" startIcon={<OrderIcon />}>
-              {t("profilePages.actions.newRepair")}
+            <Button
+              component={Link}
+              to="/orders"
+              variant="contained"
+              startIcon={
+                <OrderIcon />
+              }
+              sx={{
+                alignSelf: {
+                  xs: "stretch",
+                  md: "center",
+                },
+                minHeight: 40,
+                px: 2.5,
+                flexShrink: 0,
+                whiteSpace:
+                  "nowrap",
+              }}
+            >
+              {t(
+                "profilePages.actions.newRepair"
+              )}
             </Button>
           </Stack>
         </Paper>
