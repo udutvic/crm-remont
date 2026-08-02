@@ -958,6 +958,53 @@ exports.createMovement = async (
       }
     }
 
+    if (
+      validation.payload.type ===
+        "return" &&
+      validation.payload.orderId
+    ) {
+      const orderMovementBalance =
+        await StockMovement.sum(
+          "quantityChange",
+          {
+            where: {
+              inventoryItemId:
+                item.id,
+              orderId:
+                validation.payload.orderId,
+              type: {
+                [Op.in]: [
+                  "issue",
+                  "return",
+                ],
+              },
+            },
+            transaction,
+          }
+        );
+
+      const quantityStillIssued =
+        Math.max(
+          0,
+          -Number(
+            orderMovementBalance ?? 0
+          )
+        );
+
+      if (
+        validation.payload.quantity >
+        quantityStillIssued
+      ) {
+        throw makeControlledError(
+          409,
+          "INVENTORY_RETURN_EXCEEDS_ISSUED",
+          "Cannot return more than was issued to this order. Remaining issued quantity: " +
+            quantityStillIssued +
+            "."
+        );
+      }
+    }
+
     const delta =
       movementDelta(
         validation.payload

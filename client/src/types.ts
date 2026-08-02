@@ -127,6 +127,7 @@ export interface Order {
 
   client?: Client;
   device: Device;
+  stockMovements?: StockMovement[];
 
   createdAt?: string;
   updatedAt?: string;
@@ -568,6 +569,7 @@ export interface StockMovement {
   createdAt: string;
   updatedAt: string;
   createdBy?: StockMovementUser | null;
+  inventoryItem?: InventoryItem | null;
 }
 
 export interface InventoryMovementPayload {
