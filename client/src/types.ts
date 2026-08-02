@@ -465,3 +465,125 @@ export interface StaffSessionRevokeResponse {
   revokedSessions: number;
   keptCurrentSession: boolean;
 }
+
+export type StockMovementType =
+  | "receipt"
+  | "issue"
+  | "return"
+  | "adjustment";
+
+export type InventoryActiveFilter =
+  | "all"
+  | "active"
+  | "inactive";
+
+export interface InventoryItem {
+  id: number;
+  sku: string;
+  supplierSku?: string | null;
+  barcode?: string | null;
+  name: string;
+  category: string;
+  brand?: string | null;
+  compatibility?: string | null;
+  purchasePrice: number;
+  salePrice: number;
+  currentQuantity: number;
+  minStock: number;
+  supplier?: string | null;
+  location?: string | null;
+  note?: string | null;
+  isActive: boolean;
+  isLowStock: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InventoryItemPayload {
+  sku: string;
+  supplierSku?: string | null;
+  barcode?: string | null;
+  name: string;
+  category: string;
+  brand?: string | null;
+  compatibility?: string | null;
+  purchasePrice: number;
+  salePrice: number;
+  initialQuantity?: number;
+  minStock: number;
+  supplier?: string | null;
+  location?: string | null;
+  note?: string | null;
+  isActive: boolean;
+}
+
+export interface InventorySummary {
+  activeItems: number;
+  totalUnits: number;
+  lowStockItems: number;
+  outOfStockItems: number;
+  purchaseValue: number;
+  saleValue: number;
+}
+
+export interface InventoryListQuery {
+  page: number;
+  pageSize: number;
+  q?: string;
+  category?: string;
+  lowStock?: boolean;
+  active?: boolean;
+}
+
+export interface InventoryPagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface InventoryListResponse {
+  items: InventoryItem[];
+  pagination: InventoryPagination;
+}
+
+export interface StockMovementUser {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface StockMovement {
+  id: number;
+  inventoryItemId: number;
+  type: StockMovementType;
+  quantityChange: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  unitCost?: number | null;
+  orderId?: number | null;
+  userId: number;
+  note?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: StockMovementUser | null;
+}
+
+export interface InventoryMovementPayload {
+  type: StockMovementType;
+  quantity: number;
+  unitCost?: number | null;
+  orderId?: number | null;
+  note?: string | null;
+}
+
+export interface InventoryMovementResponse {
+  item: InventoryItem;
+  movement: StockMovement;
+}
+
+export interface InventoryMovementListResponse {
+  movements: StockMovement[];
+  pagination: InventoryPagination;
+}

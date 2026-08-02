@@ -13,6 +13,7 @@ import ClientDetailsPage from "features/clients/ClientDetailsPage";
 import ClientsPage from "features/clients/ClientsPage";
 import DashboardPage from "features/dashboard/DashboardPage";
 import NotFoundPage from "features/errors/NotFoundPage";
+import InventoryPage from "features/inventory/InventoryPage";
 import DeviceDetailsPage from "features/devices/DeviceDetailsPage";
 import DevicesPage from "features/devices/DevicesPage";
 import OrderDetailsPage from "features/orders/OrderDetailsPage";
@@ -66,6 +67,13 @@ const MainApp = () => {
           path="/orders/:id"
           element={
             <OrderDetailsPage />
+          }
+        />
+
+        <Route
+          path="/inventory"
+          element={
+            <InventoryPage />
           }
         />
 

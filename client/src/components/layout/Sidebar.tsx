@@ -1,5 +1,6 @@
 import {
   AdminPanelSettingsOutlined as AuditIcon,
+  Inventory2Outlined as InventoryIcon,
   ManageAccountsOutlined as StaffIcon,
   Assignment,
   Dashboard,
@@ -97,6 +98,14 @@ const Sidebar = ({
       ),
       icon: Assignment,
       path: "/orders",
+    },
+
+    {
+      text: t(
+        "navigation.inventory"
+      ),
+      icon: InventoryIcon,
+      path: "/inventory",
     },
 
     ...(user?.role ===

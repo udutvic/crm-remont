@@ -29,6 +29,17 @@ import {
   RepairIntakeResult,
 } from "types";
 
+import type {
+  InventoryItem,
+  InventoryItemPayload,
+  InventoryListQuery,
+  InventoryListResponse,
+  InventoryMovementListResponse,
+  InventoryMovementPayload,
+  InventoryMovementResponse,
+  InventorySummary,
+} from "types";
+
 export interface DashboardStats {
   clientCount: number;
   deviceCount: number;
@@ -480,6 +491,93 @@ export const getAuditLogs = async (
 
   return response.data;
 };
+
+// Inventory
+
+export const getInventorySummary =
+  async (): Promise<InventorySummary> => {
+    const response =
+      await apiClient.get<InventorySummary>(
+        "/inventory/summary"
+      );
+
+    return response.data;
+  };
+
+export const getInventoryItems =
+  async (
+    query: InventoryListQuery
+  ): Promise<InventoryListResponse> => {
+    const response =
+      await apiClient.get<InventoryListResponse>(
+        "/inventory/items",
+        {
+          params: query,
+        }
+      );
+
+    return response.data;
+  };
+
+export const createInventoryItem =
+  async (
+    payload: InventoryItemPayload
+  ): Promise<InventoryItem> => {
+    const response =
+      await apiClient.post<InventoryItem>(
+        "/inventory/items",
+        payload
+      );
+
+    return response.data;
+  };
+
+export const updateInventoryItem =
+  async (
+    id: number,
+    payload: InventoryItemPayload
+  ): Promise<InventoryItem> => {
+    const response =
+      await apiClient.patch<InventoryItem>(
+        `/inventory/items/${id}`,
+        payload
+      );
+
+    return response.data;
+  };
+
+export const createInventoryMovement =
+  async (
+    itemId: number,
+    payload: InventoryMovementPayload
+  ): Promise<InventoryMovementResponse> => {
+    const response =
+      await apiClient.post<InventoryMovementResponse>(
+        `/inventory/items/${itemId}/movements`,
+        payload
+      );
+
+    return response.data;
+  };
+
+export const getInventoryMovements =
+  async (
+    itemId: number,
+    query: {
+      page: number;
+      pageSize: number;
+    }
+  ): Promise<InventoryMovementListResponse> => {
+    const response =
+      await apiClient.get<InventoryMovementListResponse>(
+        `/inventory/items/${itemId}/movements`,
+        {
+          params: query,
+        }
+      );
+
+    return response.data;
+  };
 
 // Dashboard
 
