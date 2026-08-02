@@ -1,86 +1,313 @@
-import React from "react";
-import { TableRow, TableCell, Box, IconButton, Typography } from "@mui/material";
-import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
-import { Order, Client, OrderStatus } from "types";
-import { formatDate, formatPrice } from "utils/formatters";
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Visibility as VisibilityIcon,
+} from "@mui/icons-material";
+import {
+  Box,
+  IconButton,
+  TableCell,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
+
 import ClientInfo from "common/components/ClientInfo";
+import DeviceIcon from "common/components/DeviceIcon";
 import StatusSelect from "common/components/StatusSelect";
-import DeviceIcon from "../../../common/components/DeviceIcon";
+import useAppFormatters from "hooks/useAppFormatters";
+import type {
+  Client,
+  Order,
+  OrderStatus,
+} from "types";
+
+import {
+  getOrderDisplayPrice,
+  getOrderReceivedDate,
+} from "../utils/orderDisplay";
+import OrderDeliveryControl from "./OrderDeliveryControl";
+import AdminOnly from "features/auth/components/AdminOnly";
+
 interface OrderTableRowProps {
   order: Order;
   clients: Client[];
-  onEdit: (order: Order) => void;
-  onDelete: (order: Order, nameField?: keyof Order) => void;
-  onStatusChange: (id: number, status: OrderStatus) => void;
-  formatOrderId: (order: Order) => string;
+
+  onEdit: (
+    order: Order
+  ) => void;
+
+  onDelete: (
+    order: Order,
+    nameField?: keyof Order
+  ) => void;
+
+  onStatusChange: (
+    id: number,
+    status: OrderStatus
+  ) => void;
+
+  onDeliver: (
+    id: number
+  ) => Promise<void>;
+
+  onView: (
+    order: Order
+  ) => void;
+
+  formatOrderId: (
+    order: Order
+  ) => string;
 }
-const OrderTableRow: React.FC<OrderTableRowProps> = ({
+
+const OrderTableRow = ({
   order,
   clients,
   onEdit,
   onDelete,
   onStatusChange,
-  formatOrderId
-}) => {
+  onDeliver,
+  onView,
+  formatOrderId,
+}: OrderTableRowProps) => {
+  const {
+    t,
+  } = useTranslation();
+
+  const {
+    formatDate,
+    formatPrice,
+  } = useAppFormatters();
+
+  const displayPrice =
+    getOrderDisplayPrice(
+      order
+    );
+
+  const receivedDate =
+    getOrderReceivedDate(
+      order
+    );
+
+  const priceTypeLabel =
+    displayPrice.type ===
+    "final"
+      ? t(
+          "ordersPage.priceTypes.final"
+        )
+      : t(
+          "ordersPage.priceTypes.estimated"
+        );
+
   return (
     <TableRow>
-      <TableCell sx={{ pl: 2, py: 2 }}>
-        {formatOrderId(order)}
+      <TableCell
+        sx={{
+          pl: 2,
+          py: 2,
+          whiteSpace:
+            "nowrap",
+        }}
+      >
+        {formatOrderId(
+          order
+        )}
       </TableCell>
+
       <TableCell>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <DeviceIcon 
-            brand={order.device.brand}            
-            size="small" 
+        <Box
+          sx={{
+            display: "flex",
+            alignItems:
+              "center",
+          }}
+        >
+          <DeviceIcon
+            brand={
+              order.device.brand
+            }
+            size="small"
           />
-          <Typography variant="body2" sx={{ ml: 1 }}>
-            {order.device.brand} {order.device.model}
+
+          <Typography
+            variant="body2"
+            sx={{
+              ml: 1,
+            }}
+          >
+            {order.device.brand}{" "}
+            {order.device.model}
           </Typography>
         </Box>
       </TableCell>
-      <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-        <ClientInfo 
-          clientId={order.clientId} 
-          clients={clients} 
+
+      <TableCell
+        sx={{
+          display: {
+            xs: "none",
+            md: "table-cell",
+          },
+        }}
+      >
+        <ClientInfo
+          clientId={
+            order.clientId
+          }
+          clients={clients}
         />
       </TableCell>
-      <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-        {formatPrice(order.price)}
+
+      <TableCell
+        sx={{
+          display: {
+            xs: "none",
+            lg: "table-cell",
+          },
+        }}
+      >
+        <Typography variant="body2">
+          {formatPrice(
+            displayPrice.amount
+          )}
+        </Typography>
+
+        <Typography
+          variant="caption"
+          color="text.secondary"
+        >
+          {priceTypeLabel}
+        </Typography>
       </TableCell>
-      <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-        {formatDate(order.createdAt)}
+
+      <TableCell
+        sx={{
+          display: {
+            xs: "none",
+            lg: "table-cell",
+          },
+        }}
+      >
+        {formatDate(
+          receivedDate
+        )}
       </TableCell>
+
       <TableCell>
         <StatusSelect
-          status={order.status}
-          onStatusChange={onStatusChange}
-          id={order.id || 0}
+          status={
+            order.status
+          }
+          onStatusChange={
+            onStatusChange
+          }
+          id={order.id ?? 0}
         />
       </TableCell>
-      <TableCell sx={{ pr: 2 }}>
-        <Box sx={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: 1 }}>
-          <IconButton 
-            onClick={() => onEdit(order)}
-            size="small"
-          >
-            <EditIcon sx={{ color: "green" }} />
-          </IconButton>
-          <IconButton 
+
+      <TableCell>
+        <OrderDeliveryControl
+          order={order}
+          onDeliver={
+            onDeliver
+          }
+        />
+      </TableCell>
+
+      <TableCell
+        sx={{
+          pr: 2,
+          whiteSpace:
+            "nowrap",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent:
+              "flex-start",
+            alignItems:
+              "center",
+            gap: 0.5,
+          }}
+        >
+          <IconButton
             onClick={() => {
-              const formattedId = formatOrderId(order);
-              const orderWithCustomMessage = {
-                ...order,
-                _deleteMessage: `Are you sure you want to delete order <b>${formattedId}</b>?`
-              };
-              onDelete(orderWithCustomMessage);
+              onView(order);
             }}
             size="small"
+            disabled={!order.id}
+            aria-label={t(
+              "ordersPage.actions.view"
+            )}
           >
-            <DeleteIcon sx={{ color: "red" }} />
+            <VisibilityIcon
+              sx={{
+                color:
+                  "primary.main",
+              }}
+            />
           </IconButton>
+
+          <IconButton
+            onClick={() => {
+              onEdit(order);
+            }}
+            size="small"
+            aria-label={t(
+              "ordersPage.actions.edit"
+            )}
+          >
+            <EditIcon
+              sx={{
+                color: "green",
+              }}
+            />
+          </IconButton>
+
+          <AdminOnly>
+            <IconButton
+              onClick={() => {
+                const formattedId =
+                  formatOrderId(
+                    order
+                  );
+
+                const orderWithCustomMessage =
+                  {
+                    ...order,
+
+                    _deleteMessage:
+                      t(
+                        "ordersPage.deleteConfirmation",
+                        {
+                          id:
+                            formattedId,
+                        }
+                      ),
+                  };
+
+                onDelete(
+                  orderWithCustomMessage
+                );
+              }}
+              size="small"
+              aria-label={t(
+                "ordersPage.actions.delete"
+              )}
+            >
+              <DeleteIcon
+                sx={{
+                  color: "red",
+                }}
+              />
+            </IconButton>
+          </AdminOnly>
         </Box>
       </TableCell>
     </TableRow>
   );
 };
+
 export default OrderTableRow;

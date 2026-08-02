@@ -1,12 +1,31 @@
-import React from "react";
-import { Box, Paper, Typography, Avatar } from "@mui/material";
-import { Assignment as OrderIcon } from "@mui/icons-material";
+import {
+  Assignment as OrderIcon,
+} from "@mui/icons-material";
+import {
+  Avatar,
+  Box,
+  Paper,
+  Typography,
+} from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
+
 interface LoadingIndicatorProps {
   message?: string;
 }
-const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
-  message = "Loading data...",
-}) => {
+
+const LoadingIndicator = ({
+  message,
+}: LoadingIndicatorProps) => {
+  const {
+    t,
+  } = useTranslation();
+
+  const resolvedMessage =
+    message ??
+    t("common.loading");
+
   return (
     <Box
       display="flex"
@@ -16,7 +35,10 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
     >
       <Paper
         elevation={0}
-        sx={{ p: 4, textAlign: "center" }}
+        sx={{
+          p: 4,
+          textAlign: "center",
+        }}
       >
         <Box
           display="flex"
@@ -24,22 +46,40 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
           alignItems="center"
         >
           <Box mb={2}>
-            <Avatar sx={{ bgcolor: "primary.main", width: 56, height: 56 }}>
+            <Avatar
+              sx={{
+                bgcolor:
+                  "primary.main",
+
+                width: 56,
+                height: 56,
+              }}
+            >
               <OrderIcon fontSize="large" />
             </Avatar>
           </Box>
+
           <Typography
             variant="h6"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+            }}
           >
-            {message}
+            {resolvedMessage}
           </Typography>
+
           <Box>
             <svg
               width="40"
               height="40"
               viewBox="0 0 40 40"
-              style={{ display: "block", margin: "auto" }}
+              style={{
+                display:
+                  "block",
+
+                margin:
+                  "auto",
+              }}
             >
               <circle
                 cx="20"
@@ -67,4 +107,5 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
     </Box>
   );
 };
+
 export default LoadingIndicator;

@@ -1,52 +1,151 @@
-import { FormControl, Select, MenuItem, SelectChangeEvent } from "@mui/material";
-import { OrderStatus } from "types";
+import {
+  FormControl,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
+
+import type {
+  OrderStatus,
+} from "types";
+
 interface StatusSelectProps {
   status: OrderStatus;
-  onStatusChange: (id: number, status: OrderStatus) => void;
+
+  onStatusChange: (
+    id: number,
+    status: OrderStatus
+  ) => void;
+
   id: number;
   isMobileView?: boolean;
 }
-const StatusSelect = ({ status, onStatusChange, id, isMobileView = false }: StatusSelectProps) => {
+
+const statusColors: Record<
+  OrderStatus,
+  string
+> = {
+  pending: "#ed6c02",
+  in_progress: "#0288d1",
+  completed: "#2e7d32",
+  cancelled: "#d32f2f",
+  unrepairable: "#9c27b0",
+};
+
+const statusTranslationKeys: Record<
+  OrderStatus,
+  string
+> = {
+  pending:
+    "statuses.pending",
+  in_progress:
+    "statuses.inProgress",
+  completed:
+    "statuses.completed",
+  cancelled:
+    "statuses.cancelled",
+  unrepairable:
+    "statuses.unrepairable",
+};
+
+const statusOptions: OrderStatus[] = [
+  "pending",
+  "in_progress",
+  "completed",
+  "unrepairable",
+  "cancelled",
+];
+
+const StatusSelect = ({
+  status,
+  onStatusChange,
+  id,
+  isMobileView = false,
+}: StatusSelectProps) => {
+  const {
+    t,
+  } = useTranslation();
+
   return (
-    <FormControl 
-      size="small" 
-      sx={{ minWidth: isMobileView ? 120 : 'auto' }}
-      fullWidth={!isMobileView}
+    <FormControl
+      size="small"
+      sx={{
+        minWidth:
+          isMobileView
+            ? 150
+            : 175,
+        maxWidth: 210,
+      }}
     >
       <Select
         value={status}
-        onChange={(e: SelectChangeEvent) => onStatusChange(id, e.target.value as OrderStatus)}
+        onChange={(
+          event: SelectChangeEvent
+        ) => {
+          onStatusChange(
+            id,
+            event.target
+              .value as OrderStatus
+          );
+        }}
         size="small"
         sx={{
           backgroundColor:
-            status === "pending"
-              ? "#ed6c02"
-              : status === "in_progress"
-              ? "#0288d1"
-              : status === "completed"
-              ? "#2e7d32"
-              : "#d32f2f",
+            statusColors[
+              status
+            ],
+
           color: "white",
-          fontSize: { xs: "0.7rem", sm: "0.75rem" },
-          "& .MuiSelect-select": {
-            padding: { xs: "4px 8px", sm: "8px 14px" },
+
+          fontSize: {
+            xs: "0.7rem",
+            sm: "0.75rem",
           },
+
+          "& .MuiSelect-select":
+            {
+              padding: {
+                xs: "4px 8px",
+                sm: "8px 14px",
+              },
+
+              overflow:
+                "hidden",
+
+              textOverflow:
+                "ellipsis",
+
+              whiteSpace:
+                "nowrap",
+            },
         }}
       >
-        <MenuItem value="pending" sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}>
-          Pending
-        </MenuItem>
-        <MenuItem value="in_progress" sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}>
-          In Progress
-        </MenuItem>
-        <MenuItem value="completed" sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}>
-          Completed
-        </MenuItem>
-        <MenuItem value="cancelled" sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}>
-          Cancelled
-        </MenuItem>
+        {statusOptions.map(
+          (option) => (
+            <MenuItem
+              key={option}
+              value={option}
+              sx={{
+                fontSize: {
+                  xs: "0.7rem",
+                  sm: "0.75rem",
+                },
+              }}
+            >
+              {t(
+                statusTranslationKeys[
+                  option
+                ]
+              )}
+            </MenuItem>
+          )
+        )}
       </Select>
     </FormControl>
   );
 };
+
 export default StatusSelect;

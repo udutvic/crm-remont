@@ -1,12 +1,15 @@
-import React from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Typography,
 } from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
+
 interface ConfirmDeleteDialogProps {
   open: boolean;
   message: string;
@@ -14,44 +17,62 @@ interface ConfirmDeleteDialogProps {
   onConfirm: () => void;
   isConfirmEnabled?: boolean;
 }
-const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
+
+const ConfirmDeleteDialog = ({
   open,
   message,
   onClose,
   onConfirm,
   isConfirmEnabled = true,
-}) => {
-  const hasErrorMessage = 
-    message.toLowerCase().includes('cannot delete') || 
-    message.toLowerCase().includes('open orders') ||
-    message.toLowerCase().includes('confirm deletion') && message.toLowerCase().includes('cannot');
-  const showDeleteButton = isConfirmEnabled && !hasErrorMessage;
+}: ConfirmDeleteDialogProps) => {
+  const {
+    t,
+  } = useTranslation();
+
   return (
     <Dialog
       open={open}
       onClose={onClose}
+      maxWidth="sm"
+      fullWidth
     >
       <DialogTitle>
-        <Typography variant="h6">Confirm Deletion</Typography>
+        {t(
+          "deleteDialog.title"
+        )}
       </DialogTitle>
+
       <DialogContent>
-        <Typography
-          component="div"
-          dangerouslySetInnerHTML={{ __html: message }}
-        />
+        <Typography>
+          {message}
+        </Typography>
       </DialogContent>
+
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        {showDeleteButton && (
+        <Button
+          onClick={onClose}
+        >
+          {t(
+            "deleteDialog.cancel"
+          )}
+        </Button>
+
+        {isConfirmEnabled && (
           <Button
-            onClick={onConfirm}
+            onClick={
+              onConfirm
+            }
             color="error"
+            variant="contained"
           >
-            Delete
+            {t(
+              "deleteDialog.delete"
+            )}
           </Button>
         )}
       </DialogActions>
     </Dialog>
   );
 };
+
 export default ConfirmDeleteDialog;

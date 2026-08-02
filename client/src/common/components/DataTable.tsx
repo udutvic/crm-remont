@@ -1,78 +1,168 @@
-import { ReactNode } from 'react';
+import type {
+  ReactNode,
+} from "react";
 import {
-  TableContainer,
   Paper,
   Table,
+  TableBody,
+  TableCell,
+  TableContainer,
   TableHead,
   TableRow,
-  TableCell,
-  TableBody
-} from '@mui/material';
+} from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
+
 export interface Column<T> {
   id: string;
   label: string;
   minWidth?: number;
-  align?: 'right' | 'left' | 'center';
-  format?: (value: unknown, item: T) => ReactNode;
+
+  align?:
+    | "right"
+    | "left"
+    | "center";
+
+  format?: (
+    value: unknown,
+    item: T
+  ) => ReactNode;
+
   onClick?: () => void;
-  sx?: Record<string, unknown>;
+
+  sx?: Record<
+    string,
+    unknown
+  >;
 }
+
 interface DataTableProps<T> {
   columns: Column<T>[];
   data: T[];
   emptyMessage?: string;
-  renderRow: (item: T, index: number) => ReactNode;
-  sx?: Record<string, unknown>;
+
+  renderRow: (
+    item: T,
+    index: number
+  ) => ReactNode;
+
+  sx?: Record<
+    string,
+    unknown
+  >;
 }
-function DataTable<T>({ columns, data, emptyMessage = 'No data found', renderRow, sx }: DataTableProps<T>) {
+
+function DataTable<T>({
+  columns,
+  data,
+  emptyMessage,
+  renderRow,
+  sx,
+}: DataTableProps<T>) {
+  const {
+    t,
+  } = useTranslation();
+
+  const resolvedEmptyMessage =
+    emptyMessage ??
+    t("common.noData");
+
   return (
-    <TableContainer 
-      component={Paper} 
-      sx={{ 
-        overflowX: "auto", 
+    <TableContainer
+      component={Paper}
+      sx={{
+        overflowX: "auto",
         maxWidth: "100%",
-        boxShadow: { xs: 1, sm: 2 },
+
+        boxShadow: {
+          xs: 1,
+          sm: 2,
+        },
+
         borderRadius: 1,
-        mb: { xs: 3, sm: 4 },
-        ...sx
+
+        mb: {
+          xs: 3,
+          sm: 4,
+        },
+
+        ...sx,
       }}
     >
-      <Table sx={{ minWidth: 650 }} size="medium">
+      <Table
+        sx={{
+          minWidth: 650,
+        }}
+        size="medium"
+      >
         <TableHead>
-          <TableRow sx={{ background: "#f7f7fa" }}>
-            {columns.map((column) => (
-              <TableCell
-                key={column.id}
-                align={column.align}
-                sx={{ 
-                  fontWeight: 600, 
-                  fontSize: '1rem',
-                  cursor: column.onClick ? 'pointer' : 'default',
-                  ...column.sx
-                }}
-                onClick={column.onClick}
-              >
-                {column.label}
-              </TableCell>
-            ))}
+          <TableRow
+            sx={{
+              background:
+                "#f7f7fa",
+            }}
+          >
+            {columns.map(
+              (column) => (
+                <TableCell
+                  key={
+                    column.id
+                  }
+                  align={
+                    column.align
+                  }
+                  sx={{
+                    fontWeight:
+                      600,
+
+                    fontSize:
+                      "1rem",
+
+                    cursor:
+                      column.onClick
+                        ? "pointer"
+                        : "default",
+
+                    ...column.sx,
+                  }}
+                  onClick={
+                    column.onClick
+                  }
+                >
+                  {
+                    column.label
+                  }
+                </TableCell>
+              )
+            )}
           </TableRow>
         </TableHead>
+
         <TableBody>
-          {data.length === 0 ? (
+          {data.length ===
+          0 ? (
             <TableRow>
               <TableCell
-                colSpan={columns.length}
+                colSpan={
+                  columns.length
+                }
                 align="center"
               >
-                {emptyMessage}
+                {
+                  resolvedEmptyMessage
+                }
               </TableCell>
             </TableRow>
           ) : (
-            data.map(renderRow)
+            data.map(
+              renderRow
+            )
           )}
         </TableBody>
       </Table>
     </TableContainer>
   );
 }
+
 export default DataTable;
