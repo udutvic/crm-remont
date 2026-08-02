@@ -31,12 +31,20 @@ const writeAuditLog =
     metadata = null,
   }) => {
     try {
+      const normalizedUserId =
+        userId === null ||
+        userId === undefined ||
+        userId === ""
+          ? null
+          : Number(userId);
+
       await AuditLog.create({
         userId:
           Number.isInteger(
-            Number(userId)
-          )
-            ? Number(userId)
+            normalizedUserId
+          ) &&
+          normalizedUserId > 0
+            ? normalizedUserId
             : null,
 
         action:

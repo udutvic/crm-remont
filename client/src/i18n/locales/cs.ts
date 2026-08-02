@@ -121,6 +121,27 @@ const cs = {
       },
     },
 
+    profilePages: {
+      clientProfile: "Karta zákazníka",
+      deviceProfile: "Karta zařízení",
+      clientSince: "Zákazník od {{date}}",
+      deviceSince: "Zařízení přidáno {{date}}",
+      contactInformation: "Kontaktní údaje",
+      clientDevices: "Zařízení zákazníka",
+      repairHistory: "Historie oprav",
+      owner: "Majitel",
+      identifiers: "Identifikátory",
+      delivered: "Vydáno",
+      noIdentifier: "Bez identifikátoru",
+      unknownClient: "Neznámý zákazník",
+      fields: { phone: "Telefon", secondaryPhone: "Další telefon", email: "Email", address: "Adresa", note: "Poznámka", imei1: "IMEI 1", imei2: "IMEI 2", serial: "Sériové číslo", color: "Barva" },
+      stats: { devices: "Zařízení", repairs: "Opravy", activeRepairs: "Aktivní opravy", completedIncome: "Hodnota dokončených oprav", lastRepair: "Poslední oprava" },
+      status: { pending: "Čeká", in_progress: "Probíhá", completed: "Dokončeno", cancelled: "Zrušeno", unrepairable: "Neopravitelné" },
+      empty: { devices: "Zákazník zatím nemá žádná zařízení.", repairs: "Historie oprav je zatím prázdná." },
+      actions: { backToClients: "Zpět k zákazníkům", backToDevices: "Zpět k zařízením", newRepair: "Nový příjem", retry: "Opakovat" },
+      errors: { invalidClient: "Neplatné ID zákazníka.", invalidDevice: "Neplatné ID zařízení.", clientLoad: "Kartu zákazníka se nepodařilo načíst.", deviceLoad: "Kartu zařízení se nepodařilo načíst." },
+    },
+
     staffPage: {
       title: "Pracovníci",
       addStaff: "Přidat pracovníka",

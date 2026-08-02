@@ -8,6 +8,8 @@ export interface Client {
   address?: string | null;
   note?: string | null;
   avatarUrl?: string;
+  devices?: Device[];
+  orders?: Order[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -54,6 +56,7 @@ export interface Device {
   color?: string | null;
 
   client?: Client;
+  orders?: Order[];
   createdAt?: string;
   updatedAt?: string;
 }

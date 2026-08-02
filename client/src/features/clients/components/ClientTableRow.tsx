@@ -13,6 +13,7 @@ import {
 import {
   useTranslation,
 } from "react-i18next";
+import { Link } from "react-router";
 
 import useAppFormatters from "hooks/useAppFormatters";
 import {
@@ -98,8 +99,11 @@ const ClientTableRow = ({
 
           <Box>
             <Typography
+              component={Link}
+              to={client.id ? `/clients/${client.id}` : "/clients"}
               variant="subtitle2"
               fontWeight={600}
+              color="primary"
               sx={{
                 lineHeight: 1.2,
               }}

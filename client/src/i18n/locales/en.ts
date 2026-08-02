@@ -121,6 +121,27 @@ const en = {
       },
     },
 
+    profilePages: {
+      clientProfile: "Client profile",
+      deviceProfile: "Device profile",
+      clientSince: "Client since {{date}}",
+      deviceSince: "Device added {{date}}",
+      contactInformation: "Contact information",
+      clientDevices: "Client devices",
+      repairHistory: "Repair history",
+      owner: "Owner",
+      identifiers: "Identifiers",
+      delivered: "Delivered",
+      noIdentifier: "No identifier",
+      unknownClient: "Unknown client",
+      fields: { phone: "Phone", secondaryPhone: "Secondary phone", email: "Email", address: "Address", note: "Note", imei1: "IMEI 1", imei2: "IMEI 2", serial: "Serial number", color: "Color" },
+      stats: { devices: "Devices", repairs: "Repairs", activeRepairs: "Active repairs", completedIncome: "Completed repair value", lastRepair: "Last repair" },
+      status: { pending: "Pending", in_progress: "In progress", completed: "Completed", cancelled: "Cancelled", unrepairable: "Unrepairable" },
+      empty: { devices: "This client has no devices yet.", repairs: "No repair history yet." },
+      actions: { backToClients: "Back to clients", backToDevices: "Back to devices", newRepair: "New repair", retry: "Retry" },
+      errors: { invalidClient: "Invalid client ID.", invalidDevice: "Invalid device ID.", clientLoad: "Could not load the client profile.", deviceLoad: "Could not load the device profile." },
+    },
+
     staffPage: {
       title: "Staff",
       addStaff: "Add employee",

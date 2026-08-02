@@ -16,6 +16,7 @@ import {
 import {
   useTranslation,
 } from "react-i18next";
+import { Link } from "react-router";
 
 import {
   Client,
@@ -120,8 +121,11 @@ const ClientCard = ({
             />
 
             <Typography
+              component={Link}
+              to={client.id ? `/clients/${client.id}` : "/clients"}
               variant="h6"
               noWrap
+              color="primary"
               sx={{
                 fontSize:
                   "1rem",

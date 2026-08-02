@@ -17,6 +17,17 @@ const clientIncludes = [
   },
 ];
 
+const clientDetailIncludes = [
+  { model: Device, as: "devices" },
+  {
+    model: Order,
+    as: "orders",
+    separate: true,
+    include: [{ model: Device, as: "device" }],
+    order: [["receivedAt", "DESC"], ["id", "DESC"]],
+  },
+];
+
 const parseClientId = (value) => {
   const id = Number(value);
 
@@ -134,7 +145,7 @@ exports.getClient = async (req, res) => {
     const client = await Client.findByPk(
       clientId,
       {
-        include: clientIncludes,
+        include: clientDetailIncludes,
       }
     );
 

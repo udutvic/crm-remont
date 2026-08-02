@@ -121,6 +121,27 @@ const uk = {
       },
     },
 
+    profilePages: {
+      clientProfile: "Картка клієнта",
+      deviceProfile: "Картка пристрою",
+      clientSince: "Клієнт із {{date}}",
+      deviceSince: "Пристрій додано {{date}}",
+      contactInformation: "Контактна інформація",
+      clientDevices: "Пристрої клієнта",
+      repairHistory: "Історія ремонтів",
+      owner: "Власник",
+      identifiers: "Ідентифікатори",
+      delivered: "Видано",
+      noIdentifier: "Ідентифікатор відсутній",
+      unknownClient: "Невідомий клієнт",
+      fields: { phone: "Телефон", secondaryPhone: "Додатковий телефон", email: "Email", address: "Адреса", note: "Примітка", imei1: "IMEI 1", imei2: "IMEI 2", serial: "Серійний номер", color: "Колір" },
+      stats: { devices: "Пристроїв", repairs: "Ремонтів", activeRepairs: "Активних ремонтів", completedIncome: "Вартість завершених ремонтів", lastRepair: "Останній ремонт" },
+      status: { pending: "Очікує", in_progress: "У роботі", completed: "Завершено", cancelled: "Скасовано", unrepairable: "Не ремонтується" },
+      empty: { devices: "У клієнта ще немає пристроїв.", repairs: "Історія ремонтів поки порожня." },
+      actions: { backToClients: "Назад до клієнтів", backToDevices: "Назад до пристроїв", newRepair: "Нове приймання", retry: "Повторити" },
+      errors: { invalidClient: "Некоректний ID клієнта.", invalidDevice: "Некоректний ID пристрою.", clientLoad: "Не вдалося завантажити картку клієнта.", deviceLoad: "Не вдалося завантажити картку пристрою." },
+    },
+
     staffPage: {
       title: "Працівники",
       addStaff: "Додати працівника",

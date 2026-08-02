@@ -9,8 +9,10 @@ import PublicOnlyRoute from "features/auth/components/PublicOnlyRoute";
 import RequireAuth from "features/auth/components/RequireAuth";
 import RequireRole from "features/auth/components/RequireRole";
 import LoginPage from "features/auth/LoginPage";
+import ClientDetailsPage from "features/clients/ClientDetailsPage";
 import ClientsPage from "features/clients/ClientsPage";
 import DashboardPage from "features/dashboard/DashboardPage";
+import DeviceDetailsPage from "features/devices/DeviceDetailsPage";
 import DevicesPage from "features/devices/DevicesPage";
 import OrderDetailsPage from "features/orders/OrderDetailsPage";
 import OrderReceiptPage from "features/orders/OrderReceiptPage";
@@ -29,10 +31,20 @@ const MainApp = () => {
         />
 
         <Route
+          path="/clients/:id"
+          element={<ClientDetailsPage />}
+        />
+
+        <Route
           path="/clients"
           element={
             <ClientsPage />
           }
+        />
+
+        <Route
+          path="/devices/:id"
+          element={<DeviceDetailsPage />}
         />
 
         <Route

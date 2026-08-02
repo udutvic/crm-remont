@@ -12,6 +12,7 @@ import {
 import {
   useTranslation,
 } from "react-i18next";
+import { Link } from "react-router";
 
 import ClientInfo from "common/components/ClientInfo";
 import DeviceIcon from "common/components/DeviceIcon";
@@ -121,7 +122,15 @@ const DeviceTableRow = ({
             "0.875rem",
         }}
       >
-        {device.model}
+        <Typography
+          component={Link}
+          to={device.id ? `/devices/${device.id}` : "/devices"}
+          variant="body2"
+          color="primary"
+          sx={{ textDecoration: "none" }}
+        >
+          {device.model}
+        </Typography>
       </TableCell>
 
       <TableCell

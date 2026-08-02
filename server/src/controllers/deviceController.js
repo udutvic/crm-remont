@@ -22,6 +22,16 @@ const deviceIncludes = [
   },
 ];
 
+const deviceDetailIncludes = [
+  { model: Client, as: "client" },
+  {
+    model: Order,
+    as: "orders",
+    separate: true,
+    order: [["receivedAt", "DESC"], ["id", "DESC"]],
+  },
+];
+
 const parsePositiveId = (value) => {
   const id = Number(value);
 
@@ -274,7 +284,7 @@ exports.getDevice = async (
     const device = await Device.findByPk(
       deviceId,
       {
-        include: deviceIncludes,
+        include: deviceDetailIncludes,
       }
     );
 

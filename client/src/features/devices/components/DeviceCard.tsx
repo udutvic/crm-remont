@@ -15,6 +15,7 @@ import {
 import {
   useTranslation,
 } from "react-i18next";
+import { Link } from "react-router";
 
 import ClientInfo from "common/components/ClientInfo";
 import DeviceIcon from "common/components/DeviceIcon";
@@ -140,8 +141,11 @@ const DeviceCard = ({
               />
 
               <Typography
+                component={Link}
+                to={device.id ? `/devices/${device.id}` : "/devices"}
                 variant="h6"
                 noWrap
+                color="primary"
                 sx={{
                   fontSize:
                     "1rem",
