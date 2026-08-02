@@ -327,32 +327,6 @@ export const updateOrderFinance = async (
   return response.data;
 };
 
-export const getOrdersByStatus = async (
-  status: OrderStatus
-): Promise<Order[]> => {
-  const response = await apiClient.get<Order[]>("/orders", {
-    params: {
-      status,
-    },
-  });
-
-  return response.data;
-};
-
-export const getOrdersByDate = async (
-  startDate: string,
-  endDate: string
-): Promise<Order[]> => {
-  const response = await apiClient.get<Order[]>("/orders", {
-    params: {
-      startDate,
-      endDate,
-    },
-  });
-
-  return response.data;
-};
-
 export const createOrder = async (
   order: OrderPayload
 ): Promise<Order> => {
@@ -416,17 +390,6 @@ export const revealOrderAccessCode = async (
 
   return response.data;
 };
-
-export const searchOrders = async (query: string): Promise<Order[]> => {
-  const response = await apiClient.get<Order[]>("/orders/search", {
-    params: {
-      q: query,
-    },
-  });
-
-  return response.data;
-};
-
 
 // Repair intake
 

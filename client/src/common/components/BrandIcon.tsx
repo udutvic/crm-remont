@@ -1,5 +1,9 @@
 import React from 'react';
 import { Box } from '@mui/material';
+import {
+  SmartphoneOutlined as SmartphoneIcon,
+  SportsEsportsOutlined as SportsEsportsIcon,
+} from '@mui/icons-material';
 import { 
   SiApple, 
   SiSamsung, 
@@ -16,11 +20,9 @@ import {
   SiHp, 
   SiDell, 
   SiAcer,  
-  SiNintendo, 
   SiPlaystation,
   SiOppo,
   SiVivo,
-  SiRealm,
   SiBlackberry,
   SiHonor
 } from 'react-icons/si';
@@ -47,7 +49,7 @@ const brandColors: Record<string, string> = {
   'Acer': '#83B81A',
   'Microsoft': '#737373',
   'Nintendo': '#E60012',
-  'Playstation': '#003791'
+  'PlayStation': '#003791'
 };
 const BrandIcon: React.FC<BrandIconProps> = ({ brand = '', size = 'medium', color }) => {
   const sizeValue = size === 'small' ? '1.2rem' : size === 'large' ? '2rem' : '1.5rem';
@@ -115,7 +117,7 @@ const BrandIcon: React.FC<BrandIconProps> = ({ brand = '', size = 'medium', colo
       case 'acer':
         return <SiAcer />;      
       case 'nintendo':
-        return <SiNintendo />;
+        return <SportsEsportsIcon fontSize="inherit" />;
       case 'playstation':
         return <SiPlaystation />;
       case 'oppo':
@@ -123,7 +125,7 @@ const BrandIcon: React.FC<BrandIconProps> = ({ brand = '', size = 'medium', colo
       case 'vivo':
         return <SiVivo />;
       case 'realme':
-        return <SiRealm />;
+        return <SmartphoneIcon fontSize="inherit" />;
       case 'blackberry':
         return <SiBlackberry />;    
       case 'honor':
