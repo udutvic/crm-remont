@@ -22,6 +22,7 @@ import {
 import {
   getAvatarUrl,
 } from "utils/formatters";
+import AdminOnly from "features/auth/components/AdminOnly";
 
 interface ClientTableRowProps {
   client: Client;
@@ -170,21 +171,23 @@ const ClientTableRow = ({
             />
           </IconButton>
 
-          <IconButton
-            onClick={
-              handleDelete
-            }
-            size="small"
-            aria-label={t(
-              "clientsPage.actions.delete"
-            )}
-          >
-            <DeleteIcon
-              sx={{
-                color: "red",
-              }}
-            />
-          </IconButton>
+          <AdminOnly>
+            <IconButton
+              onClick={
+                handleDelete
+              }
+              size="small"
+              aria-label={t(
+                "clientsPage.actions.delete"
+              )}
+            >
+              <DeleteIcon
+                sx={{
+                  color: "red",
+                }}
+              />
+            </IconButton>
+          </AdminOnly>
         </Box>
       </TableCell>
     </TableRow>

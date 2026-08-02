@@ -36,6 +36,7 @@ import {
   updateOrderStatus,
 } from "index";
 import formatOrderNumber from "utils/formatOrderNumber";
+import getDeleteErrorMessage from "utils/getDeleteErrorMessage";
 import type {
   Client,
   Order,
@@ -830,15 +831,15 @@ const OrdersPage = () => {
             error
           );
 
-          const axiosError =
-            error as AxiosError<ApiErrorResponse>;
-
           setDeleteDialogMessage(
-            axiosError.response
-              ?.data?.error ??
-              t(
-                "ordersPage.errors.deleteFailed"
-              )
+            getDeleteErrorMessage(
+              error,
+              t
+            )
+          );
+
+          setOrderToDelete(
+            null
           );
         } finally {
           setDeleting(false);
@@ -1098,7 +1099,10 @@ const OrdersPage = () => {
           handleCloseDeleteDialog
         }
         isConfirmEnabled={
-          !deleting
+          !deleting &&
+          Boolean(
+            orderToDelete
+          )
         }
       />
     </Container>

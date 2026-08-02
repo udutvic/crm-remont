@@ -29,29 +29,6 @@ const ConfirmDeleteDialog = ({
     t,
   } = useTranslation();
 
-  const normalizedMessage =
-    message.toLowerCase();
-
-  const hasErrorMessage =
-    normalizedMessage.includes(
-      "cannot delete"
-    ) ||
-    normalizedMessage.includes(
-      "open orders"
-    ) ||
-    (
-      normalizedMessage.includes(
-        "confirm deletion"
-      ) &&
-      normalizedMessage.includes(
-        "cannot"
-      )
-    );
-
-  const showDeleteButton =
-    isConfirmEnabled &&
-    !hasErrorMessage;
-
   return (
     <Dialog
       open={open}
@@ -80,7 +57,7 @@ const ConfirmDeleteDialog = ({
           )}
         </Button>
 
-        {showDeleteButton && (
+        {isConfirmEnabled && (
           <Button
             onClick={
               onConfirm

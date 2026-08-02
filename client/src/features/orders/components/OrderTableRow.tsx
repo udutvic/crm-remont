@@ -29,6 +29,7 @@ import {
   getOrderReceivedDate,
 } from "../utils/orderDisplay";
 import OrderDeliveryControl from "./OrderDeliveryControl";
+import AdminOnly from "features/auth/components/AdminOnly";
 
 interface OrderTableRowProps {
   order: Order;
@@ -265,42 +266,44 @@ const OrderTableRow = ({
             />
           </IconButton>
 
-          <IconButton
-            onClick={() => {
-              const formattedId =
-                formatOrderId(
-                  order
+          <AdminOnly>
+            <IconButton
+              onClick={() => {
+                const formattedId =
+                  formatOrderId(
+                    order
+                  );
+
+                const orderWithCustomMessage =
+                  {
+                    ...order,
+
+                    _deleteMessage:
+                      t(
+                        "ordersPage.deleteConfirmation",
+                        {
+                          id:
+                            formattedId,
+                        }
+                      ),
+                  };
+
+                onDelete(
+                  orderWithCustomMessage
                 );
-
-              const orderWithCustomMessage =
-                {
-                  ...order,
-
-                  _deleteMessage:
-                    t(
-                      "ordersPage.deleteConfirmation",
-                      {
-                        id:
-                          formattedId,
-                      }
-                    ),
-                };
-
-              onDelete(
-                orderWithCustomMessage
-              );
-            }}
-            size="small"
-            aria-label={t(
-              "ordersPage.actions.delete"
-            )}
-          >
-            <DeleteIcon
-              sx={{
-                color: "red",
               }}
-            />
-          </IconButton>
+              size="small"
+              aria-label={t(
+                "ordersPage.actions.delete"
+              )}
+            >
+              <DeleteIcon
+                sx={{
+                  color: "red",
+                }}
+              />
+            </IconButton>
+          </AdminOnly>
         </Box>
       </TableCell>
     </TableRow>

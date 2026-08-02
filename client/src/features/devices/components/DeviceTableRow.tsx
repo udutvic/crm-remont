@@ -25,6 +25,7 @@ import {
 import {
   getPrimaryDeviceIdentifier,
 } from "../utils/getPrimaryDeviceIdentifier";
+import AdminOnly from "features/auth/components/AdminOnly";
 
 interface DeviceTableRowProps {
   device: Device;
@@ -224,21 +225,23 @@ const DeviceTableRow = ({
             />
           </IconButton>
 
-          <IconButton
-            onClick={
-              handleDelete
-            }
-            size="small"
-            aria-label={t(
-              "devicesPage.actions.delete"
-            )}
-          >
-            <DeleteIcon
-              sx={{
-                color: "red",
-              }}
-            />
-          </IconButton>
+          <AdminOnly>
+            <IconButton
+              onClick={
+                handleDelete
+              }
+              size="small"
+              aria-label={t(
+                "devicesPage.actions.delete"
+              )}
+            >
+              <DeleteIcon
+                sx={{
+                  color: "red",
+                }}
+              />
+            </IconButton>
+          </AdminOnly>
         </Box>
       </TableCell>
     </TableRow>

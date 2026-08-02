@@ -24,6 +24,7 @@ import {
 import {
   getAvatarUrl,
 } from "utils/formatters";
+import AdminOnly from "features/auth/components/AdminOnly";
 
 interface ClientCardProps {
   client: Client;
@@ -164,26 +165,28 @@ const ClientCard = ({
               />
             </IconButton>
 
-            <IconButton
-              onClick={
-                handleDelete
-              }
-              size="small"
-              aria-label={t(
-                "clientsPage.actions.delete"
-              )}
-              sx={{
-                p: 0.75,
-              }}
-            >
-              <DeleteIcon
+            <AdminOnly>
+              <IconButton
+                onClick={
+                  handleDelete
+                }
+                size="small"
+                aria-label={t(
+                  "clientsPage.actions.delete"
+                )}
                 sx={{
-                  color: "red",
-                  fontSize:
-                    "1.1rem",
+                  p: 0.75,
                 }}
-              />
-            </IconButton>
+              >
+                <DeleteIcon
+                  sx={{
+                    color: "red",
+                    fontSize:
+                      "1.1rem",
+                  }}
+                />
+              </IconButton>
+            </AdminOnly>
           </Box>
         </Box>
 

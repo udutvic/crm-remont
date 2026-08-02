@@ -28,6 +28,7 @@ import {
 import {
   getPrimaryDeviceIdentifier,
 } from "../utils/getPrimaryDeviceIdentifier";
+import AdminOnly from "features/auth/components/AdminOnly";
 
 interface DeviceCardProps {
   device: Device;
@@ -203,26 +204,28 @@ const DeviceCard = ({
               />
             </IconButton>
 
-            <IconButton
-              onClick={
-                handleDelete
-              }
-              size="small"
-              aria-label={t(
-                "devicesPage.actions.delete"
-              )}
-              sx={{
-                p: 0.75,
-              }}
-            >
-              <DeleteIcon
+            <AdminOnly>
+              <IconButton
+                onClick={
+                  handleDelete
+                }
+                size="small"
+                aria-label={t(
+                  "devicesPage.actions.delete"
+                )}
                 sx={{
-                  color: "red",
-                  fontSize:
-                    "1.1rem",
+                  p: 0.75,
                 }}
-              />
-            </IconButton>
+              >
+                <DeleteIcon
+                  sx={{
+                    color: "red",
+                    fontSize:
+                      "1.1rem",
+                  }}
+                />
+              </IconButton>
+            </AdminOnly>
           </Box>
         </Box>
 

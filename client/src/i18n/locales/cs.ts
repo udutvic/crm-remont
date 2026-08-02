@@ -360,9 +360,44 @@ const cs = {
     },
 
     deleteDialog: {
-      title: "Potvrzení smazání",
+      title: "Potvrzení odstranění",
       cancel: "Zrušit",
-      delete: "Smazat",
+      delete: "Odstranit",
+      confirmGeneric:
+        "Opravdu chcete tuto položku odstranit?",
+      confirmItem:
+        'Opravdu chcete odstranit položku "{{name}}"?',
+      itemNumber: "položka č. {{id}}",
+      errors: {
+        clientHasOrders:
+          "Zákazníka nelze odstranit, protože jsou s ním spojeny zakázky na opravu.",
+        clientHasDevices:
+          "Zákazníka nelze odstranit, protože jsou k němu přiřazena zařízení.",
+        deviceHasOrders:
+          "Zařízení nelze odstranit, protože jsou s ním spojeny zakázky na opravu.",
+        clientNotFound:
+          "Zákazník nebyl nalezen.",
+        deviceNotFound:
+          "Zařízení nebylo nalezeno.",
+        orderNotFound:
+          "Zakázka nebyla nalezena.",
+        invalidClient:
+          "ID zákazníka není platné.",
+        invalidDevice:
+          "ID zařízení není platné.",
+        invalidOrder:
+          "ID zakázky není platné.",
+        forbidden:
+          "K odstranění této položky nemáte oprávnění.",
+        notFound:
+          "Položka nebyla nalezena nebo již byla odstraněna.",
+        conflict:
+          "Tuto položku nelze odstranit, protože ji používají jiné záznamy.",
+        server:
+          "Při odstraňování došlo k chybě serveru.",
+        deleteFailed:
+          "Položku se nepodařilo odstranit.",
+      },
     },
 
     clientInfo: {

@@ -360,9 +360,44 @@ const en = {
     },
 
     deleteDialog: {
-      title: "Confirm Deletion",
+      title: "Confirm deletion",
       cancel: "Cancel",
       delete: "Delete",
+      confirmGeneric:
+        "Are you sure you want to delete this item?",
+      confirmItem:
+        'Are you sure you want to delete "{{name}}"?',
+      itemNumber: "item #{{id}}",
+      errors: {
+        clientHasOrders:
+          "The client cannot be deleted because repair orders are associated with this client.",
+        clientHasDevices:
+          "The client cannot be deleted because devices are associated with this client.",
+        deviceHasOrders:
+          "The device cannot be deleted because repair orders are associated with this device.",
+        clientNotFound:
+          "The client was not found.",
+        deviceNotFound:
+          "The device was not found.",
+        orderNotFound:
+          "The order was not found.",
+        invalidClient:
+          "The client ID is invalid.",
+        invalidDevice:
+          "The device ID is invalid.",
+        invalidOrder:
+          "The order ID is invalid.",
+        forbidden:
+          "You do not have permission to delete this item.",
+        notFound:
+          "The item was not found or has already been deleted.",
+        conflict:
+          "This item cannot be deleted because it is used by other records.",
+        server:
+          "A server error occurred while deleting the item.",
+        deleteFailed:
+          "The item could not be deleted.",
+      },
     },
 
     clientInfo: {

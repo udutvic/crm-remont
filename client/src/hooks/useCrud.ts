@@ -1,9 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
-import type { AxiosError } from "axios";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import {
+  useTranslation,
+} from "react-i18next";
 
-interface ErrorResponse {
-  error: string;
-}
+import getDeleteErrorMessage from "utils/getDeleteErrorMessage";
 
 interface Entity {
   id?: number;
@@ -15,12 +19,19 @@ interface CrudFunctions<
   TPayload = TEntity
 > {
   getAll: () => Promise<TEntity[]>;
-  create: (data: TPayload) => Promise<TEntity>;
+
+  create: (
+    data: TPayload
+  ) => Promise<TEntity>;
+
   update: (
     id: number,
     data: TPayload
   ) => Promise<TEntity>;
-  remove: (id: number) => Promise<void>;
+
+  remove: (
+    id: number
+  ) => Promise<void>;
 }
 
 export default function useCrud<
@@ -31,161 +42,313 @@ export default function useCrud<
   create,
   update,
   remove,
-}: CrudFunctions<TEntity, TPayload>) {
-  const [items, setItems] = useState<TEntity[]>([]);
-  const [selectedItem, setSelectedItem] = useState<TEntity | undefined>();
-  const [openForm, setOpenForm] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+}: CrudFunctions<
+  TEntity,
+  TPayload
+>) {
+  const {
+    t,
+  } = useTranslation();
 
-  const [deleteDialogOpen, setDeleteDialogOpen] =
-    useState<boolean>(false);
+  const [
+    items,
+    setItems,
+  ] = useState<TEntity[]>([]);
 
-  const [itemToDelete, setItemToDelete] = useState<TEntity | null>(null);
+  const [
+    selectedItem,
+    setSelectedItem,
+  ] = useState<
+    TEntity | undefined
+  >();
 
-  const [deleteDialogMessage, setDeleteDialogMessage] = useState<string>(
-    "Are you sure you want to delete this item?"
-  );
+  const [
+    openForm,
+    setOpenForm,
+  ] = useState(false);
 
-  const [isDeleteEnabled, setIsDeleteEnabled] =
-    useState<boolean>(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const loadItems = useCallback(async (): Promise<void> => {
-    setLoading(true);
+  const [
+    error,
+    setError,
+  ] = useState<
+    string | null
+  >(null);
 
-    try {
-      const data = await getAll();
+  const [
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+  ] = useState(false);
 
-      setItems(data);
-      setError(null);
-    } catch (loadError: unknown) {
-      console.error("Error loading items:", loadError);
-      setError("Failed to load items");
-    } finally {
-      setLoading(false);
-    }
-  }, [getAll]);
+  const [
+    itemToDelete,
+    setItemToDelete,
+  ] = useState<
+    TEntity | null
+  >(null);
+
+  const [
+    deleteDialogMessage,
+    setDeleteDialogMessage,
+  ] = useState("");
+
+  const [
+    isDeleteEnabled,
+    setIsDeleteEnabled,
+  ] = useState(true);
+
+  const loadItems =
+    useCallback(
+      async (): Promise<void> => {
+        setLoading(true);
+
+        try {
+          const data =
+            await getAll();
+
+          setItems(data);
+          setError(null);
+        } catch (
+          loadError: unknown
+        ) {
+          console.error(
+            "Error loading items:",
+            loadError
+          );
+
+          setError(
+            "Failed to load items"
+          );
+        } finally {
+          setLoading(false);
+        }
+      },
+      [getAll]
+    );
 
   useEffect(() => {
     void loadItems();
   }, [loadItems]);
 
-  const handleAdd = useCallback((): void => {
-    setSelectedItem(undefined);
-    setOpenForm(true);
-  }, []);
-
-  const handleEdit = useCallback((item: TEntity): void => {
-    setSelectedItem(item);
-    setOpenForm(true);
-  }, []);
-
-  const handleDelete = useCallback(
-    (
-  item: TEntity,
-  nameField?: keyof TEntity
-): void => {
-      setItemToDelete(item);
-
-      const customMessage = item._deleteMessage ?? "";
-
-      if (customMessage) {
-        setDeleteDialogMessage(customMessage);
-      } else {
-        const fieldValue = nameField ? item[nameField] : undefined;
-
-        const itemName =
-          fieldValue !== undefined && fieldValue !== null
-            ? String(fieldValue)
-            : `item #${item.id}`;
-
-        setDeleteDialogMessage(
-          `Are you sure you want to delete "${itemName}"?`
+  const handleAdd =
+    useCallback(
+      (): void => {
+        setSelectedItem(
+          undefined
         );
-      }
 
-      const isErrorMessage =
-        customMessage.includes("Cannot delete") ||
-        customMessage.includes("open orders associated");
+        setOpenForm(true);
+      },
+      []
+    );
 
-      setIsDeleteEnabled(!isErrorMessage);
-      setDeleteDialogOpen(true);
-    },
-    []
-  );
+  const handleEdit =
+    useCallback(
+      (
+        item: TEntity
+      ): void => {
+        setSelectedItem(item);
+        setOpenForm(true);
+      },
+      []
+    );
 
-  const confirmDelete = useCallback(async (): Promise<void> => {
-    if (!itemToDelete || itemToDelete.id === undefined) {
-      return;
-    }
+  const handleDelete =
+    useCallback(
+      (
+        item: TEntity,
+        nameField?:
+          keyof TEntity
+      ): void => {
+        setItemToDelete(item);
+        setIsDeleteEnabled(true);
 
-    setLoading(true);
+        const customMessage =
+          item._deleteMessage?.trim();
 
-    try {
-      await remove(itemToDelete.id);
+        if (customMessage) {
+          setDeleteDialogMessage(
+            customMessage
+          );
+        } else {
+          const fieldValue =
+            nameField
+              ? item[nameField]
+              : undefined;
 
-      const updatedItems = await getAll();
+          const itemName =
+            fieldValue !==
+              undefined &&
+            fieldValue !== null
+              ? String(
+                  fieldValue
+                )
+              : t(
+                  "deleteDialog.itemNumber",
+                  {
+                    id:
+                      item.id ??
+                      "?",
+                  }
+                );
 
-      setItems(updatedItems);
-      setDeleteDialogOpen(false);
-      setItemToDelete(null);
-      setError(null);
-    } catch (deleteError: unknown) {
-      const axiosError = deleteError as AxiosError<ErrorResponse>;
+          setDeleteDialogMessage(
+            t(
+              "deleteDialog.confirmItem",
+              {
+                name:
+                  itemName,
+              }
+            )
+          );
+        }
 
-      const message =
-        axiosError.response?.data?.error ??
-        "An error occurred while deleting the item";
+        setDeleteDialogOpen(true);
+      },
+      [t]
+    );
 
-      setDeleteDialogMessage(message);
+  const confirmDelete =
+    useCallback(
+      async (): Promise<void> => {
+        if (
+          !itemToDelete ||
+          itemToDelete.id ===
+            undefined
+        ) {
+          return;
+        }
 
-      console.error("Error deleting item:", deleteError);
-    } finally {
-      setLoading(false);
-    }
-  }, [getAll, itemToDelete, remove]);
+        setLoading(true);
 
-const handleSubmit = useCallback(
-  async (data: TPayload): Promise<void> => {
-    try {
-      if (selectedItem?.id !== undefined) {
-        await update(selectedItem.id, data);
-      } else {
-        await create(data);
-      }
+        try {
+          await remove(
+            itemToDelete.id
+          );
 
-      const updatedItems = await getAll();
+          const updatedItems =
+            await getAll();
 
-      setItems(updatedItems);
-      setOpenForm(false);
-      setSelectedItem(undefined);
-      setError(null);
-    } catch (submitError: unknown) {
-      console.error(
-        "Error saving item:",
-        submitError
-      );
+          setItems(
+            updatedItems
+          );
 
-      throw submitError;
-    }
-  },
-  [
-    create,
-    getAll,
-    selectedItem,
-    update,
-  ]
-);
+          setDeleteDialogOpen(
+            false
+          );
 
-  const handleCloseForm = useCallback((): void => {
-    setOpenForm(false);
-    setSelectedItem(undefined);
-  }, []);
+          setItemToDelete(null);
+          setDeleteDialogMessage("");
+          setIsDeleteEnabled(true);
+          setError(null);
+        } catch (
+          deleteError: unknown
+        ) {
+          setDeleteDialogMessage(
+            getDeleteErrorMessage(
+              deleteError,
+              t
+            )
+          );
 
-  const handleCloseDeleteDialog = useCallback((): void => {
-    setDeleteDialogOpen(false);
-    setItemToDelete(null);
-  }, []);
+          setIsDeleteEnabled(false);
+
+          console.error(
+            "Error deleting item:",
+            deleteError
+          );
+        } finally {
+          setLoading(false);
+        }
+      },
+      [
+        getAll,
+        itemToDelete,
+        remove,
+        t,
+      ]
+    );
+
+  const handleSubmit =
+    useCallback(
+      async (
+        data: TPayload
+      ): Promise<void> => {
+        try {
+          if (
+            selectedItem?.id !==
+            undefined
+          ) {
+            await update(
+              selectedItem.id,
+              data
+            );
+          } else {
+            await create(data);
+          }
+
+          const updatedItems =
+            await getAll();
+
+          setItems(
+            updatedItems
+          );
+
+          setOpenForm(false);
+
+          setSelectedItem(
+            undefined
+          );
+
+          setError(null);
+        } catch (
+          submitError: unknown
+        ) {
+          console.error(
+            "Error saving item:",
+            submitError
+          );
+
+          throw submitError;
+        }
+      },
+      [
+        create,
+        getAll,
+        selectedItem,
+        update,
+      ]
+    );
+
+  const handleCloseForm =
+    useCallback(
+      (): void => {
+        setOpenForm(false);
+
+        setSelectedItem(
+          undefined
+        );
+      },
+      []
+    );
+
+  const handleCloseDeleteDialog =
+    useCallback(
+      (): void => {
+        setDeleteDialogOpen(
+          false
+        );
+
+        setItemToDelete(null);
+        setDeleteDialogMessage("");
+        setIsDeleteEnabled(true);
+      },
+      []
+    );
 
   return {
     items,
