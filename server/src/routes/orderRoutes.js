@@ -5,6 +5,11 @@ const orderController =
     "../controllers/orderController"
   );
 
+const orderFinanceController =
+  require(
+    "../controllers/orderFinanceController"
+  );
+
 const orderListController =
   require(
     "../controllers/orderListController"
@@ -35,6 +40,21 @@ router.get(
 router.get(
   "/",
   orderController.getAllOrders
+);
+
+router.get(
+  "/:id/finance",
+  orderFinanceController
+    .getFinance
+);
+
+router.patch(
+  "/:id/finance",
+  requireRole(
+    "admin"
+  ),
+  orderFinanceController
+    .updateFinance
 );
 
 router.get(

@@ -214,7 +214,7 @@ const normalizeImei = (
 const createDefaultValues =
   (): IntakeFormValues => ({
     clientMode:
-      "existing",
+      "new",
     existingClientId:
       "",
 
@@ -227,7 +227,7 @@ const createDefaultValues =
     clientNote: "",
 
     deviceMode:
-      "existing",
+      "new",
     existingDeviceId:
       "",
 
@@ -958,15 +958,15 @@ const RepairIntakeForm = ({
                       mb: 2,
                     }}
                   >
-                    <ToggleButton value="existing">
-                      {t(
-                        "repairIntake.modes.existing"
-                      )}
-                    </ToggleButton>
-
                     <ToggleButton value="new">
                       {t(
                         "repairIntake.modes.new"
+                      )}
+                    </ToggleButton>
+
+                    <ToggleButton value="existing">
+                      {t(
+                        "repairIntake.modes.existing"
                       )}
                     </ToggleButton>
                   </ToggleButtonGroup>
@@ -1376,6 +1376,12 @@ const RepairIntakeForm = ({
                       mb: 2,
                     }}
                   >
+                    <ToggleButton value="new">
+                      {t(
+                        "repairIntake.modes.new"
+                      )}
+                    </ToggleButton>
+
                     <ToggleButton
                       value="existing"
                       disabled={
@@ -1385,12 +1391,6 @@ const RepairIntakeForm = ({
                     >
                       {t(
                         "repairIntake.modes.existing"
-                      )}
-                    </ToggleButton>
-
-                    <ToggleButton value="new">
-                      {t(
-                        "repairIntake.modes.new"
                       )}
                     </ToggleButton>
                   </ToggleButtonGroup>

@@ -122,6 +122,25 @@ const normalizeOrderValues = (
       );
   }
 
+  for (
+    const field of
+    [
+      "laborPrice",
+      "discount",
+      "otherCosts",
+    ]
+  ) {
+    if (
+      values[field] !==
+      undefined
+    ) {
+      values[field] =
+        normalizeMoney(
+          values[field]
+        );
+    }
+  }
+
   if (
     values.estimatedPrice !== undefined
   ) {
@@ -242,6 +261,36 @@ const Order = sequelize.define(
     internalNote: {
       type: DataTypes.TEXT,
       allowNull: true,
+    },
+
+    laborPrice: {
+      type: DataTypes.DECIMAL(12, 2),
+      allowNull: false,
+      defaultValue: 0,
+
+      validate: {
+        min: 0,
+      },
+    },
+
+    discount: {
+      type: DataTypes.DECIMAL(12, 2),
+      allowNull: false,
+      defaultValue: 0,
+
+      validate: {
+        min: 0,
+      },
+    },
+
+    otherCosts: {
+      type: DataTypes.DECIMAL(12, 2),
+      allowNull: false,
+      defaultValue: 0,
+
+      validate: {
+        min: 0,
+      },
     },
 
     estimatedPrice: {

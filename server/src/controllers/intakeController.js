@@ -146,6 +146,21 @@ const serializeOrder = (order) => {
       plain.finalPrice
     );
 
+  plain.laborPrice =
+    toNumberOrNull(
+      plain.laborPrice
+    ) ?? 0;
+
+  plain.discount =
+    toNumberOrNull(
+      plain.discount
+    ) ?? 0;
+
+  plain.otherCosts =
+    toNumberOrNull(
+      plain.otherCosts
+    ) ?? 0;
+
   plain.hasAccessCode =
     hasAccessCode;
 
@@ -515,6 +530,18 @@ const createOrder = async ({
   const payload = {
     ...validation.payload,
   };
+
+  const initialCustomerPrice =
+    payload.finalPrice ??
+    payload.estimatedPrice ??
+    payload.price ??
+    0;
+
+  payload.laborPrice =
+    initialCustomerPrice;
+
+  payload.finalPrice =
+    initialCustomerPrice;
 
   if (
     validation.accessCodeAction ===

@@ -77,6 +77,15 @@ const StockMovement =
         allowNull: true,
       },
 
+      unitPrice: {
+        type:
+          DataTypes.DECIMAL(
+            12,
+            2
+          ),
+        allowNull: true,
+      },
+
       orderId: {
         type:
           DataTypes.INTEGER,
