@@ -1,4 +1,8 @@
 import {
+  lazy,
+  Suspense,
+} from "react";
+import {
   Box,
   LinearProgress,
   TablePagination,
@@ -21,7 +25,14 @@ import type {
 } from "types";
 
 import OrderCard from "./OrderCard";
-import OrderDataGrid from "./OrderDataGrid";
+
+const OrderDataGrid =
+  lazy(
+    () =>
+      import(
+        "./OrderDataGrid"
+      )
+  );
 
 interface OrderListProps {
   orders: Order[];
@@ -197,29 +208,42 @@ const OrderList = ({
   }
 
   return (
-    <OrderDataGrid
-      orders={orders}
-      clients={clients}
-      total={total}
-      loading={loading}
-      paginationModel={
-        paginationModel
+    <Suspense
+      fallback={
+        <Box
+          sx={{
+            minHeight: 320,
+            pt: 1,
+          }}
+        >
+          <LinearProgress />
+        </Box>
       }
-      sortModel={sortModel}
-      onPaginationModelChange={
-        onPaginationModelChange
-      }
-      onSortModelChange={
-        onSortModelChange
-      }
-      onEdit={onEdit}
-      onDelete={onDelete}
-      onStatusChange={
-        onStatusChange
-      }
-      onDeliver={onDeliver}
-      onView={onView}
-    />
+    >
+      <OrderDataGrid
+        orders={orders}
+        clients={clients}
+        total={total}
+        loading={loading}
+        paginationModel={
+          paginationModel
+        }
+        sortModel={sortModel}
+        onPaginationModelChange={
+          onPaginationModelChange
+        }
+        onSortModelChange={
+          onSortModelChange
+        }
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onStatusChange={
+          onStatusChange
+        }
+        onDeliver={onDeliver}
+        onView={onView}
+      />
+    </Suspense>
   );
 };
 
