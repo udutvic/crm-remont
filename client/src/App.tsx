@@ -15,6 +15,7 @@ import DevicesPage from "features/devices/DevicesPage";
 import OrderDetailsPage from "features/orders/OrderDetailsPage";
 import OrderReceiptPage from "features/orders/OrderReceiptPage";
 import OrdersPage from "features/orders/OrdersPage";
+import StaffPage from "features/staff/StaffPage";
 
 const MainApp = () => {
   return (
@@ -52,6 +53,19 @@ const MainApp = () => {
           path="/orders/:id"
           element={
             <OrderDetailsPage />
+          }
+        />
+
+        <Route
+          path="/staff"
+          element={
+            <RequireRole
+              allowedRoles={[
+                "admin",
+              ]}
+            >
+              <StaffPage />
+            </RequireRole>
           }
         />
 

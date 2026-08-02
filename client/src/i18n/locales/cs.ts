@@ -121,6 +121,102 @@ const cs = {
       },
     },
 
+    staffPage: {
+      title: "Pracovníci",
+      addStaff: "Přidat pracovníka",
+      securityNotice:
+        "Uživatelské účty pracovníků mohou spravovat pouze administrátoři. Změny hesel, rolí, aktivity a ukončení relací se zapisují do protokolu činností.",
+      empty: "Vybraným filtrům neodpovídají žádní pracovníci.",
+      currentAccount: "Aktuální účet",
+      activeSessions: "Relace: {{count}}",
+      lastLogin: "Poslední přihlášení",
+      passwordChanged: "Heslo změněno",
+      never: "Nikdy",
+      passwordHint: "Heslo musí obsahovat alespoň 12 znaků.",
+      selfProtection:
+        "Z bezpečnostních důvodů nelze deaktivovat vlastní účet ani si odebrat roli administrátora.",
+      roles: {
+        all: "Všechny role",
+        admin: "Administrátor",
+        technician: "Technik",
+      },
+      status: {
+        all: "Všechny stavy",
+        active: "Aktivní",
+        inactive: "Neaktivní",
+      },
+      filters: {
+        search: "Hledat",
+        searchPlaceholder: "Jméno nebo email",
+        role: "Role",
+        status: "Stav",
+        reset: "Obnovit",
+      },
+      fields: {
+        name: "Jméno",
+        email: "Email",
+        role: "Role",
+        active: "Účet je aktivní",
+        password: "Heslo",
+        newPassword: "Nové heslo",
+        confirmPassword: "Potvrzení hesla",
+      },
+      actions: {
+        create: "Vytvořit pracovníka",
+        edit: "Upravit",
+        save: "Uložit",
+        saving: "Ukládání...",
+        resetPassword: "Změnit heslo",
+        revokeSessions: "Ukončit relace",
+        confirmRevoke: "Ukončit relace",
+        refresh: "Obnovit",
+        showPassword: "Zobrazit heslo",
+        hidePassword: "Skrýt heslo",
+      },
+      dialogs: {
+        createTitle: "Vytvoření účtu pracovníka",
+        editTitle: "Úprava: {{name}}",
+        passwordTitle: "Nové heslo pro {{name}}",
+        passwordMessage:
+          "Po změně hesla budou ukončeny všechny aktivní relace tohoto pracovníka.",
+        selfPasswordMessage:
+          "Aktuální relace v tomto prohlížeči zůstane aktivní. Vaše ostatní relace budou ukončeny.",
+        revokeTitle: "Ukončit aktivní relace?",
+        revokeMessage:
+          "Pracovník {{name}} má {{count}} aktivních relací. Bude se muset znovu přihlásit.",
+        selfRevokeMessage:
+          "Aktuální relace v tomto prohlížeči zůstane aktivní. Bude ukončeno až {{count}} dalších relací.",
+      },
+      messages: {
+        created: "Účet pracovníka byl vytvořen.",
+        updated: "Údaje pracovníka byly aktualizovány.",
+        passwordReset: "Heslo bylo změněno a staré relace ukončeny.",
+        sessionsRevoked: "Ukončeno relací: {{count}}.",
+      },
+      validation: {
+        passwordMismatch: "Hesla se neshodují.",
+      },
+      errors: {
+        loadFailed: "Pracovníky se nepodařilo načíst.",
+        createFailed: "Účet pracovníka se nepodařilo vytvořit.",
+        updateFailed: "Údaje pracovníka se nepodařilo aktualizovat.",
+        passwordFailed: "Heslo se nepodařilo změnit.",
+        revokeFailed: "Aktivní relace se nepodařilo ukončit.",
+      },
+      apiErrors: {
+        STAFF_EMAIL_EXISTS: "Pracovník s tímto emailem již existuje.",
+        STAFF_SELF_DEACTIVATE_FORBIDDEN: "Nelze deaktivovat vlastní účet.",
+        STAFF_SELF_DEMOTE_FORBIDDEN: "Nelze si odebrat roli administrátora.",
+        STAFF_LAST_ADMIN_REQUIRED: "Musí zůstat alespoň jeden aktivní administrátor.",
+        STAFF_NOT_FOUND: "Účet pracovníka nebyl nalezen.",
+        STAFF_VALIDATION_FAILED: "Zkontrolujte zadané údaje pracovníka.",
+      },
+      pagination: {
+        rowsPerPage: "Pracovníků na stránku:",
+        displayedRows: "{{from}}–{{to}} z {{count}}",
+      },
+    },
+
     auditPage: {
       title: "Protokol činností",
       refresh: "Obnovit",
@@ -154,6 +250,7 @@ const cs = {
         intake: "Příjem",
         order: "Zakázka",
         stats: "Statistiky",
+        staff_user: "Pracovník",
       },
       actions: {
         AUTH_LOGIN_SUCCESS: "Úspěšné přihlášení",
@@ -172,6 +269,10 @@ const cs = {
         ORDER_STATUS_UPDATE: "Stav zakázky změněn",
         ORDER_DELIVER: "Zakázka vydána",
         ORDER_DELETE: "Zakázka odstraněna",
+        STAFF_USER_CREATE: "Pracovník vytvořen",
+        STAFF_USER_UPDATE: "Pracovník upraven",
+        STAFF_USER_PASSWORD_RESET: "Heslo pracovníka změněno",
+        STAFF_USER_SESSIONS_REVOKE: "Relace pracovníka ukončeny",
         ORDER_ACCESS_CODE_REVEAL: "Přístupový kód zobrazen",
       },
       errors: {

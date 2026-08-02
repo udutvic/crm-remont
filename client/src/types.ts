@@ -336,7 +336,8 @@ export type AuditLogEntityFilter =
   | "device"
   | "intake"
   | "order"
-  | "stats";
+  | "stats"
+  | "staff_user";
 
 export interface AuditLogUser {
   id: number;
@@ -387,4 +388,77 @@ export interface AuditLogListResponse {
     total: number;
     totalPages: number;
   };
+}
+
+export type StaffRoleFilter =
+  | UserRole
+  | "all";
+
+export type StaffStatusFilter =
+  | "all"
+  | "active"
+  | "inactive";
+
+export interface StaffUser {
+  id: number;
+  email: string;
+  name: string;
+  role: UserRole;
+  isActive: boolean;
+  activeSessionCount: number;
+  lastLoginAt?: string | null;
+  passwordChangedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StaffListQuery {
+  page: number;
+  pageSize: number;
+  q?: string;
+  role?: UserRole;
+  status?: StaffStatusFilter;
+}
+
+export interface StaffListResponse {
+  items: StaffUser[];
+
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface CreateStaffPayload {
+  email: string;
+  name: string;
+  role: UserRole;
+  isActive: boolean;
+  password: string;
+}
+
+export interface UpdateStaffPayload {
+  email?: string;
+  name?: string;
+  role?: UserRole;
+  isActive?: boolean;
+}
+
+export interface StaffUpdateResponse {
+  user: StaffUser;
+  revokedSessions: number;
+}
+
+export interface StaffPasswordResetResponse {
+  user: StaffUser;
+  revokedSessions: number;
+  keptCurrentSession: boolean;
+}
+
+export interface StaffSessionRevokeResponse {
+  userId: number;
+  revokedSessions: number;
+  keptCurrentSession: boolean;
 }

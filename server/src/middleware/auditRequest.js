@@ -22,6 +22,7 @@ const singularize = (
     intake: "intake",
     orders: "order",
     stats: "stats",
+    staff: "staff_user",
   };
 
   return (
@@ -97,14 +98,21 @@ const classifyMutation = (
     case "POST":
       operation =
         collection ===
-        "intake"
-          ? "CREATE"
+          "staff" &&
+        suffix ===
+          "revoke-sessions"
+          ? "SESSIONS_REVOKE"
           : "CREATE";
       break;
 
     case "PUT":
       operation =
-        "UPDATE";
+        collection ===
+          "staff" &&
+        suffix ===
+          "password"
+          ? "PASSWORD_RESET"
+          : "UPDATE";
       break;
 
     case "PATCH":

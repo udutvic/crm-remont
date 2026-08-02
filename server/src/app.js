@@ -13,6 +13,7 @@ const deviceRoutes = require("./routes/deviceRoutes");
 const intakeRoutes = require("./routes/intakeRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const statsRoutes = require("./routes/statsRoutes");
+const staffRoutes = require("./routes/staffRoutes");
 
 const {
   auditProtectedMutation,
@@ -95,6 +96,13 @@ app.use(
   ...protectedApi,
   requireRole("admin"),
   auditRoutes
+);
+app.use(
+  "/api/staff",
+  ...protectedApi,
+  requireRole("admin"),
+  auditProtectedMutation,
+  staffRoutes
 );
 app.use("/api/clients", ...protectedApi, auditProtectedMutation, clientRoutes);
 app.use("/api/devices", ...protectedApi, auditProtectedMutation, deviceRoutes);

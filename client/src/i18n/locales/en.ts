@@ -121,6 +121,102 @@ const en = {
       },
     },
 
+    staffPage: {
+      title: "Staff",
+      addStaff: "Add employee",
+      securityNotice:
+        "Only administrators can manage staff accounts. Password changes, role changes, account status changes, and session revocations are recorded in the audit log.",
+      empty: "No employees match the selected filters.",
+      currentAccount: "Current account",
+      activeSessions: "Sessions: {{count}}",
+      lastLogin: "Last sign-in",
+      passwordChanged: "Password changed",
+      never: "Never",
+      passwordHint: "The password must contain at least 12 characters.",
+      selfProtection:
+        "For safety, you cannot deactivate your own account or remove your own administrator role.",
+      roles: {
+        all: "All roles",
+        admin: "Administrator",
+        technician: "Technician",
+      },
+      status: {
+        all: "All statuses",
+        active: "Active",
+        inactive: "Inactive",
+      },
+      filters: {
+        search: "Search",
+        searchPlaceholder: "Name or email",
+        role: "Role",
+        status: "Status",
+        reset: "Reset",
+      },
+      fields: {
+        name: "Name",
+        email: "Email",
+        role: "Role",
+        active: "Account active",
+        password: "Password",
+        newPassword: "New password",
+        confirmPassword: "Confirm password",
+      },
+      actions: {
+        create: "Create employee",
+        edit: "Edit",
+        save: "Save",
+        saving: "Saving...",
+        resetPassword: "Reset password",
+        revokeSessions: "End sessions",
+        confirmRevoke: "End sessions",
+        refresh: "Refresh",
+        showPassword: "Show password",
+        hidePassword: "Hide password",
+      },
+      dialogs: {
+        createTitle: "Create employee account",
+        editTitle: "Edit {{name}}",
+        passwordTitle: "Set a new password for {{name}}",
+        passwordMessage:
+          "All active sessions for this employee will be ended after the password is changed.",
+        selfPasswordMessage:
+          "Your current browser session will remain active. Your other sessions will be ended.",
+        revokeTitle: "End active sessions?",
+        revokeMessage:
+          "{{name}} currently has {{count}} active session(s). They will need to sign in again.",
+        selfRevokeMessage:
+          "Your current browser session will remain active. Up to {{count}} other session(s) will be ended.",
+      },
+      messages: {
+        created: "Employee account created.",
+        updated: "Employee account updated.",
+        passwordReset: "Password changed and old sessions ended.",
+        sessionsRevoked: "Ended sessions: {{count}}.",
+      },
+      validation: {
+        passwordMismatch: "The passwords do not match.",
+      },
+      errors: {
+        loadFailed: "Could not load staff accounts.",
+        createFailed: "Could not create the employee account.",
+        updateFailed: "Could not update the employee account.",
+        passwordFailed: "Could not change the password.",
+        revokeFailed: "Could not end the active sessions.",
+      },
+      apiErrors: {
+        STAFF_EMAIL_EXISTS: "An employee with this email already exists.",
+        STAFF_SELF_DEACTIVATE_FORBIDDEN: "You cannot deactivate your own account.",
+        STAFF_SELF_DEMOTE_FORBIDDEN: "You cannot remove your own administrator role.",
+        STAFF_LAST_ADMIN_REQUIRED: "At least one active administrator must remain.",
+        STAFF_NOT_FOUND: "Employee account not found.",
+        STAFF_VALIDATION_FAILED: "Check the entered employee details.",
+      },
+      pagination: {
+        rowsPerPage: "Employees per page:",
+        displayedRows: "{{from}}–{{to}} of {{count}}",
+      },
+    },
+
     auditPage: {
       title: "Audit log",
       refresh: "Refresh",
@@ -154,6 +250,7 @@ const en = {
         intake: "Intake",
         order: "Order",
         stats: "Statistics",
+        staff_user: "Employee",
       },
       actions: {
         AUTH_LOGIN_SUCCESS: "Successful sign-in",
@@ -172,6 +269,10 @@ const en = {
         ORDER_STATUS_UPDATE: "Order status changed",
         ORDER_DELIVER: "Order delivered",
         ORDER_DELETE: "Order deleted",
+        STAFF_USER_CREATE: "Employee created",
+        STAFF_USER_UPDATE: "Employee updated",
+        STAFF_USER_PASSWORD_RESET: "Employee password reset",
+        STAFF_USER_SESSIONS_REVOKE: "Employee sessions ended",
         ORDER_ACCESS_CODE_REVEAL: "Access code revealed",
       },
       errors: {

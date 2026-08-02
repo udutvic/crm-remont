@@ -121,6 +121,102 @@ const uk = {
       },
     },
 
+    staffPage: {
+      title: "Працівники",
+      addStaff: "Додати працівника",
+      securityNotice:
+        "Обліковими записами працівників можуть керувати лише адміністратори. Зміни паролів, ролей, активності та завершення сесій записуються в журнал дій.",
+      empty: "За вибраними фільтрами працівників не знайдено.",
+      currentAccount: "Поточний обліковий запис",
+      activeSessions: "Сесій: {{count}}",
+      lastLogin: "Останній вхід",
+      passwordChanged: "Пароль змінено",
+      never: "Ніколи",
+      passwordHint: "Пароль повинен містити щонайменше 12 символів.",
+      selfProtection:
+        "Для безпеки не можна деактивувати власний обліковий запис або забрати в себе роль адміністратора.",
+      roles: {
+        all: "Усі ролі",
+        admin: "Адміністратор",
+        technician: "Технік",
+      },
+      status: {
+        all: "Усі статуси",
+        active: "Активний",
+        inactive: "Неактивний",
+      },
+      filters: {
+        search: "Пошук",
+        searchPlaceholder: "Ім’я або email",
+        role: "Роль",
+        status: "Статус",
+        reset: "Скинути",
+      },
+      fields: {
+        name: "Ім’я",
+        email: "Email",
+        role: "Роль",
+        active: "Обліковий запис активний",
+        password: "Пароль",
+        newPassword: "Новий пароль",
+        confirmPassword: "Підтвердження пароля",
+      },
+      actions: {
+        create: "Створити працівника",
+        edit: "Редагувати",
+        save: "Зберегти",
+        saving: "Збереження...",
+        resetPassword: "Змінити пароль",
+        revokeSessions: "Завершити сесії",
+        confirmRevoke: "Завершити сесії",
+        refresh: "Оновити",
+        showPassword: "Показати пароль",
+        hidePassword: "Приховати пароль",
+      },
+      dialogs: {
+        createTitle: "Створення облікового запису працівника",
+        editTitle: "Редагування: {{name}}",
+        passwordTitle: "Новий пароль для {{name}}",
+        passwordMessage:
+          "Після зміни пароля всі активні сесії цього працівника будуть завершені.",
+        selfPasswordMessage:
+          "Поточна сесія у цьому браузері залишиться активною. Інші ваші сесії будуть завершені.",
+        revokeTitle: "Завершити активні сесії?",
+        revokeMessage:
+          "Працівник {{name}} має {{count}} активних сесій. Йому потрібно буде увійти повторно.",
+        selfRevokeMessage:
+          "Поточна сесія у цьому браузері залишиться активною. Буде завершено до {{count}} інших сесій.",
+      },
+      messages: {
+        created: "Обліковий запис працівника створено.",
+        updated: "Дані працівника оновлено.",
+        passwordReset: "Пароль змінено, старі сесії завершено.",
+        sessionsRevoked: "Завершено сесій: {{count}}.",
+      },
+      validation: {
+        passwordMismatch: "Паролі не збігаються.",
+      },
+      errors: {
+        loadFailed: "Не вдалося завантажити працівників.",
+        createFailed: "Не вдалося створити обліковий запис працівника.",
+        updateFailed: "Не вдалося оновити дані працівника.",
+        passwordFailed: "Не вдалося змінити пароль.",
+        revokeFailed: "Не вдалося завершити активні сесії.",
+      },
+      apiErrors: {
+        STAFF_EMAIL_EXISTS: "Працівник із таким email уже існує.",
+        STAFF_SELF_DEACTIVATE_FORBIDDEN: "Не можна деактивувати власний обліковий запис.",
+        STAFF_SELF_DEMOTE_FORBIDDEN: "Не можна забрати в себе роль адміністратора.",
+        STAFF_LAST_ADMIN_REQUIRED: "Повинен залишитися хоча б один активний адміністратор.",
+        STAFF_NOT_FOUND: "Обліковий запис працівника не знайдено.",
+        STAFF_VALIDATION_FAILED: "Перевірте введені дані працівника.",
+      },
+      pagination: {
+        rowsPerPage: "Працівників на сторінці:",
+        displayedRows: "{{from}}–{{to}} з {{count}}",
+      },
+    },
+
     auditPage: {
       title: "Журнал дій",
       refresh: "Оновити",
@@ -154,6 +250,7 @@ const uk = {
         intake: "Приймання",
         order: "Замовлення",
         stats: "Статистика",
+        staff_user: "Працівник",
       },
       actions: {
         AUTH_LOGIN_SUCCESS: "Успішний вхід",
@@ -172,6 +269,10 @@ const uk = {
         ORDER_STATUS_UPDATE: "Змінено статус замовлення",
         ORDER_DELIVER: "Замовлення видано",
         ORDER_DELETE: "Замовлення видалено",
+        STAFF_USER_CREATE: "Створено працівника",
+        STAFF_USER_UPDATE: "Оновлено працівника",
+        STAFF_USER_PASSWORD_RESET: "Змінено пароль працівника",
+        STAFF_USER_SESSIONS_REVOKE: "Завершено сесії працівника",
         ORDER_ACCESS_CODE_REVEAL: "Переглянуто код доступу",
       },
       errors: {

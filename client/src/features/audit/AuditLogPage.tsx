@@ -62,6 +62,7 @@ const ENTITY_OPTIONS:
     "intake",
     "order",
     "stats",
+    "staff_user",
   ];
 
 const AuditLogPage = () => {

@@ -1,5 +1,6 @@
 import {
   AdminPanelSettingsOutlined as AuditIcon,
+  ManageAccountsOutlined as StaffIcon,
   Assignment,
   Dashboard,
   Devices,
@@ -101,6 +102,13 @@ const Sidebar = ({
     ...(user?.role ===
     "admin"
       ? [
+          {
+            text: t(
+              "staffPage.title"
+            ),
+            icon: StaffIcon,
+            path: "/staff",
+          },
           {
             text: t(
               "auditPage.title"

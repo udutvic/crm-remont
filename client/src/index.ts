@@ -2,7 +2,15 @@ import { apiClient } from "api";
 import type {
   AuditLogListQuery,
   AuditLogListResponse,
+  CreateStaffPayload,
   OrderAccessCodeResponse,
+  StaffListQuery,
+  StaffListResponse,
+  StaffPasswordResetResponse,
+  StaffSessionRevokeResponse,
+  StaffUpdateResponse,
+  StaffUser,
+  UpdateStaffPayload,
 } from "types";
 import {
   AuthResponse,
@@ -385,6 +393,73 @@ export const createRepairIntake = async (
     await apiClient.post<RepairIntakeResult>(
       "/intake",
       intake
+    );
+
+  return response.data;
+};
+
+// Staff management
+
+export const getStaffUsers = async (
+  query: StaffListQuery
+): Promise<StaffListResponse> => {
+  const response =
+    await apiClient.get<StaffListResponse>(
+      "/staff",
+      {
+        params: query,
+      }
+    );
+
+  return response.data;
+};
+
+export const createStaffUser = async (
+  payload: CreateStaffPayload
+): Promise<StaffUser> => {
+  const response =
+    await apiClient.post<StaffUser>(
+      "/staff",
+      payload
+    );
+
+  return response.data;
+};
+
+export const updateStaffUser = async (
+  id: number,
+  payload: UpdateStaffPayload
+): Promise<StaffUpdateResponse> => {
+  const response =
+    await apiClient.patch<StaffUpdateResponse>(
+      `/staff/${id}`,
+      payload
+    );
+
+  return response.data;
+};
+
+export const resetStaffUserPassword = async (
+  id: number,
+  payload: {
+    password: string;
+  }
+): Promise<StaffPasswordResetResponse> => {
+  const response =
+    await apiClient.put<StaffPasswordResetResponse>(
+      `/staff/${id}/password`,
+      payload
+    );
+
+  return response.data;
+};
+
+export const revokeStaffUserSessions = async (
+  id: number
+): Promise<StaffSessionRevokeResponse> => {
+  const response =
+    await apiClient.post<StaffSessionRevokeResponse>(
+      `/staff/${id}/revoke-sessions`
     );
 
   return response.data;
