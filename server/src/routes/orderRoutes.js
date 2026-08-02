@@ -10,6 +10,11 @@ const orderFinanceController =
     "../controllers/orderFinanceController"
   );
 
+const orderPhotoController =
+  require(
+    "../controllers/orderPhotoController"
+  );
+
 const orderListController =
   require(
     "../controllers/orderListController"
@@ -18,6 +23,11 @@ const orderListController =
 const requireRole = require(
   "../middleware/requireRole"
 );
+
+const orderPhotoUpload =
+  require(
+    "../middleware/orderPhotoUpload"
+  );
 
 const {
   auditSensitiveAccess,
@@ -40,6 +50,26 @@ router.get(
 router.get(
   "/",
   orderController.getAllOrders
+);
+
+router.get(
+  "/:id/photos",
+  orderPhotoController
+    .listPhotos
+);
+
+router.post(
+  "/:id/photos",
+  orderPhotoUpload,
+  orderPhotoController
+    .uploadPhoto
+);
+
+router.delete(
+  "/:id/photos/:photoId",
+  requireRole("admin"),
+  orderPhotoController
+    .deletePhoto
 );
 
 router.get(

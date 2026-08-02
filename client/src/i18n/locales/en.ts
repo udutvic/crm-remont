@@ -205,6 +205,75 @@ const en = {
       },
     },
 
+    orderPhotos: {
+      title: "Repair photos",
+      subtitle:
+        "Private photos of the device before, during and after the repair.",
+      empty:
+        "No photos have been added to this order.",
+      noCaption: "No caption",
+      categories: {
+        before: "Before repair",
+        during: "During repair",
+        after: "After repair",
+      },
+      upload: {
+        title: "Add photos",
+        category: "Category",
+        caption: "Caption",
+        choose: "Choose files",
+        camera: "Take photo",
+        hint:
+          "Up to 8 photos at once. JPEG, PNG or WebP, up to 8 MB each. Photos are resized automatically before upload.",
+        selected:
+          "Selected photos: {{count}}",
+        progress:
+          "Processing and uploading {{current}} of {{total}}: {{name}}",
+      },
+      actions: {
+        add: "Add photos",
+        upload: "Upload",
+        uploading: "Uploading...",
+        delete: "Delete",
+        cancel: "Cancel",
+        close: "Close",
+      },
+      deleteConfirmation:
+        "Delete this photo permanently?",
+      success: {
+        uploaded:
+          "Uploaded photos: {{count}}.",
+        deleted:
+          "The photo was deleted.",
+      },
+      errors: {
+        load:
+          "Could not load the photos.",
+        upload:
+          "Could not upload the photo.",
+        delete:
+          "Could not delete the photo.",
+        notConfigured:
+          "Photo storage has not been configured yet.",
+        tooLarge:
+          "The photo is too large after compression.",
+        sourceTooLarge:
+          "The file {{name}} exceeds 8 MB or could not be compressed to a safe size.",
+        type:
+          "Only JPEG, PNG and WebP are allowed.",
+        category:
+          "The selected category is invalid.",
+        caption:
+          "The caption cannot exceed 500 characters.",
+        count:
+          "You can select no more than 8 photos at once.",
+        filesRequired:
+          "Select at least one photo.",
+        prepare:
+          "Could not process the photo {{name}}.",
+      },
+    },
+
     orderParts: {
       title: "Used parts",
       subtitle: "Inventory parts issued for this repair order.",

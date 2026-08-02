@@ -205,6 +205,75 @@ const cs = {
       },
     },
 
+    orderPhotos: {
+      title: "Fotografie opravy",
+      subtitle:
+        "Soukromé fotografie stavu zařízení před opravou, během ní a po opravě.",
+      empty:
+        "K této zakázce zatím nebyly přidány žádné fotografie.",
+      noCaption: "Bez popisu",
+      categories: {
+        before: "Před opravou",
+        during: "Během opravy",
+        after: "Po opravě",
+      },
+      upload: {
+        title: "Přidat fotografie",
+        category: "Kategorie",
+        caption: "Popis",
+        choose: "Vybrat soubory",
+        camera: "Vyfotit",
+        hint:
+          "Až 8 fotografií najednou. JPEG, PNG nebo WebP, maximálně 8 MB na soubor. Fotografie se před nahráním automaticky zmenší.",
+        selected:
+          "Vybrané fotografie: {{count}}",
+        progress:
+          "Zpracování a nahrávání {{current}} z {{total}}: {{name}}",
+      },
+      actions: {
+        add: "Přidat fotografie",
+        upload: "Nahrát",
+        uploading: "Nahrávání...",
+        delete: "Smazat",
+        cancel: "Zrušit",
+        close: "Zavřít",
+      },
+      deleteConfirmation:
+        "Smazat tuto fotografii bez možnosti obnovení?",
+      success: {
+        uploaded:
+          "Nahrané fotografie: {{count}}.",
+        deleted:
+          "Fotografie byla smazána.",
+      },
+      errors: {
+        load:
+          "Fotografie se nepodařilo načíst.",
+        upload:
+          "Fotografii se nepodařilo nahrát.",
+        delete:
+          "Fotografii se nepodařilo smazat.",
+        notConfigured:
+          "Úložiště fotografií ještě není nastaveno.",
+        tooLarge:
+          "Fotografie je po kompresi příliš velká.",
+        sourceTooLarge:
+          "Soubor {{name}} přesahuje 8 MB nebo jej nelze zmenšit na bezpečnou velikost.",
+        type:
+          "Povoleny jsou pouze formáty JPEG, PNG a WebP.",
+        category:
+          "Byla vybrána neplatná kategorie.",
+        caption:
+          "Popis nesmí být delší než 500 znaků.",
+        count:
+          "Najednou lze vybrat nejvýše 8 fotografií.",
+        filesRequired:
+          "Vyberte alespoň jednu fotografii.",
+        prepare:
+          "Fotografii {{name}} se nepodařilo zpracovat.",
+      },
+    },
+
     orderParts: {
       title: "Použité náhradní díly",
       subtitle: "Díly vyskladněné pro tuto opravu.",

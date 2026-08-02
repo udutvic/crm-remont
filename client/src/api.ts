@@ -17,11 +17,6 @@ export const apiClient =
     baseURL: apiUrl,
     timeout: 10_000,
     withCredentials: true,
-
-    headers: {
-      "Content-Type":
-        "application/json",
-    },
   });
 
 apiClient.interceptors.response.use(

@@ -239,6 +239,55 @@ export interface RepairIntakeErrorResponse {
 }
 
 
+export type OrderPhotoCategory =
+  | "before"
+  | "during"
+  | "after";
+
+export interface OrderPhotoUploader {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface OrderPhoto {
+  id: number;
+  orderId: number;
+  storagePath: string;
+  category: OrderPhotoCategory;
+  caption?: string | null;
+  originalName: string;
+  mimeType: string;
+  fileSize: number;
+  width?: number | null;
+  height?: number | null;
+  uploadedBy?: number | null;
+  uploadedByUser?:
+    | OrderPhotoUploader
+    | null;
+  signedUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderPhotoListResponse {
+  photos: OrderPhoto[];
+  signedUrlExpiresIn: number;
+}
+
+export interface OrderPhotoUploadResponse {
+  photo: OrderPhoto;
+}
+
+export interface OrderPhotoUploadMeta {
+  category: OrderPhotoCategory;
+  caption?: string | null;
+  originalName: string;
+  width: number;
+  height: number;
+}
+
 export type OrderListDeliveryFilter =
   | "all"
   | "delivered"
