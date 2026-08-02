@@ -4,6 +4,13 @@ const defaultAllowedOrigins = [
   "http://127.0.0.1:5173",
 ];
 
+const renderExternalUrl =
+  String(
+    process.env
+      .RENDER_EXTERNAL_URL ??
+      ""
+  ).trim();
+
 const configuredOrigins =
   String(
     process.env.CORS_ORIGINS ??
@@ -19,7 +26,10 @@ const configuredOrigins =
 const allowedOrigins =
   configuredOrigins.length > 0
     ? configuredOrigins
-    : defaultAllowedOrigins;
+    : [
+        ...defaultAllowedOrigins,
+        renderExternalUrl,
+      ].filter(Boolean);
 
 const allowedOriginSet =
   new Set(

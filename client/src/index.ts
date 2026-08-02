@@ -30,6 +30,10 @@ import {
 } from "types";
 
 import type {
+  InventoryImportExecuteRequest,
+  InventoryImportExecuteResponse,
+  InventoryImportPreviewRequest,
+  InventoryImportPreviewResponse,
   InventoryItem,
   InventoryItemPayload,
   InventoryListQuery,
@@ -574,6 +578,35 @@ export const getInventoryMovements =
         {
           params: query,
         }
+      );
+
+    return response.data;
+  };
+
+
+export const previewInventoryImport =
+  async (
+    payload:
+      InventoryImportPreviewRequest
+  ): Promise<InventoryImportPreviewResponse> => {
+    const response =
+      await apiClient.post<InventoryImportPreviewResponse>(
+        "/inventory/import/preview",
+        payload
+      );
+
+    return response.data;
+  };
+
+export const executeInventoryImport =
+  async (
+    payload:
+      InventoryImportExecuteRequest
+  ): Promise<InventoryImportExecuteResponse> => {
+    const response =
+      await apiClient.post<InventoryImportExecuteResponse>(
+        "/inventory/import/execute",
+        payload
       );
 
     return response.data;

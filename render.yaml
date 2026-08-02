@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: crm-remont-demo
+    runtime: node
+    plan: free
+    branch: main
+    autoDeploy: true
+    buildCommand: npm ci --prefix server && npm ci --prefix client && npm run build --prefix client && npm run db:migrate --prefix server
+    startCommand: npm start --prefix server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        value: /api
+      - key: DATABASE_URL
+        sync: false
+      - key: ORDER_ACCESS_CODE_KEY
+        sync: false
+      - key: AUTH_COOKIE_SECURE
+        value: "true"
+      - key: AUTH_COOKIE_SAME_SITE
+        value: lax
+      - key: AUTH_SESSION_TTL_DAYS
+        value: "7"
