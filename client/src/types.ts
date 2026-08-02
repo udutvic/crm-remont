@@ -120,6 +120,10 @@ export interface Order {
   estimatedPrice?: number | null;
   finalPrice?: number | null;
 
+  laborPrice?: number;
+  discount?: number;
+  otherCosts?: number;
+
   receivedAt?: string;
   dueAt?: string | null;
   completedAt?: string | null;
@@ -563,6 +567,7 @@ export interface StockMovement {
   balanceBefore: number;
   balanceAfter: number;
   unitCost?: number | null;
+  unitPrice?: number | null;
   orderId?: number | null;
   userId: number;
   note?: string | null;
@@ -576,6 +581,7 @@ export interface InventoryMovementPayload {
   type: StockMovementType;
   quantity: number;
   unitCost?: number | null;
+  unitPrice?: number | null;
   orderId?: number | null;
   note?: string | null;
 }
@@ -588,6 +594,47 @@ export interface InventoryMovementResponse {
 export interface InventoryMovementListResponse {
   movements: StockMovement[];
   pagination: InventoryPagination;
+}
+
+export interface OrderFinancePart {
+  inventoryItemId: number;
+  sku: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  saleTotal: number;
+  currentQuantity: number;
+  unitCost?: number;
+  costTotal?: number;
+}
+
+export interface OrderFinanceSummary {
+  laborPrice: number;
+  partsSaleTotal: number;
+  discount: number;
+  subtotal: number;
+  customerTotal: number;
+  finalPrice: number;
+  partsCostTotal?: number;
+  otherCosts?: number;
+  grossProfit?: number;
+  marginPercent?: number;
+}
+
+export interface OrderFinanceResponse {
+  orderId: number;
+  status: OrderStatus;
+  deliveredAt?: string | null;
+  canEdit: boolean;
+  internalVisible: boolean;
+  summary: OrderFinanceSummary;
+  parts: OrderFinancePart[];
+}
+
+export interface OrderFinanceUpdatePayload {
+  finalPrice: number;
+  discount: number;
+  otherCosts: number;
 }
 
 export type InventoryImportField =

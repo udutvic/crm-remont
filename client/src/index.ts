@@ -24,6 +24,8 @@ import {
   OrderListQuery,
   OrderListResponse,
   OrderPayload,
+  OrderFinanceResponse,
+  OrderFinanceUpdatePayload,
   OrderStatus,
   RepairIntakePayload,
   RepairIntakeResult,
@@ -294,6 +296,30 @@ export const getPagedOrders = async (
 
 export const getOrder = async (id: number): Promise<Order> => {
   const response = await apiClient.get<Order>(`/orders/${id}`);
+
+  return response.data;
+};
+
+export const getOrderFinance = async (
+  id: number
+): Promise<OrderFinanceResponse> => {
+  const response =
+    await apiClient.get<OrderFinanceResponse>(
+      `/orders/${id}/finance`
+    );
+
+  return response.data;
+};
+
+export const updateOrderFinance = async (
+  id: number,
+  payload: OrderFinanceUpdatePayload
+): Promise<OrderFinanceResponse> => {
+  const response =
+    await apiClient.patch<OrderFinanceResponse>(
+      `/orders/${id}/finance`,
+      payload
+    );
 
   return response.data;
 };

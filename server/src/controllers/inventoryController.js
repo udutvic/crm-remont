@@ -24,6 +24,12 @@ const User = require(
 );
 
 const {
+  recalculateOrderFinalPrice,
+} = require(
+  "../services/orderFinanceService"
+);
+
+const {
   positiveId,
   validateItemPayload,
   validateMovementPayload,
@@ -140,6 +146,11 @@ const serializeMovement = (
   plain.unitCost =
     numberOrNull(
       plain.unitCost
+    );
+
+  plain.unitPrice =
+    numberOrNull(
+      plain.unitPrice
     );
 
   return plain;
@@ -1005,6 +1016,30 @@ exports.createMovement = async (
       }
     }
 
+    const resolvedUnitCost =
+      validation.payload
+        .unitCost ??
+      numberOrZero(
+        item.purchasePrice
+      );
+
+    const resolvedUnitPrice =
+      [
+        "issue",
+        "return",
+      ].includes(
+        validation.payload
+          .type
+      )
+        ? (
+            validation.payload
+              .unitPrice ??
+            numberOrZero(
+              item.salePrice
+            )
+          )
+        : null;
+
     const delta =
       movementDelta(
         validation.payload
@@ -1047,8 +1082,10 @@ exports.createMovement = async (
           balanceAfter,
 
           unitCost:
-            validation.payload
-              .unitCost,
+            resolvedUnitCost,
+
+          unitPrice:
+            resolvedUnitPrice,
 
           orderId:
             validation.payload
@@ -1075,6 +1112,24 @@ exports.createMovement = async (
         transaction,
       }
     );
+
+    if (
+      validation.payload
+        .orderId &&
+      [
+        "issue",
+        "return",
+      ].includes(
+        validation.payload
+          .type
+      )
+    ) {
+      await recalculateOrderFinalPrice(
+        validation.payload
+          .orderId,
+        transaction
+      );
+    }
 
     await transaction.commit();
 

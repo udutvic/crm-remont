@@ -130,6 +130,81 @@ const cs = {
       dashboard: "Na přehled",
     },
 
+    orderFinance: {
+      title: "Finance opravy",
+      subtitle:
+        "Konečná cena je celková částka. Použité díly jsou již zahrnuty.",
+      customer: {
+        total: "Konečná cena",
+        parts: "Díly v ceně",
+        labor: "Práce v ceně",
+        discount: "Sleva",
+      },
+      parts: {
+        title:
+          "Náhradní díly zahrnuté v ceně opravy",
+        empty:
+          "V této opravě zatím nejsou žádné použité díly.",
+        part: "Náhradní díl",
+        quantity: "Množství",
+        unitPrice:
+          "Cena pro zákazníka",
+        total: "Zahrnuto v ceně",
+      },
+      internal: {
+        title:
+          "Interní ekonomika",
+        partsCost:
+          "Pořizovací hodnota dílů",
+        otherCosts:
+          "Ostatní náklady",
+        profit: "Hrubý zisk",
+        margin: "Marže",
+        adminOnly:
+          "Nákupní ceny, náklady a zisk jsou dostupné pouze administrátorovi.",
+      },
+      dialog: {
+        title:
+          "Upravit finance zakázky",
+        finalPrice:
+          "Konečná cena pro zákazníka",
+        fixedTotalHint:
+          "Díly se nepřičítají ke konečné ceně. Jejich hodnota se automaticky odečte z části za práci.",
+        discount: "Sleva",
+        otherCosts:
+          "Ostatní interní náklady",
+        otherCostsHint:
+          "Například doprava, spotřební materiál nebo externí práce.",
+      },
+      partsEditor: {
+        quantity: "Množství",
+        customerUnitPrice:
+          "Cena pro zákazníka za kus",
+        customerTotal:
+          "Zahrnuto v konečné ceně",
+        internalUnitCost:
+          "Pořizovací cena za kus",
+        internalTotal:
+          "Celkový náklad",
+      },
+      finalPriceManaged:
+        "Konečná cena se mění v bloku financí opravy.",
+      actions: {
+        edit: "Upravit finance",
+        cancel: "Zrušit",
+        save: "Uložit",
+        saving: "Ukládání...",
+      },
+      errors: {
+        load:
+          "Finance zakázky se nepodařilo načíst.",
+        save:
+          "Finance zakázky se nepodařilo uložit.",
+        nonNegative:
+          "Všechny částky musí být celá čísla nejméně nula.",
+      },
+    },
+
     orderParts: {
       title: "Použité náhradní díly",
       subtitle: "Díly vyskladněné pro tuto opravu.",

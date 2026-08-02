@@ -130,6 +130,81 @@ const en = {
       dashboard: "Dashboard",
     },
 
+    orderFinance: {
+      title: "Repair finances",
+      subtitle:
+        "The final price is the total amount. Used parts are already included.",
+      customer: {
+        total: "Final price",
+        parts: "Parts included",
+        labor: "Labor included",
+        discount: "Discount",
+      },
+      parts: {
+        title:
+          "Parts included in the repair price",
+        empty:
+          "No used parts have been added to this repair.",
+        part: "Part",
+        quantity: "Quantity",
+        unitPrice:
+          "Customer price",
+        total: "Included in price",
+      },
+      internal: {
+        title:
+          "Internal economics",
+        partsCost:
+          "Parts cost",
+        otherCosts:
+          "Other costs",
+        profit: "Gross profit",
+        margin: "Margin",
+        adminOnly:
+          "Purchase prices, costs and profit are available only to administrators.",
+      },
+      dialog: {
+        title:
+          "Edit order finances",
+        finalPrice:
+          "Final customer price",
+        fixedTotalHint:
+          "Parts are not added on top of the final price. Their value is automatically deducted from the labor portion.",
+        discount: "Discount",
+        otherCosts:
+          "Other internal costs",
+        otherCostsHint:
+          "For example: delivery, consumables or outsourced work.",
+      },
+      partsEditor: {
+        quantity: "Quantity",
+        customerUnitPrice:
+          "Customer unit price",
+        customerTotal:
+          "Included in final price",
+        internalUnitCost:
+          "Internal unit cost",
+        internalTotal:
+          "Total internal cost",
+      },
+      finalPriceManaged:
+        "The final price is changed in the repair finance section.",
+      actions: {
+        edit: "Edit finances",
+        cancel: "Cancel",
+        save: "Save",
+        saving: "Saving...",
+      },
+      errors: {
+        load:
+          "Could not load the order finances.",
+        save:
+          "Could not save the order finances.",
+        nonNegative:
+          "All amounts must be whole numbers of zero or more.",
+      },
+    },
+
     orderParts: {
       title: "Used parts",
       subtitle: "Inventory parts issued for this repair order.",

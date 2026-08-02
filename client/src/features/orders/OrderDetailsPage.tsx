@@ -40,6 +40,7 @@ import type {
 
 import OrderDetailsContent from "./components/OrderDetailsContent";
 import OrderDetailsHeader from "./components/OrderDetailsHeader";
+import OrderFinanceSection from "./components/OrderFinanceSection";
 import OrderForm from "./components/OrderForm";
 import OrderPartsSection from "./components/OrderPartsSection";
 
@@ -523,6 +524,13 @@ const OrderDetailsPage = () => {
           order={order}
           onChanged={loadOrder}
         />
+
+        {order.id && (
+          <OrderFinanceSection
+            orderId={order.id}
+            onChanged={loadOrder}
+          />
+        )}
       </Stack>
 
       <OrderForm

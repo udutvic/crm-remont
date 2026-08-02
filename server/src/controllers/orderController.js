@@ -127,6 +127,21 @@ const serializeOrder = (order) => {
     plain.finalPrice
   );
 
+  plain.laborPrice =
+    toNumberOrNull(
+      plain.laborPrice
+    ) ?? 0;
+
+  plain.discount =
+    toNumberOrNull(
+      plain.discount
+    ) ?? 0;
+
+  plain.otherCosts =
+    toNumberOrNull(
+      plain.otherCosts
+    ) ?? 0;
+
   if (
     Array.isArray(
       plain.stockMovements
@@ -158,6 +173,10 @@ const serializeOrder = (order) => {
             unitCost:
               toNumberOrNull(
                 movement.unitCost
+              ),
+            unitPrice:
+              toNumberOrNull(
+                movement.unitPrice
               ),
             inventoryItem,
           };
@@ -723,6 +742,18 @@ exports.createOrder = async (
       ...validation.payload,
     };
 
+    const initialCustomerPrice =
+      payload.finalPrice ??
+      payload.estimatedPrice ??
+      payload.price ??
+      0;
+
+    payload.laborPrice =
+      initialCustomerPrice;
+
+    payload.finalPrice =
+      initialCustomerPrice;
+
     const accessCodeErrors =
       applyAccessCodeChange({
         validation,
@@ -819,6 +850,12 @@ exports.updateOrder = async (
     const payload = {
       ...validation.payload,
     };
+
+    /*
+     * finalPrice is maintained by
+     * the dedicated finance workflow.
+     */
+    delete payload.finalPrice;
 
     const accessCodeErrors =
       applyAccessCodeChange({

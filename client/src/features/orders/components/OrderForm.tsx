@@ -1445,7 +1445,7 @@ const OrderForm = ({
                     label={t(
                       "orderForm.fields.estimatedPrice"
                     )}
-                    type="number"
+                    type="text"
                     fullWidth
                     sx={
                       priceFieldSx
@@ -1461,24 +1461,36 @@ const OrderForm = ({
                     }
                     slotProps={{
                       htmlInput: {
-                        min: 0,
-                        step: 1,
                         inputMode:
                           "numeric",
+                        pattern:
+                          "[0-9]*",
                       },
                     }}
                     onChange={(
                       event
                     ) => {
-                      field.onChange(
+                      const wholePart =
                         event.target
-                          .value ===
+                          .value
+                          .replace(
+                            /\s/g,
+                            ""
+                          )
+                          .split(
+                            /[.,]/
+                          )[0]
+                          .replace(
+                            /[^0-9]/g,
+                            ""
+                          );
+
+                      field.onChange(
+                        wholePart ===
                           ""
                           ? ""
                           : Number(
-                              event
-                                .target
-                                .value
+                              wholePart
                             )
                       );
                     }}
@@ -1525,7 +1537,8 @@ const OrderForm = ({
                     label={t(
                       "orderForm.fields.finalPrice"
                     )}
-                    type="number"
+                    type="text"
+                    disabled
                     fullWidth
                     sx={
                       priceFieldSx
@@ -1535,30 +1548,44 @@ const OrderForm = ({
                       fieldState.error
                     )}
                     helperText={
-                      fieldState
-                        .error
-                        ?.message
+                      fieldState.error
+                        ?.message ??
+                      t(
+                        "orderFinance.finalPriceManaged"
+                      )
                     }
                     slotProps={{
                       htmlInput: {
-                        min: 0,
-                        step: 1,
                         inputMode:
                           "numeric",
+                        pattern:
+                          "[0-9]*",
                       },
                     }}
                     onChange={(
                       event
                     ) => {
-                      field.onChange(
+                      const wholePart =
                         event.target
-                          .value ===
+                          .value
+                          .replace(
+                            /\s/g,
+                            ""
+                          )
+                          .split(
+                            /[.,]/
+                          )[0]
+                          .replace(
+                            /[^0-9]/g,
+                            ""
+                          );
+
+                      field.onChange(
+                        wholePart ===
                           ""
                           ? ""
                           : Number(
-                              event
-                                .target
-                                .value
+                              wholePart
                             )
                       );
                     }}

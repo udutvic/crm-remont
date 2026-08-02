@@ -508,9 +508,42 @@ const validateMovementPayload = (
   if (unitCost.error) {
     errors.unitCost =
       unitCost.error;
+  } else if (
+    unitCost.value !== null &&
+    !Number.isInteger(
+      unitCost.value
+    )
+  ) {
+    errors.unitCost =
+      "Unit cost must be a whole amount in CZK.";
   } else {
     payload.unitCost =
       unitCost.value;
+  }
+
+  const unitPrice =
+    moneyValue(
+      body.unitPrice,
+      {
+        defaultValue: null,
+        allowNull: true,
+      }
+    );
+
+  if (unitPrice.error) {
+    errors.unitPrice =
+      unitPrice.error;
+  } else if (
+    unitPrice.value !== null &&
+    !Number.isInteger(
+      unitPrice.value
+    )
+  ) {
+    errors.unitPrice =
+      "Unit price must be a whole amount in CZK.";
+  } else {
+    payload.unitPrice =
+      unitPrice.value;
   }
 
   const note =

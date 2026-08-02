@@ -39,6 +39,7 @@ import {
   useTranslation,
 } from "react-i18next";
 
+import useAuth from "features/auth/context/useAuth";
 import getInventoryErrorMessage from "features/inventory/getInventoryErrorMessage";
 import useAppFormatters from "hooks/useAppFormatters";
 import {
@@ -57,22 +58,75 @@ interface OrderPartsSectionProps {
     () => Promise<void> | void;
 }
 
-interface PartUsageSummary {
+interface PartSummary {
   item: InventoryItem;
   issuedQuantity: number;
   returnedQuantity: number;
   netQuantity: number;
-  netCost: number;
+  saleTotal: number;
+  costTotal: number;
+  averageUnitPrice: number;
   averageUnitCost: number;
 }
 
-const movementUnitCost = (
+const absoluteQuantity = (
   movement: StockMovement
 ): number =>
-  movement.unitCost ??
-  movement.inventoryItem
-    ?.purchasePrice ??
-  0;
+  Math.abs(
+    movement.quantityChange
+  );
+
+const unitSalePrice = (
+  movement: StockMovement
+): number =>
+  Number(
+    movement.unitPrice ??
+      movement.inventoryItem
+        ?.salePrice ??
+      0
+  );
+
+const unitCostPrice = (
+  movement: StockMovement
+): number =>
+  Number(
+    movement.unitCost ??
+      movement.inventoryItem
+        ?.purchasePrice ??
+      0
+  );
+
+const digitsOnly = (
+  value: string
+): string => {
+  const wholePart =
+    value
+      .replace(
+        /\s/g,
+        ""
+      )
+      .split(
+        /[.,]/
+      )[0];
+
+  return wholePart.replace(
+    /[^0-9]/g,
+    ""
+  );
+};
+
+const wholeMoneyString = (
+  value: number
+): string =>
+  String(
+    Math.max(
+      0,
+      Math.round(
+        Number(value) ||
+          0
+      )
+    )
+  );
 
 const OrderPartsSection = ({
   order,
@@ -83,9 +137,17 @@ const OrderPartsSection = ({
   } = useTranslation();
 
   const {
+    user,
+  } = useAuth();
+
+  const {
     formatDateTime,
     formatPrice,
   } = useAppFormatters();
+
+  const isAdmin =
+    user?.role ===
+    "admin";
 
   const [
     addOpen,
@@ -96,7 +158,7 @@ const OrderPartsSection = ({
     returnTarget,
     setReturnTarget,
   ] = useState<
-    PartUsageSummary | null
+    PartSummary | null
   >(null);
 
   const [
@@ -129,8 +191,13 @@ const OrderPartsSection = ({
   ] = useState("1");
 
   const [
-    unitCost,
-    setUnitCost,
+    customerUnitPrice,
+    setCustomerUnitPrice,
+  ] = useState("0");
+
+  const [
+    internalUnitCost,
+    setInternalUnitCost,
   ] = useState("0");
 
   const [
@@ -178,7 +245,8 @@ const OrderPartsSection = ({
                   "return"
               ) &&
               Boolean(
-                movement.inventoryItem
+                movement
+                  .inventoryItem
               )
           )
           .sort(
@@ -205,11 +273,20 @@ const OrderPartsSection = ({
           new Map<
             number,
             {
-              item: InventoryItem;
-              issuedQuantity: number;
-              returnedQuantity: number;
-              issuedCost: number;
-              returnedCost: number;
+              item:
+                InventoryItem;
+              issuedQuantity:
+                number;
+              returnedQuantity:
+                number;
+              issuedSale:
+                number;
+              returnedSale:
+                number;
+              issuedCost:
+                number;
+              returnedCost:
+                number;
             }
           >();
 
@@ -218,7 +295,8 @@ const OrderPartsSection = ({
           movements
         ) {
           const item =
-            movement.inventoryItem;
+            movement
+              .inventoryItem;
 
           if (!item) {
             continue;
@@ -229,20 +307,30 @@ const OrderPartsSection = ({
               item.id
             ) ?? {
               item,
-              issuedQuantity: 0,
-              returnedQuantity: 0,
+              issuedQuantity:
+                0,
+              returnedQuantity:
+                0,
+              issuedSale: 0,
+              returnedSale: 0,
               issuedCost: 0,
               returnedCost: 0,
             };
 
           const movementQuantity =
-            Math.abs(
-              movement.quantityChange
+            absoluteQuantity(
+              movement
             );
 
-          const movementCost =
+          const saleAmount =
             movementQuantity *
-            movementUnitCost(
+            unitSalePrice(
+              movement
+            );
+
+          const costAmount =
+            movementQuantity *
+            unitCostPrice(
               movement
             );
 
@@ -250,15 +338,25 @@ const OrderPartsSection = ({
             movement.type ===
             "issue"
           ) {
-            current.issuedQuantity +=
+            current
+              .issuedQuantity +=
               movementQuantity;
+
+            current.issuedSale +=
+              saleAmount;
+
             current.issuedCost +=
-              movementCost;
+              costAmount;
           } else {
-            current.returnedQuantity +=
+            current
+              .returnedQuantity +=
               movementQuantity;
+
+            current.returnedSale +=
+              saleAmount;
+
             current.returnedCost +=
-              movementCost;
+              costAmount;
           }
 
           grouped.set(
@@ -273,26 +371,45 @@ const OrderPartsSection = ({
           .map(
             (
               current
-            ): PartUsageSummary => {
+            ): PartSummary => {
               const netQuantity =
-                current.issuedQuantity -
-                current.returnedQuantity;
+                current
+                  .issuedQuantity -
+                current
+                  .returnedQuantity;
 
-              const netCost =
-                current.issuedCost -
-                current.returnedCost;
+              const saleTotal =
+                current
+                  .issuedSale -
+                current
+                  .returnedSale;
+
+              const costTotal =
+                current
+                  .issuedCost -
+                current
+                  .returnedCost;
 
               return {
-                item: current.item,
+                item:
+                  current.item,
                 issuedQuantity:
-                  current.issuedQuantity,
+                  current
+                    .issuedQuantity,
                 returnedQuantity:
-                  current.returnedQuantity,
+                  current
+                    .returnedQuantity,
                 netQuantity,
-                netCost,
+                saleTotal,
+                costTotal,
+                averageUnitPrice:
+                  netQuantity > 0
+                    ? saleTotal /
+                      netQuantity
+                    : 0,
                 averageUnitCost:
                   netQuantity > 0
-                    ? netCost /
+                    ? costTotal /
                       netQuantity
                     : 0,
               };
@@ -303,25 +420,15 @@ const OrderPartsSection = ({
               left,
               right
             ) =>
-              left.item.name.localeCompare(
-                right.item.name
-              )
+              left.item.name
+                .localeCompare(
+                  right.item.name
+                )
           );
       },
       [
         movements,
       ]
-    );
-
-  const totalCost =
-    summaries.reduce(
-      (
-        total,
-        summary
-      ) =>
-        total +
-        summary.netCost,
-      0
     );
 
   useEffect(() => {
@@ -335,21 +442,24 @@ const OrderPartsSection = ({
     if (
       query.length < 2
     ) {
-      setSearchResults([]);
+      setSearchResults(
+        []
+      );
       setSearching(false);
       return;
     }
 
     let active = true;
 
-    const timeout =
+    const timer =
       window.setTimeout(
         () => {
-          const load =
+          const run =
             async (): Promise<void> => {
               try {
-                setSearching(true);
-                setErrorMessage(null);
+                setSearching(
+                  true
+                );
 
                 const response =
                   await getInventoryItems(
@@ -380,12 +490,14 @@ const OrderPartsSection = ({
                 }
               } finally {
                 if (active) {
-                  setSearching(false);
+                  setSearching(
+                    false
+                  );
                 }
               }
             };
 
-          void load();
+          void run();
         },
         350
       );
@@ -393,7 +505,7 @@ const OrderPartsSection = ({
     return () => {
       active = false;
       window.clearTimeout(
-        timeout
+        timer
       );
     };
   }, [
@@ -402,26 +514,18 @@ const OrderPartsSection = ({
     t,
   ]);
 
-  const resetDialog =
+  const resetEditor =
     (): void => {
-      setSearch("");
-      setSearchResults([]);
       setSelectedItem(null);
-      setReturnTarget(null);
       setQuantity("1");
-      setUnitCost("0");
+      setCustomerUnitPrice(
+        "0"
+      );
+      setInternalUnitCost(
+        "0"
+      );
       setNote("");
       setErrorMessage(null);
-    };
-
-  const closeDialogs =
-    (): void => {
-      if (saving) {
-        return;
-      }
-
-      setAddOpen(false);
-      resetDialog();
     };
 
   const selectItem = (
@@ -429,89 +533,74 @@ const OrderPartsSection = ({
   ): void => {
     setSelectedItem(item);
     setQuantity("1");
-    setUnitCost(
-      String(
+
+    setCustomerUnitPrice(
+      wholeMoneyString(
+        item.salePrice ??
+          0
+      )
+    );
+
+    setInternalUnitCost(
+      wholeMoneyString(
         item.purchasePrice ??
           0
       )
     );
+
     setErrorMessage(null);
   };
 
-  const openReturn = (
-    summary:
-      PartUsageSummary
-  ): void => {
-    setReturnTarget(summary);
-    setSelectedItem(
-      summary.item
-    );
-    setQuantity("1");
-    setUnitCost(
-      String(
-        Math.max(
-          summary.averageUnitCost,
-          0
-        )
-      )
-    );
-    setNote("");
-    setErrorMessage(null);
-  };
-
-  const numericQuantity =
+  const quantityNumber =
     Number(quantity);
 
-  const numericUnitCost =
-    Number(unitCost);
-
-  const quantityValid =
-    Number.isInteger(
-      numericQuantity
-    ) &&
-    numericQuantity > 0;
-
-  const costValid =
-    Number.isFinite(
-      numericUnitCost
-    ) &&
-    numericUnitCost >= 0;
-
-  const maxQuantity =
-    returnTarget
-      ? returnTarget.netQuantity
-      : selectedItem
-        ?.currentQuantity ?? 0;
-
-  const withinLimit =
-    quantityValid &&
-    numericQuantity <=
-      maxQuantity;
-
-  const canSave =
-    Boolean(
-      orderId &&
-      selectedItem &&
-      quantityValid &&
-      costValid &&
-      withinLimit &&
-      !saving
+  const unitPriceNumber =
+    Number(
+      customerUnitPrice
     );
 
-  const saveMovement =
+  const unitCostNumber =
+    Number(
+      internalUnitCost
+    );
+
+  const baseValuesValid =
+    Number.isInteger(
+      quantityNumber
+    ) &&
+    quantityNumber > 0 &&
+    Number.isInteger(
+      unitPriceNumber
+    ) &&
+    unitPriceNumber >= 0 &&
+    (
+      !isAdmin ||
+      (
+        Number.isInteger(
+          unitCostNumber
+        ) &&
+        unitCostNumber >= 0
+      )
+    );
+
+  const enoughStock =
+    Boolean(
+      selectedItem &&
+      quantityNumber <=
+        selectedItem
+          .currentQuantity
+    );
+
+  const issuePart =
     async (): Promise<void> => {
       if (
-        !canSave ||
         !orderId ||
-        !selectedItem
+        !selectedItem ||
+        !baseValuesValid ||
+        !enoughStock
       ) {
         return;
       }
-
-      const isReturn =
-        Boolean(
-          returnTarget
-        );
 
       try {
         setSaving(true);
@@ -521,14 +610,15 @@ const OrderPartsSection = ({
         await createInventoryMovement(
           selectedItem.id,
           {
-            type:
-              isReturn
-                ? "return"
-                : "issue",
+            type: "issue",
             quantity:
-              numericQuantity,
+              quantityNumber,
+            unitPrice:
+              unitPriceNumber,
             unitCost:
-              numericUnitCost,
+              isAdmin
+                ? unitCostNumber
+                : null,
             orderId,
             note:
               note.trim() ||
@@ -538,20 +628,21 @@ const OrderPartsSection = ({
 
         setSuccessMessage(
           t(
-            isReturn
-              ? "orderParts.success.returned"
-              : "orderParts.success.issued"
+            "orderParts.success.issued"
           )
         );
 
         setAddOpen(false);
-        resetDialog();
+        setSearch("");
+        setSearchResults([]);
+        resetEditor();
+
         await onChanged();
       } catch (
         error: unknown
       ) {
         console.error(
-          "Order stock movement failed:",
+          "Order part issue failed:",
           error
         );
 
@@ -566,6 +657,248 @@ const OrderPartsSection = ({
         setSaving(false);
       }
     };
+
+  const openReturn = (
+    summary: PartSummary
+  ): void => {
+    setReturnTarget(
+      summary
+    );
+
+    setQuantity("1");
+
+    setCustomerUnitPrice(
+      wholeMoneyString(
+        summary
+          .averageUnitPrice
+      )
+    );
+
+    setInternalUnitCost(
+      wholeMoneyString(
+        summary
+          .averageUnitCost
+      )
+    );
+
+    setNote("");
+    setErrorMessage(null);
+  };
+
+  const returnQuantityValid =
+    Boolean(
+      returnTarget &&
+      Number.isInteger(
+        quantityNumber
+      ) &&
+      quantityNumber > 0 &&
+      quantityNumber <=
+        returnTarget
+          .netQuantity
+    );
+
+  const returnPart =
+    async (): Promise<void> => {
+      if (
+        !orderId ||
+        !returnTarget ||
+        !returnQuantityValid ||
+        !baseValuesValid
+      ) {
+        return;
+      }
+
+      try {
+        setSaving(true);
+        setErrorMessage(null);
+        setSuccessMessage(null);
+
+        await createInventoryMovement(
+          returnTarget
+            .item.id,
+          {
+            type: "return",
+            quantity:
+              quantityNumber,
+            unitPrice:
+              unitPriceNumber,
+            unitCost:
+              isAdmin
+                ? unitCostNumber
+                : null,
+            orderId,
+            note:
+              note.trim() ||
+              null,
+          }
+        );
+
+        setSuccessMessage(
+          t(
+            "orderParts.success.returned"
+          )
+        );
+
+        setReturnTarget(
+          null
+        );
+
+        resetEditor();
+        await onChanged();
+      } catch (
+        error: unknown
+      ) {
+        console.error(
+          "Order part return failed:",
+          error
+        );
+
+        setErrorMessage(
+          getInventoryErrorMessage(
+            error,
+            t,
+            "movementFailed"
+          )
+        );
+      } finally {
+        setSaving(false);
+      }
+    };
+
+  const editorFields = (
+    maxQuantity?: number
+  ) => (
+    <Stack spacing={2}>
+      <Stack
+        direction={{
+          xs: "column",
+          sm: "row",
+        }}
+        spacing={2}
+      >
+        <TextField
+          label={t(
+            "orderFinance.partsEditor.quantity"
+          )}
+          type="text"
+          value={quantity}
+          onChange={(
+            event
+          ) => {
+            setQuantity(
+              digitsOnly(
+                event.target
+                  .value
+              )
+            );
+          }}
+          slotProps={{
+            htmlInput: {
+              inputMode:
+                "numeric",
+              pattern:
+                "[0-9]*",
+              "aria-valuemax":
+                maxQuantity,
+            },
+          }}
+          fullWidth
+        />
+
+        <TextField
+          label={t(
+            "orderFinance.partsEditor.customerUnitPrice"
+          )}
+          type="text"
+          value={
+            customerUnitPrice
+          }
+          onChange={(
+            event
+          ) => {
+            setCustomerUnitPrice(
+              digitsOnly(
+                event.target
+                  .value
+              )
+            );
+          }}
+          slotProps={{
+            htmlInput: {
+              inputMode:
+                "numeric",
+              pattern:
+                "[0-9]*",
+            },
+          }}
+          fullWidth
+        />
+
+        {isAdmin && (
+          <TextField
+            label={t(
+              "orderFinance.partsEditor.internalUnitCost"
+            )}
+            type="text"
+            value={
+              internalUnitCost
+            }
+            onChange={(
+              event
+            ) => {
+              setInternalUnitCost(
+                digitsOnly(
+                  event.target
+                    .value
+                )
+              );
+            }}
+            slotProps={{
+              htmlInput: {
+                inputMode:
+                  "numeric",
+                pattern:
+                  "[0-9]*",
+              },
+            }}
+            fullWidth
+          />
+        )}
+      </Stack>
+
+      <Alert severity="info">
+        {t(
+          "orderFinance.partsEditor.customerTotal"
+        )}
+        {": "}
+        <strong>
+          {formatPrice(
+            baseValuesValid
+              ? quantityNumber *
+                  unitPriceNumber
+              : 0
+          )}
+        </strong>
+      </Alert>
+
+      <TextField
+        label={t(
+          "orderParts.addDialog.note"
+        )}
+        value={note}
+        onChange={(
+          event
+        ) => {
+          setNote(
+            event.target.value
+          );
+        }}
+        multiline
+        minRows={2}
+        fullWidth
+      />
+    </Stack>
+  );
 
   return (
     <>
@@ -595,22 +928,13 @@ const OrderPartsSection = ({
               spacing={1}
               alignItems="center"
             >
-              <Box
-                sx={{
-                  display: "grid",
-                  placeItems:
-                    "center",
-                  color:
-                    "primary.main",
-                }}
-              >
-                <InventoryIcon />
-              </Box>
+              <InventoryIcon
+                color="primary"
+              />
 
               <Box>
                 <Typography
                   variant="h6"
-                  component="h2"
                 >
                   {t(
                     "orderParts.title"
@@ -633,11 +957,14 @@ const OrderPartsSection = ({
               startIcon={
                 <AddIcon />
               }
-              disabled={!orderId}
               onClick={() => {
-                setSuccessMessage(null);
-                setErrorMessage(null);
                 setAddOpen(true);
+                setErrorMessage(
+                  null
+                );
+                setSuccessMessage(
+                  null
+                );
               }}
             >
               {t(
@@ -652,7 +979,9 @@ const OrderPartsSection = ({
             <Alert
               severity="success"
               onClose={() => {
-                setSuccessMessage(null);
+                setSuccessMessage(
+                  null
+                );
               }}
             >
               {successMessage}
@@ -679,7 +1008,10 @@ const OrderPartsSection = ({
                 <Table
                   size="small"
                   sx={{
-                    minWidth: 900,
+                    minWidth:
+                      isAdmin
+                        ? 980
+                        : 780,
                   }}
                 >
                   <TableHead>
@@ -689,37 +1021,62 @@ const OrderPartsSection = ({
                           "orderParts.summary.part"
                         )}
                       </TableCell>
-                      <TableCell align="right">
-                        {t(
-                          "orderParts.summary.issued"
-                        )}
-                      </TableCell>
-                      <TableCell align="right">
-                        {t(
-                          "orderParts.summary.returned"
-                        )}
-                      </TableCell>
-                      <TableCell align="right">
+
+                      <TableCell
+                        align="right"
+                      >
                         {t(
                           "orderParts.summary.used"
                         )}
                       </TableCell>
-                      <TableCell align="right">
+
+                      <TableCell
+                        align="right"
+                      >
                         {t(
-                          "orderParts.summary.unitCost"
+                          "orderFinance.partsEditor.customerUnitPrice"
                         )}
                       </TableCell>
-                      <TableCell align="right">
+
+                      <TableCell
+                        align="right"
+                      >
                         {t(
-                          "orderParts.summary.total"
+                          "orderFinance.partsEditor.customerTotal"
                         )}
                       </TableCell>
-                      <TableCell align="right">
+
+                      {isAdmin && (
+                        <>
+                          <TableCell
+                            align="right"
+                          >
+                            {t(
+                              "orderFinance.partsEditor.internalUnitCost"
+                            )}
+                          </TableCell>
+
+                          <TableCell
+                            align="right"
+                          >
+                            {t(
+                              "orderFinance.partsEditor.internalTotal"
+                            )}
+                          </TableCell>
+                        </>
+                      )}
+
+                      <TableCell
+                        align="right"
+                      >
                         {t(
                           "orderParts.summary.stock"
                         )}
                       </TableCell>
-                      <TableCell align="right">
+
+                      <TableCell
+                        align="right"
+                      >
                         {t(
                           "orderParts.summary.actions"
                         )}
@@ -734,74 +1091,120 @@ const OrderPartsSection = ({
                       ) => (
                         <TableRow
                           key={
-                            summary.item.id
+                            summary
+                              .item.id
                           }
                           hover
                         >
                           <TableCell>
                             <Typography
-                              fontWeight={700}
+                              fontWeight={
+                                700
+                              }
                             >
-                              {summary.item.name}
+                              {
+                                summary
+                                  .item.name
+                              }
                             </Typography>
+
                             <Typography
                               component="code"
                               variant="caption"
                               color="text.secondary"
                             >
-                              {summary.item.sku}
+                              {
+                                summary
+                                  .item.sku
+                              }
                             </Typography>
                           </TableCell>
-                          <TableCell align="right">
-                            {summary.issuedQuantity}
-                          </TableCell>
-                          <TableCell align="right">
-                            {summary.returnedQuantity}
-                          </TableCell>
-                          <TableCell align="right">
+
+                          <TableCell
+                            align="right"
+                          >
                             <Chip
                               size="small"
-                              color={
-                                summary.netQuantity >
-                                0
-                                  ? "primary"
-                                  : "default"
-                              }
                               label={
-                                summary.netQuantity
+                                summary
+                                  .netQuantity
                               }
                             />
                           </TableCell>
-                          <TableCell align="right">
-                            {summary.netQuantity >
-                            0
-                              ? formatPrice(
-                                  summary.averageUnitCost
-                                )
-                              : "-"}
+
+                          <TableCell
+                            align="right"
+                          >
+                            {formatPrice(
+                              summary
+                                .averageUnitPrice
+                            )}
                           </TableCell>
-                          <TableCell align="right">
-                            <Typography fontWeight={700}>
+
+                          <TableCell
+                            align="right"
+                          >
+                            <Typography
+                              fontWeight={
+                                700
+                              }
+                            >
                               {formatPrice(
-                                summary.netCost
+                                summary
+                                  .saleTotal
                               )}
                             </Typography>
                           </TableCell>
-                          <TableCell align="right">
-                            {summary.item.currentQuantity}
+
+                          {isAdmin && (
+                            <>
+                              <TableCell
+                                align="right"
+                              >
+                                {formatPrice(
+                                  summary
+                                    .averageUnitCost
+                                )}
+                              </TableCell>
+
+                              <TableCell
+                                align="right"
+                              >
+                                {formatPrice(
+                                  summary
+                                    .costTotal
+                                )}
+                              </TableCell>
+                            </>
+                          )}
+
+                          <TableCell
+                            align="right"
+                          >
+                            {
+                              summary
+                                .item
+                                .currentQuantity
+                            }
                           </TableCell>
-                          <TableCell align="right">
+
+                          <TableCell
+                            align="right"
+                          >
                             <Button
                               size="small"
                               startIcon={
                                 <ReturnIcon />
                               }
                               disabled={
-                                summary.netQuantity <=
+                                summary
+                                  .netQuantity <=
                                 0
                               }
                               onClick={() => {
-                                openReturn(summary);
+                                openReturn(
+                                  summary
+                                );
                               }}
                             >
                               {t(
@@ -815,32 +1218,6 @@ const OrderPartsSection = ({
                   </TableBody>
                 </Table>
               </TableContainer>
-
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2,
-                  alignSelf: {
-                    xs: "stretch",
-                    sm: "flex-end",
-                  },
-                }}
-              >
-                <Typography
-                  variant="overline"
-                  color="text.secondary"
-                >
-                  {t(
-                    "orderParts.totalCost"
-                  )}
-                </Typography>
-                <Typography
-                  variant="h5"
-                  fontWeight={800}
-                >
-                  {formatPrice(totalCost)}
-                </Typography>
-              </Paper>
 
               <Divider />
 
@@ -857,7 +1234,10 @@ const OrderPartsSection = ({
                 <Table
                   size="small"
                   sx={{
-                    minWidth: 900,
+                    minWidth:
+                      isAdmin
+                        ? 1050
+                        : 850,
                   }}
                 >
                   <TableHead>
@@ -867,36 +1247,51 @@ const OrderPartsSection = ({
                           "orderParts.history.date"
                         )}
                       </TableCell>
+
                       <TableCell>
                         {t(
                           "orderParts.summary.part"
                         )}
                       </TableCell>
+
                       <TableCell>
                         {t(
                           "orderParts.history.type"
                         )}
                       </TableCell>
-                      <TableCell align="right">
+
+                      <TableCell
+                        align="right"
+                      >
                         {t(
                           "orderParts.history.quantity"
                         )}
                       </TableCell>
-                      <TableCell align="right">
+
+                      <TableCell
+                        align="right"
+                      >
                         {t(
-                          "orderParts.history.unitCost"
+                          "orderFinance.partsEditor.customerUnitPrice"
                         )}
                       </TableCell>
-                      <TableCell align="right">
-                        {t(
-                          "orderParts.history.total"
-                        )}
-                      </TableCell>
+
+                      {isAdmin && (
+                        <TableCell
+                          align="right"
+                        >
+                          {t(
+                            "orderFinance.partsEditor.internalUnitCost"
+                          )}
+                        </TableCell>
+                      )}
+
                       <TableCell>
                         {t(
                           "orderParts.history.user"
                         )}
                       </TableCell>
+
                       <TableCell>
                         {t(
                           "orderParts.history.note"
@@ -910,42 +1305,46 @@ const OrderPartsSection = ({
                       (
                         movement
                       ) => {
-                        const movementQuantity =
-                          Math.abs(
-                            movement.quantityChange
-                          );
-                        const price =
-                          movementUnitCost(
-                            movement
-                          );
+                        const item =
+                          movement
+                            .inventoryItem;
 
                         return (
                           <TableRow
-                            key={movement.id}
+                            key={
+                              movement.id
+                            }
                             hover
                           >
                             <TableCell>
                               {formatDateTime(
-                                movement.createdAt
+                                movement
+                                  .createdAt
                               )}
                             </TableCell>
+
                             <TableCell>
                               <Typography
-                                variant="body2"
-                                fontWeight={700}
+                                fontWeight={
+                                  700
+                                }
                               >
-                                {movement.inventoryItem
-                                  ?.name ?? "-"}
+                                {item
+                                  ?.name ??
+                                  "-"}
                               </Typography>
+
                               <Typography
                                 component="code"
                                 variant="caption"
                                 color="text.secondary"
                               >
-                                {movement.inventoryItem
-                                  ?.sku ?? "-"}
+                                {item
+                                  ?.sku ??
+                                  "-"}
                               </Typography>
                             </TableCell>
+
                             <TableCell>
                               <Chip
                                 size="small"
@@ -963,35 +1362,53 @@ const OrderPartsSection = ({
                                 )}
                               />
                             </TableCell>
-                            <TableCell align="right">
+
+                            <TableCell
+                              align="right"
+                            >
                               {movement.type ===
                               "issue"
-                                ? `-${movementQuantity}`
-                                : `+${movementQuantity}`}
+                                ? `-${absoluteQuantity(
+                                    movement
+                                  )}`
+                                : `+${absoluteQuantity(
+                                    movement
+                                  )}`}
                             </TableCell>
-                            <TableCell align="right">
-                              {formatPrice(price)}
-                            </TableCell>
-                            <TableCell align="right">
+
+                            <TableCell
+                              align="right"
+                            >
                               {formatPrice(
-                                movementQuantity *
-                                  price
+                                unitSalePrice(
+                                  movement
+                                )
                               )}
                             </TableCell>
+
+                            {isAdmin && (
+                              <TableCell
+                                align="right"
+                              >
+                                {formatPrice(
+                                  unitCostPrice(
+                                    movement
+                                  )
+                                )}
+                              </TableCell>
+                            )}
+
                             <TableCell>
-                              {movement.createdBy
-                                ?.name ?? "-"}
+                              {movement
+                                .createdBy
+                                ?.name ??
+                                "-"}
                             </TableCell>
-                            <TableCell
-                              sx={{
-                                maxWidth: 260,
-                                whiteSpace:
-                                  "pre-wrap",
-                                overflowWrap:
-                                  "anywhere",
-                              }}
-                            >
-                              {movement.note ?? "-"}
+
+                            <TableCell>
+                              {movement
+                                .note ??
+                                "-"}
                             </TableCell>
                           </TableRow>
                         );
@@ -1006,19 +1423,21 @@ const OrderPartsSection = ({
       </Paper>
 
       <Dialog
-        open={
-          addOpen ||
-          Boolean(returnTarget)
-        }
-        onClose={closeDialogs}
+        open={addOpen}
+        onClose={() => {
+          if (!saving) {
+            setAddOpen(false);
+            setSearch("");
+            setSearchResults([]);
+            resetEditor();
+          }
+        }}
         maxWidth="md"
         fullWidth
       >
         <DialogTitle>
           {t(
-            returnTarget
-              ? "orderParts.returnDialog.title"
-              : "orderParts.addDialog.title"
+            "orderParts.addDialog.title"
           )}
         </DialogTitle>
 
@@ -1035,297 +1454,127 @@ const OrderPartsSection = ({
               </Alert>
             )}
 
-            {!returnTarget && (
-              <>
-                <TextField
-                  label={t(
-                    "orderParts.addDialog.searchLabel"
-                  )}
-                  value={search}
-                  onChange={(
-                    event
-                  ) => {
-                    setSearch(
-                      event.target.value
-                    );
-                    setSelectedItem(null);
-                  }}
-                  helperText={t(
-                    "orderParts.addDialog.searchHint"
-                  )}
-                  autoFocus
-                  fullWidth
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon />
-                        </InputAdornment>
-                      ),
-                      endAdornment:
-                        searching ? (
-                          <CircularProgress size={20} />
-                        ) : undefined,
-                    },
-                  }}
-                />
+            <TextField
+              label={t(
+                "orderParts.addDialog.searchLabel"
+              )}
+              value={search}
+              onChange={(
+                event
+              ) => {
+                setSearch(
+                  event.target
+                    .value
+                );
+                setSelectedItem(
+                  null
+                );
+              }}
+              slotProps={{
+                input: {
+                  startAdornment:
+                    (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  endAdornment:
+                    searching ? (
+                      <CircularProgress
+                        size={20}
+                      />
+                    ) : undefined,
+                },
+              }}
+              fullWidth
+            />
 
-                {search.trim().length >=
-                  2 &&
-                  !searching &&
-                  searchResults.length ===
-                    0 && (
-                    <Typography
-                      color="text.secondary"
-                      sx={{
-                        py: 2,
-                        textAlign:
-                          "center",
-                      }}
-                    >
-                      {t(
-                        "orderParts.addDialog.noResults"
-                      )}
-                    </Typography>
+            {searchResults
+              .length > 0 && (
+              <Paper
+                variant="outlined"
+                sx={{
+                  maxHeight: 260,
+                  overflow: "auto",
+                }}
+              >
+                <List
+                  disablePadding
+                >
+                  {searchResults.map(
+                    (
+                      item
+                    ) => (
+                      <ListItemButton
+                        key={
+                          item.id
+                        }
+                        selected={
+                          selectedItem
+                            ?.id ===
+                          item.id
+                        }
+                        onClick={() => {
+                          selectItem(
+                            item
+                          );
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            item.name
+                          }
+                          secondary={`${item.sku} · ${t(
+                            "orderParts.addDialog.available"
+                          )}: ${item.currentQuantity}`}
+                        />
+
+                        <Chip
+                          size="small"
+                          label={
+                            item.currentQuantity
+                          }
+                          color={
+                            item.currentQuantity >
+                            0
+                              ? "success"
+                              : "error"
+                          }
+                        />
+                      </ListItemButton>
+                    )
                   )}
-
-                {searchResults.length >
-                  0 && (
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      maxHeight: 260,
-                      overflow: "auto",
-                    }}
-                  >
-                    <List disablePadding>
-                      {searchResults.map(
-                        (
-                          item
-                        ) => (
-                          <ListItemButton
-                            key={item.id}
-                            selected={
-                              selectedItem?.id ===
-                              item.id
-                            }
-                            onClick={() => {
-                              selectItem(item);
-                            }}
-                          >
-                            <ListItemText
-                              primary={item.name}
-                              secondary={`${item.sku} · ${t(
-                                "orderParts.addDialog.available"
-                              )}: ${item.currentQuantity}`}
-                            />
-                            <Chip
-                              size="small"
-                              color={
-                                item.currentQuantity >
-                                0
-                                  ? "success"
-                                  : "error"
-                              }
-                              label={
-                                item.currentQuantity
-                              }
-                            />
-                          </ListItemButton>
-                        )
-                      )}
-                    </List>
-                  </Paper>
-                )}
-              </>
-            )}
-
-            {returnTarget && (
-              <Alert severity="warning">
-                {t(
-                  "orderParts.returnDialog.description",
-                  {
-                    name:
-                      returnTarget.item.name,
-                    quantity:
-                      returnTarget.netQuantity,
-                  }
-                )}
-              </Alert>
+                </List>
+              </Paper>
             )}
 
             {selectedItem && (
               <>
-                <Paper
-                  variant="outlined"
-                  sx={{
-                    p: 2,
-                  }}
-                >
-                  <Typography
-                    fontWeight={700}
-                  >
-                    {selectedItem.name}
-                  </Typography>
-                  <Typography
-                    component="code"
-                    variant="body2"
-                    color="text.secondary"
-                  >
-                    {selectedItem.sku}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      mt: 1,
-                    }}
-                  >
-                    {t(
-                      "orderParts.addDialog.available"
-                    )}
-                    {": "}
-                    <strong>
-                      {selectedItem.currentQuantity}
-                    </strong>
-                    {" · "}
-                    {t(
-                      "orderParts.addDialog.purchasePrice"
-                    )}
-                    {": "}
-                    <strong>
-                      {formatPrice(
-                        selectedItem.purchasePrice
-                      )}
-                    </strong>
-                  </Typography>
-                </Paper>
-
-                <Stack
-                  direction={{
-                    xs: "column",
-                    sm: "row",
-                  }}
-                  spacing={2}
-                >
-                  <TextField
-                    label={t(
-                      returnTarget
-                        ? "orderParts.returnDialog.quantity"
-                        : "orderParts.addDialog.quantity"
-                    )}
-                    type="number"
-                    value={quantity}
-                    onChange={(
-                      event
-                    ) => {
-                      setQuantity(
-                        event.target.value
-                      );
-                    }}
-                    error={
-                      Boolean(
-                        quantity &&
-                        (
-                          !quantityValid ||
-                          !withinLimit
-                        )
-                      )
+                <Alert severity="success">
+                  <strong>
+                    {
+                      selectedItem.name
                     }
-                    helperText={
-                      !quantityValid
-                        ? t(
-                            "orderParts.validation.quantity"
-                          )
-                        : !withinLimit
-                          ? t(
-                              returnTarget
-                                ? "orderParts.validation.returnQuantity"
-                                : "orderParts.validation.stock"
-                            )
-                          : " "
-                    }
-                    slotProps={{
-                      htmlInput: {
-                        min: 1,
-                        max: maxQuantity,
-                        step: 1,
-                      },
-                    }}
-                    fullWidth
-                  />
-
-                  <TextField
-                    label={t(
-                      returnTarget
-                        ? "orderParts.returnDialog.unitCost"
-                        : "orderParts.addDialog.unitCost"
-                    )}
-                    type="number"
-                    value={unitCost}
-                    onChange={(
-                      event
-                    ) => {
-                      setUnitCost(
-                        event.target.value
-                      );
-                    }}
-                    error={
-                      Boolean(
-                        unitCost &&
-                        !costValid
-                      )
-                    }
-                    helperText={
-                      !costValid
-                        ? t(
-                            "orderParts.validation.cost"
-                          )
-                        : " "
-                    }
-                    slotProps={{
-                      htmlInput: {
-                        min: 0,
-                        step: 0.01,
-                      },
-                    }}
-                    fullWidth
-                  />
-                </Stack>
-
-                <Alert severity="info">
+                  </strong>
+                  {" · "}
+                  {
+                    selectedItem.sku
+                  }
+                  {" · "}
                   {t(
-                    "orderParts.addDialog.total"
+                    "orderParts.addDialog.available"
                   )}
                   {": "}
-                  <strong>
-                    {formatPrice(
-                      quantityValid &&
-                        costValid
-                        ? numericQuantity *
-                            numericUnitCost
-                        : 0
-                    )}
-                  </strong>
+                  {
+                    selectedItem
+                      .currentQuantity
+                  }
                 </Alert>
 
-                <TextField
-                  label={t(
-                    returnTarget
-                      ? "orderParts.returnDialog.note"
-                      : "orderParts.addDialog.note"
-                  )}
-                  value={note}
-                  onChange={(
-                    event
-                  ) => {
-                    setNote(
-                      event.target.value
-                    );
-                  }}
-                  multiline
-                  minRows={2}
-                  fullWidth
-                />
+                {editorFields(
+                  selectedItem
+                    .currentQuantity
+                )}
               </>
             )}
           </Stack>
@@ -1333,39 +1582,136 @@ const OrderPartsSection = ({
 
         <DialogActions>
           <Button
-            onClick={closeDialogs}
             disabled={saving}
+            onClick={() => {
+              setAddOpen(false);
+              setSearch("");
+              setSearchResults([]);
+              resetEditor();
+            }}
           >
             {t(
               "orderParts.actions.cancel"
             )}
           </Button>
+
           <Button
             variant="contained"
-            color={
-              returnTarget
-                ? "warning"
-                : "primary"
-            }
-            startIcon={
-              returnTarget
-                ? <ReturnIcon />
-                : undefined
+            disabled={
+              saving ||
+              !selectedItem ||
+              !baseValuesValid ||
+              !enoughStock
             }
             onClick={() => {
-              void saveMovement();
+              void issuePart();
             }}
-            disabled={!canSave}
+          >
+            {saving
+              ? t(
+                  "orderParts.actions.issuing"
+                )
+              : t(
+                  "orderParts.actions.issue"
+                )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(
+          returnTarget
+        )}
+        onClose={() => {
+          if (!saving) {
+            setReturnTarget(
+              null
+            );
+            resetEditor();
+          }
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {t(
+            "orderParts.returnDialog.title"
+          )}
+        </DialogTitle>
+
+        <DialogContent>
+          <Stack
+            spacing={2}
+            sx={{
+              pt: 1,
+            }}
+          >
+            {errorMessage && (
+              <Alert severity="error">
+                {errorMessage}
+              </Alert>
+            )}
+
+            <Alert severity="warning">
+              {t(
+                "orderParts.returnDialog.description",
+                {
+                  name:
+                    returnTarget
+                      ?.item.name ??
+                    "",
+                  quantity:
+                    returnTarget
+                      ?.netQuantity ??
+                    0,
+                }
+              )}
+            </Alert>
+
+            {editorFields(
+              returnTarget
+                ?.netQuantity
+            )}
+          </Stack>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            disabled={saving}
+            onClick={() => {
+              setReturnTarget(
+                null
+              );
+              resetEditor();
+            }}
           >
             {t(
-              saving
-                ? returnTarget
-                  ? "orderParts.actions.returning"
-                  : "orderParts.actions.issuing"
-                : returnTarget
-                  ? "orderParts.actions.return"
-                  : "orderParts.actions.issue"
+              "orderParts.actions.cancel"
             )}
+          </Button>
+
+          <Button
+            variant="contained"
+            color="warning"
+            startIcon={
+              <ReturnIcon />
+            }
+            disabled={
+              saving ||
+              !returnQuantityValid ||
+              !baseValuesValid
+            }
+            onClick={() => {
+              void returnPart();
+            }}
+          >
+            {saving
+              ? t(
+                  "orderParts.actions.returning"
+                )
+              : t(
+                  "orderParts.actions.return"
+                )}
           </Button>
         </DialogActions>
       </Dialog>
