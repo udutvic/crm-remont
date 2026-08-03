@@ -108,18 +108,6 @@ const emptyDeviceFields: DeviceFields = {
   serial: "",
 };
 
-export const initialCustomerDeviceDraft: CustomerDeviceDraft = {
-  selectedClient: null,
-  selectedDevice: null,
-  selectedCatalogModel: null,
-  availableDevices: [],
-  client: emptyClientFields,
-  device: emptyDeviceFields,
-  accessType: "none",
-  accessCode: "",
-  accessVerified: false,
-};
-
 const clientToFields = (client: Client): ClientFields => ({
   name: client.name,
   phone: client.phone,

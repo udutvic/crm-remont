@@ -19,7 +19,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import CustomerDeviceStep, {
-  initialCustomerDeviceDraft,
+  type CustomerDeviceDraft,
 } from "./CustomerDeviceStep";
 import {
   DeviceInspectionStep,
@@ -28,6 +28,33 @@ import {
   ReviewStep,
 } from "./IntakeWizardSteps";
 import { intakeStepKeys } from "./intakeWizardConfig";
+
+const initialCustomerDeviceDraft: CustomerDeviceDraft = {
+  selectedClient: null,
+  selectedDevice: null,
+  selectedCatalogModel: null,
+  availableDevices: [],
+  client: {
+    name: "",
+    phone: "",
+    secondaryPhone: "",
+    email: "",
+    address: "",
+    note: "",
+  },
+  device: {
+    deviceType: "phone",
+    brand: "",
+    model: "",
+    color: "",
+    imei1: "",
+    imei2: "",
+    serial: "",
+  },
+  accessType: "none",
+  accessCode: "",
+  accessVerified: false,
+};
 
 const RepairIntakeWizardPage = () => {
   const { t } = useTranslation();
