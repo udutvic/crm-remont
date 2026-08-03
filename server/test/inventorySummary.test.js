@@ -4,23 +4,29 @@ const {
   afterEach,
   test,
 } = require("node:test");
+
 const assert = require("node:assert/strict");
 
-const InventoryItem = require(
-  "../src/models/InventoryItem"
+const {
+  QueryTypes,
+} = require("sequelize");
+
+const sequelize = require(
+  "../src/config/database"
 );
+
 const inventoryController = require(
   "../src/controllers/inventoryController"
 );
 
-const originalFindAll =
-  InventoryItem.findAll.bind(
-    InventoryItem
+const originalQuery =
+  sequelize.query.bind(
+    sequelize
   );
 
 afterEach(() => {
-  InventoryItem.findAll =
-    originalFindAll;
+  sequelize.query =
+    originalQuery;
 });
 
 const createResponse = () => {
@@ -43,35 +49,35 @@ const createResponse = () => {
 };
 
 test(
-  "inventory summary separates low stock from out of stock",
+  "inventory summary uses one aggregate query and separates stock states",
   async () => {
-    InventoryItem.findAll =
-      async () => [
-        {
-          currentQuantity: 0,
-          minStock: 0,
-          purchasePrice: 10,
-          salePrice: 20,
-        },
-        {
-          currentQuantity: 0,
-          minStock: 2,
-          purchasePrice: 10,
-          salePrice: 20,
-        },
-        {
-          currentQuantity: 1,
-          minStock: 2,
-          purchasePrice: 10,
-          salePrice: 20,
-        },
-        {
-          currentQuantity: 5,
-          minStock: 2,
-          purchasePrice: 10,
-          salePrice: 20,
-        },
-      ];
+    let executedSql =
+      "";
+
+    sequelize.query =
+      async (
+        sql,
+        options
+      ) => {
+        executedSql =
+          sql;
+
+        assert.equal(
+          options.type,
+          QueryTypes.SELECT
+        );
+
+        return [
+          {
+            activeItems: "4",
+            totalUnits: "6",
+            lowStockItems: "1",
+            outOfStockItems: "2",
+            purchaseValue: "60.00",
+            saleValue: "120.00",
+          },
+        ];
+      };
 
     const response =
       createResponse();
@@ -81,6 +87,26 @@ test(
         {},
         response
       );
+
+    assert.match(
+      executedSql,
+      /COUNT\(\*\)/
+    );
+
+    assert.match(
+      executedSql,
+      /"minStock" > 0/
+    );
+
+    assert.match(
+      executedSql,
+      /"currentQuantity" > 0/
+    );
+
+    assert.match(
+      executedSql,
+      /"currentQuantity" = 0/
+    );
 
     assert.equal(
       response.statusCode,
