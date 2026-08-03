@@ -3,19 +3,30 @@ import {
   type ReactNode,
 } from "react";
 import {
+  Add as AddIcon,
   ArrowBack as ArrowBackIcon,
   ArrowForward as ArrowForwardIcon,
+  BatteryChargingFullOutlined as BatteryIcon,
   BuildOutlined as BuildIcon,
+  CameraAltOutlined as CameraIcon,
   CheckCircleOutline as CheckIcon,
+  CleaningServicesOutlined as CleaningIcon,
+  ColorLensOutlined as ColorIcon,
+  DeleteOutline as DeleteIcon,
   DevicesOutlined as DeviceIcon,
   Inventory2Outlined as InventoryIcon,
+  LockOutlined as LockIcon,
   PersonOutline as PersonIcon,
+  PhoneIphoneOutlined as PhoneIcon,
   Search as SearchIcon,
+  WarningAmberOutlined as WarningIcon,
 } from "@mui/icons-material";
 import {
   Alert,
+  Avatar,
   Box,
   Button,
+  ButtonBase,
   Card,
   CardContent,
   Checkbox,
@@ -24,9 +35,16 @@ import {
   Divider,
   FormControlLabel,
   Grid,
+  IconButton,
   InputAdornment,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
   MenuItem,
   Paper,
+  Radio,
+  RadioGroup,
   Stack,
   Step,
   StepButton,
@@ -40,6 +58,24 @@ import {
   useTranslation,
 } from "react-i18next";
 
+import {
+  accessTypeOptions,
+  additionalIssueKeys,
+  approvalOptions,
+  batteryOptions,
+  communicationOptions,
+  contaminationKeys,
+  deviceTypeOptions,
+  durationOptions,
+  inspectionGroups,
+  intakeStepKeys,
+  overallConditionOptions,
+  repairRiskKeys,
+  repairTypeOptions,
+  reviewSections,
+  sampleModelNames,
+} from "./intakeWizardConfig";
+
 interface SectionCardProps {
   icon: ReactNode;
   title: string;
@@ -48,103 +84,38 @@ interface SectionCardProps {
 }
 
 type AccessType =
-  | "none"
-  | "pin"
-  | "password"
-  | "pattern"
-  | "unknown";
+  (typeof accessTypeOptions)[number]["value"];
 
-const stepKeys = [
-  "intakeWizard.steps.customerDevice",
-  "intakeWizard.steps.inspection",
-  "intakeWizard.steps.repairPlan",
-  "intakeWizard.steps.priceParts",
-  "intakeWizard.steps.review",
-] as const;
+type InspectionGroupId =
+  (typeof inspectionGroups)[number]["id"];
 
-const inspectionGroups = [
+const sampleCustomers = [
   {
-    titleKey:
-      "intakeWizard.inspection.groups.display.title",
-    optionKeys: [
-      "intakeWizard.inspection.groups.display.hairlineScratches",
-      "intakeWizard.inspection.groups.display.deepScratches",
-      "intakeWizard.inspection.groups.display.cracked",
-      "intakeWizard.inspection.groups.display.deadPixels",
-    ],
+    name: "Jan Novák",
+    phone: "+420 777 123 456",
+    email: "jan.novak@email.cz",
   },
   {
-    titleKey:
-      "intakeWizard.inspection.groups.rearCover.title",
-    optionKeys: [
-      "intakeWizard.inspection.groups.rearCover.scratches",
-      "intakeWizard.inspection.groups.rearCover.crackedGlass",
-      "intakeWizard.inspection.groups.rearCover.looseCover",
-      "intakeWizard.inspection.groups.rearCover.dents",
-    ],
+    name: "Petr Svoboda",
+    phone: "+420 608 987 654",
+    email: "petr.svoboda@email.cz",
   },
   {
-    titleKey:
-      "intakeWizard.inspection.groups.frameButtons.title",
-    optionKeys: [
-      "intakeWizard.inspection.groups.frameButtons.scuffs",
-      "intakeWizard.inspection.groups.frameButtons.bentFrame",
-      "intakeWizard.inspection.groups.frameButtons.damagedButtons",
-      "intakeWizard.inspection.groups.frameButtons.missingParts",
-    ],
+    name: "Klára Dvořáková",
+    phone: "+420 776 555 333",
+    email: "klara.dvorakova@email.cz",
   },
 ] as const;
 
-const findingKeys = [
-  "intakeWizard.inspection.findings.dirty",
-  "intakeWizard.inspection.findings.liquid",
-  "intakeWizard.inspection.findings.nonOriginal",
-  "intakeWizard.inspection.findings.noPower",
-  "intakeWizard.inspection.findings.swollenBattery",
-] as const;
-
-const riskKeys = [
-  "intakeWizard.repair.risks.dataLoss",
-  "intakeWizard.repair.risks.unrepairable",
-  "intakeWizard.repair.risks.noWarranty",
-  "intakeWizard.repair.risks.hiddenDefects",
-  "intakeWizard.repair.risks.waterResistance",
-] as const;
-
-const reviewSections = [
-  {
-    titleKey:
-      "intakeWizard.review.sections.customer.title",
-    lineKeys: [
-      "intakeWizard.review.sections.customer.contact",
-      "intakeWizard.review.sections.customer.billing",
-    ],
-  },
-  {
-    titleKey:
-      "intakeWizard.review.sections.device.title",
-    lineKeys: [
-      "intakeWizard.review.sections.device.identity",
-      "intakeWizard.review.sections.device.access",
-    ],
-  },
-  {
-    titleKey:
-      "intakeWizard.review.sections.inspection.title",
-    lineKeys: [
-      "intakeWizard.review.sections.inspection.visual",
-      "intakeWizard.review.sections.inspection.findings",
-    ],
-  },
-  {
-    titleKey:
-      "intakeWizard.review.sections.repair.title",
-    lineKeys: [
-      "intakeWizard.review.sections.repair.diagnosis",
-      "intakeWizard.review.sections.repair.price",
-    ],
-  },
-] as const;
+const groupIcons: Record<
+  InspectionGroupId,
+  ReactNode
+> = {
+  display: <PhoneIcon />,
+  rearGlass: <DeviceIcon />,
+  camera: <CameraIcon />,
+  frame: <PhoneIcon />,
+};
 
 const SectionCard = ({
   icon,
@@ -166,29 +137,29 @@ const SectionCard = ({
       sx={{
         p: {
           xs: 2,
-          sm: 3,
+          sm: 2.5,
         },
         "&:last-child": {
           pb: {
             xs: 2,
-            sm: 3,
+            sm: 2.5,
           },
         },
       }}
     >
-      <Stack spacing={2.5}>
+      <Stack spacing={2}>
         <Stack
           direction="row"
-          spacing={1.5}
+          spacing={1.25}
           alignItems="flex-start"
         >
           <Box
             sx={{
               display: "grid",
               placeItems: "center",
-              width: 40,
-              height: 40,
-              borderRadius: 2.5,
+              width: 38,
+              height: 38,
+              borderRadius: 2.25,
               bgcolor: "primary.50",
               color: "primary.main",
               flexShrink: 0,
@@ -197,11 +168,17 @@ const SectionCard = ({
             {icon}
           </Box>
 
-          <Box>
+          <Box sx={{ minWidth: 0 }}>
             <Typography
               variant="h6"
               component="h2"
-              fontWeight={700}
+              fontWeight={750}
+              sx={{
+                fontSize: {
+                  xs: "1rem",
+                  sm: "1.08rem",
+                },
+              }}
             >
               {title}
             </Typography>
@@ -210,9 +187,7 @@ const SectionCard = ({
               <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{
-                  mt: 0.25,
-                }}
+                sx={{ mt: 0.25 }}
               >
                 {subtitle}
               </Typography>
@@ -227,11 +202,95 @@ const SectionCard = ({
   </Card>
 );
 
-const SearchAdornment = () => (
-  <InputAdornment position="start">
-    <SearchIcon fontSize="small" />
-  </InputAdornment>
-);
+const PatternPreview = () => {
+  const {
+    t,
+  } = useTranslation();
+
+  const selected =
+    new Set([
+      0,
+      3,
+      6,
+      4,
+    ]);
+
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 2.5,
+        borderRadius: 3,
+        bgcolor: "grey.50",
+      }}
+    >
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ mb: 2 }}
+      >
+        {t(
+          "intakeWizard.access.patternTitle"
+        )}
+      </Typography>
+
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(3, 46px)",
+          gap: 2.25,
+          width: "fit-content",
+          mb: 2,
+        }}
+      >
+        {Array.from({
+          length: 9,
+        }).map((_, index) => (
+          <Box
+            key={index}
+            sx={{
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              border: "2px solid",
+              borderColor:
+                selected.has(index)
+                  ? "primary.main"
+                  : "grey.400",
+              bgcolor:
+                selected.has(index)
+                  ? "primary.50"
+                  : "background.paper",
+              display: "grid",
+              placeItems: "center",
+            }}
+          >
+            {selected.has(index) && (
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  bgcolor: "primary.main",
+                }}
+              />
+            )}
+          </Box>
+        ))}
+      </Box>
+
+      <Button
+        size="small"
+        startIcon={<ColorIcon />}
+      >
+        {t(
+          "intakeWizard.actions.clearPattern"
+        )}
+      </Button>
+    </Paper>
+  );
+};
 
 const CustomerDeviceStep = () => {
   const {
@@ -247,26 +306,86 @@ const CustomerDeviceStep = () => {
 
   return (
     <Stack spacing={3}>
-      <Grid
-        container
-        spacing={3}
+      <SectionCard
+        icon={<PersonIcon />}
+        title={t(
+          "intakeWizard.customer.title"
+        )}
+        subtitle={t(
+          "intakeWizard.customer.subtitle"
+        )}
       >
         <Grid
-          size={{
-            xs: 12,
-            lg: 5,
-          }}
+          container
+          spacing={2}
         >
-          <SectionCard
-            icon={<PersonIcon />}
-            title={t(
-              "intakeWizard.customer.title"
-            )}
-            subtitle={t(
-              "intakeWizard.customer.subtitle"
-            )}
+          <Grid
+            size={{
+              xs: 12,
+              lg: 6,
+            }}
           >
-            <Stack spacing={2}>
+            <Grid
+              container
+              spacing={2}
+            >
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  label={t(
+                    "intakeWizard.customer.fullName"
+                  )}
+                  fullWidth
+                  required
+                />
+              </Grid>
+
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6,
+                }}
+              >
+                <TextField
+                  label={t(
+                    "intakeWizard.customer.secondaryPhone"
+                  )}
+                  fullWidth
+                />
+              </Grid>
+
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6,
+                }}
+              >
+                <TextField
+                  label={t(
+                    "intakeWizard.customer.email"
+                  )}
+                  type="email"
+                  fullWidth
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  label={t(
+                    "intakeWizard.customer.address"
+                  )}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Grid
+            size={{
+              xs: 12,
+              lg: 6,
+            }}
+          >
+            <Stack spacing={1.5}>
               <TextField
                 label={t(
                   "intakeWizard.customer.phone"
@@ -275,71 +394,194 @@ const CustomerDeviceStep = () => {
                   "intakeWizard.customer.phonePlaceholder"
                 )}
                 fullWidth
+                required
                 slotProps={{
                   input: {
-                    startAdornment:
-                      <SearchAdornment />,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" />
+                      </InputAdornment>
+                    ),
                   },
                 }}
               />
 
-              <Alert
-                severity="info"
+              <Paper
+                variant="outlined"
                 sx={{
+                  borderRadius: 2.5,
+                  overflow: "hidden",
+                }}
+              >
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{
+                    px: 1.5,
+                    py: 1,
+                    bgcolor: "grey.50",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    fontWeight={750}
+                  >
+                    {t(
+                      "intakeWizard.customer.foundTitle"
+                    )}
+                  </Typography>
+
+                  <Button size="small">
+                    {t(
+                      "intakeWizard.customer.selectExisting"
+                    )}
+                  </Button>
+                </Stack>
+
+                <List disablePadding>
+                  {sampleCustomers.map(
+                    (customer) => (
+                      <ListItemButton
+                        key={customer.phone}
+                        divider
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns: {
+                            xs: "1fr",
+                            md: "1fr 150px 1.2fr",
+                          },
+                          gap: 1,
+                          py: 0.75,
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          fontWeight={700}
+                        >
+                          {customer.name}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="primary.main"
+                        >
+                          {customer.phone}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          noWrap
+                        >
+                          {customer.email}
+                        </Typography>
+                      </ListItemButton>
+                    )
+                  )}
+                </List>
+              </Paper>
+
+              <TextField
+                label={t(
+                  "intakeWizard.customer.note"
+                )}
+                placeholder={t(
+                  "intakeWizard.customer.notePlaceholder"
+                )}
+                multiline
+                minRows={2}
+                fullWidth
+              />
+            </Stack>
+          </Grid>
+        </Grid>
+      </SectionCard>
+
+      <Grid
+        container
+        spacing={3}
+      >
+        <Grid
+          size={{
+            xs: 12,
+            lg: 4,
+          }}
+        >
+          <SectionCard
+            icon={<SearchIcon />}
+            title={t(
+              "intakeWizard.device.modelSearch"
+            )}
+          >
+            <Stack spacing={1.25}>
+              <TextField
+                placeholder={t(
+                  "intakeWizard.device.modelSearchPlaceholder"
+                )}
+                fullWidth
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+
+              <Typography
+                variant="caption"
+                fontWeight={750}
+                color="text.secondary"
+              >
+                {t(
+                  "intakeWizard.device.popularModels"
+                )}
+              </Typography>
+
+              <List
+                dense
+                sx={{
+                  maxHeight: 315,
+                  overflowY: "auto",
+                  border: "1px solid",
+                  borderColor: "divider",
                   borderRadius: 2,
                 }}
               >
-                {t(
-                  "intakeWizard.customer.lookupHint"
+                {sampleModelNames.map(
+                  (model) => (
+                    <ListItemButton
+                      key={model}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 30,
+                        }}
+                      >
+                        <PhoneIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={model}
+                        primaryTypographyProps={{
+                          variant: "body2",
+                          fontWeight: 600,
+                        }}
+                      />
+                    </ListItemButton>
+                  )
                 )}
-              </Alert>
+              </List>
 
-              <Grid
-                container
-                spacing={2}
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                fullWidth
               >
-                <Grid
-                  size={{
-                    xs: 12,
-                    sm: 6,
-                  }}
-                >
-                  <TextField
-                    label={t(
-                      "intakeWizard.customer.fullName"
-                    )}
-                    fullWidth
-                  />
-                </Grid>
-
-                <Grid
-                  size={{
-                    xs: 12,
-                    sm: 6,
-                  }}
-                >
-                  <TextField
-                    label={t(
-                      "intakeWizard.customer.email"
-                    )}
-                    type="email"
-                    fullWidth
-                  />
-                </Grid>
-
-                <Grid
-                  size={{
-                    xs: 12,
-                  }}
-                >
-                  <TextField
-                    label={t(
-                      "intakeWizard.customer.address"
-                    )}
-                    fullWidth
-                  />
-                </Grid>
-              </Grid>
+                {t(
+                  "intakeWizard.actions.addModel"
+                )}
+              </Button>
             </Stack>
           </SectionCard>
         </Grid>
@@ -347,35 +589,19 @@ const CustomerDeviceStep = () => {
         <Grid
           size={{
             xs: 12,
-            lg: 7,
+            lg: 8,
           }}
         >
-          <SectionCard
-            icon={<DeviceIcon />}
-            title={t(
-              "intakeWizard.device.title"
-            )}
-            subtitle={t(
-              "intakeWizard.device.subtitle"
-            )}
-          >
-            <Stack spacing={2}>
-              <TextField
-                label={t(
-                  "intakeWizard.device.searchModel"
-                )}
-                placeholder={t(
-                  "intakeWizard.device.searchModelPlaceholder"
-                )}
-                fullWidth
-                slotProps={{
-                  input: {
-                    startAdornment:
-                      <SearchAdornment />,
-                  },
-                }}
-              />
-
+          <Stack spacing={3}>
+            <SectionCard
+              icon={<DeviceIcon />}
+              title={t(
+                "intakeWizard.device.title"
+              )}
+              subtitle={t(
+                "intakeWizard.device.subtitle"
+              )}
+            >
               <Grid
                 container
                 spacing={2}
@@ -393,27 +619,20 @@ const CustomerDeviceStep = () => {
                     )}
                     defaultValue="phone"
                     fullWidth
+                    required
                   >
-                    <MenuItem value="phone">
-                      {t(
-                        "intakeWizard.device.types.phone"
-                      )}
-                    </MenuItem>
-                    <MenuItem value="tablet">
-                      {t(
-                        "intakeWizard.device.types.tablet"
-                      )}
-                    </MenuItem>
-                    <MenuItem value="laptop">
-                      {t(
-                        "intakeWizard.device.types.laptop"
-                      )}
-                    </MenuItem>
-                    <MenuItem value="smartwatch">
-                      {t(
-                        "intakeWizard.device.types.smartwatch"
-                      )}
-                    </MenuItem>
+                    {deviceTypeOptions.map(
+                      (option) => (
+                        <MenuItem
+                          key={option.value}
+                          value={option.value}
+                        >
+                          {t(
+                            option.labelKey
+                          )}
+                        </MenuItem>
+                      )
+                    )}
                   </TextField>
                 </Grid>
 
@@ -431,6 +650,7 @@ const CustomerDeviceStep = () => {
                       "intakeWizard.device.brandPlaceholder"
                     )}
                     fullWidth
+                    required
                   />
                 </Grid>
 
@@ -448,27 +668,14 @@ const CustomerDeviceStep = () => {
                       "intakeWizard.device.modelPlaceholder"
                     )}
                     fullWidth
+                    required
                   />
                 </Grid>
 
                 <Grid
                   size={{
                     xs: 12,
-                    sm: 6,
-                  }}
-                >
-                  <TextField
-                    label={t(
-                      "intakeWizard.device.imeiSerial"
-                    )}
-                    fullWidth
-                  />
-                </Grid>
-
-                <Grid
-                  size={{
-                    xs: 12,
-                    sm: 6,
+                    sm: 4,
                   }}
                 >
                   <TextField
@@ -481,119 +688,169 @@ const CustomerDeviceStep = () => {
                     fullWidth
                   />
                 </Grid>
+
+                <Grid
+                  size={{
+                    xs: 12,
+                    sm: 4,
+                  }}
+                >
+                  <TextField
+                    label={t(
+                      "intakeWizard.device.imei1"
+                    )}
+                    helperText={t(
+                      "intakeWizard.device.imeiHint"
+                    )}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid
+                  size={{
+                    xs: 12,
+                    sm: 4,
+                  }}
+                >
+                  <TextField
+                    label={t(
+                      "intakeWizard.device.imei2"
+                    )}
+                    helperText={t(
+                      "intakeWizard.device.imeiHint"
+                    )}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    label={t(
+                      "intakeWizard.device.serial"
+                    )}
+                    placeholder={t(
+                      "intakeWizard.device.serialPlaceholder"
+                    )}
+                    fullWidth
+                  />
+                </Grid>
               </Grid>
-            </Stack>
-          </SectionCard>
+
+              <Button
+                size="small"
+                startIcon={<ColorIcon />}
+                sx={{ alignSelf: "flex-start" }}
+              >
+                {t(
+                  "intakeWizard.actions.addColor"
+                )}
+              </Button>
+            </SectionCard>
+
+            <SectionCard
+              icon={<LockIcon />}
+              title={t(
+                "intakeWizard.access.title"
+              )}
+              subtitle={t(
+                "intakeWizard.access.subtitle"
+              )}
+            >
+              <Grid
+                container
+                spacing={2}
+                alignItems="flex-start"
+              >
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 4,
+                  }}
+                >
+                  <TextField
+                    select
+                    label={t(
+                      "intakeWizard.access.type"
+                    )}
+                    value={accessType}
+                    onChange={(event) => {
+                      setAccessType(
+                        event.target.value as AccessType
+                      );
+                    }}
+                    fullWidth
+                    required
+                  >
+                    {accessTypeOptions.map(
+                      (option) => (
+                        <MenuItem
+                          key={option.value}
+                          value={option.value}
+                        >
+                          {t(
+                            option.labelKey
+                          )}
+                        </MenuItem>
+                      )
+                    )}
+                  </TextField>
+                </Grid>
+
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 4,
+                  }}
+                >
+                  <TextField
+                    label={t(
+                      "intakeWizard.access.code"
+                    )}
+                    placeholder={t(
+                      "intakeWizard.access.codePlaceholder"
+                    )}
+                    disabled={[
+                      "none",
+                      "unknown",
+                    ].includes(
+                      accessType
+                    )}
+                    type={
+                      accessType ===
+                      "password"
+                        ? "password"
+                        : "text"
+                    }
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 4,
+                  }}
+                >
+                  <FormControlLabel
+                    control={<Checkbox />}
+                    label={t(
+                      "intakeWizard.access.verified"
+                    )}
+                    sx={{ mt: 0.75 }}
+                  />
+                </Grid>
+
+                {accessType ===
+                  "pattern" && (
+                  <Grid size={{ xs: 12 }}>
+                    <PatternPreview />
+                  </Grid>
+                )}
+              </Grid>
+            </SectionCard>
+          </Stack>
         </Grid>
       </Grid>
-
-      <SectionCard
-        icon={<CheckIcon />}
-        title={t(
-          "intakeWizard.access.title"
-        )}
-        subtitle={t(
-          "intakeWizard.access.subtitle"
-        )}
-      >
-        <Stack spacing={2}>
-          <ToggleButtonGroup
-            value={accessType}
-            exclusive
-            onChange={(
-              _,
-              value: AccessType | null
-            ) => {
-              if (value) {
-                setAccessType(value);
-              }
-            }}
-            sx={{
-              flexWrap: "wrap",
-              gap: 1,
-              "& .MuiToggleButtonGroup-grouped": {
-                borderRadius: 2,
-                border: "1px solid",
-                borderColor: "divider",
-                px: 2.5,
-              },
-            }}
-          >
-            <ToggleButton value="none">
-              {t(
-                "intakeWizard.access.none"
-              )}
-            </ToggleButton>
-            <ToggleButton value="pin">
-              {t(
-                "intakeWizard.access.pin"
-              )}
-            </ToggleButton>
-            <ToggleButton value="password">
-              {t(
-                "intakeWizard.access.password"
-              )}
-            </ToggleButton>
-            <ToggleButton value="pattern">
-              {t(
-                "intakeWizard.access.pattern"
-              )}
-            </ToggleButton>
-            <ToggleButton value="unknown">
-              {t(
-                "intakeWizard.access.unknown"
-              )}
-            </ToggleButton>
-          </ToggleButtonGroup>
-
-          {[
-            "pin",
-            "password",
-          ].includes(accessType) && (
-            <TextField
-              label={t(
-                accessType === "pin"
-                  ? "intakeWizard.access.pin"
-                  : "intakeWizard.access.password"
-              )}
-              type="password"
-              sx={{
-                maxWidth: 420,
-              }}
-            />
-          )}
-
-          {accessType ===
-            "pattern" && (
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 3,
-                borderRadius: 3,
-                maxWidth: 420,
-                bgcolor: "grey.50",
-              }}
-            >
-              <Typography
-                fontWeight={700}
-                gutterBottom
-              >
-                {t(
-                  "intakeWizard.access.patternTitle"
-                )}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-              >
-                {t(
-                  "intakeWizard.access.patternHint"
-                )}
-              </Typography>
-            </Paper>
-          )}
-        </Stack>
-      </SectionCard>
     </Stack>
   );
 };
@@ -602,6 +859,16 @@ const DeviceInspectionStep = () => {
   const {
     t,
   } = useTranslation();
+
+  const [
+    overallCondition,
+    setOverallCondition,
+  ] = useState("likeNew");
+
+  const [
+    batteryCondition,
+    setBatteryCondition,
+  ] = useState("unknown");
 
   return (
     <Stack spacing={3}>
@@ -614,69 +881,140 @@ const DeviceInspectionStep = () => {
           "intakeWizard.inspection.overallSubtitle"
         )}
       >
-        <ToggleButtonGroup
-          exclusive
-          defaultValue="good"
-          sx={{
-            flexWrap: "wrap",
-            gap: 1,
-            "& .MuiToggleButtonGroup-grouped": {
-              borderRadius: 2,
-              border: "1px solid",
-              borderColor: "divider",
-              px: 3,
-            },
-          }}
+        <Grid
+          container
+          spacing={2}
         >
-          <ToggleButton value="excellent">
-            {t(
-              "intakeWizard.inspection.conditions.excellent"
-            )}
-          </ToggleButton>
-          <ToggleButton value="good">
-            {t(
-              "intakeWizard.inspection.conditions.good"
-            )}
-          </ToggleButton>
-          <ToggleButton value="used">
-            {t(
-              "intakeWizard.inspection.conditions.used"
-            )}
-          </ToggleButton>
-          <ToggleButton value="damaged">
-            {t(
-              "intakeWizard.inspection.conditions.damaged"
-            )}
-          </ToggleButton>
-        </ToggleButtonGroup>
+          {overallConditionOptions.map(
+            (option, index) => {
+              const selected =
+                overallCondition ===
+                option.value;
+
+              const tone = [
+                "success.main",
+                "warning.main",
+                "warning.dark",
+                "error.main",
+              ][index];
+
+              return (
+                <Grid
+                  key={option.value}
+                  size={{
+                    xs: 12,
+                    sm: 6,
+                    lg: 3,
+                  }}
+                >
+                  <ButtonBase
+                    onClick={() => {
+                      setOverallCondition(
+                        option.value
+                      );
+                    }}
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      textAlign: "left",
+                      alignItems: "stretch",
+                      border: "1px solid",
+                      borderColor:
+                        selected
+                          ? tone
+                          : "divider",
+                      borderRadius: 3,
+                      p: 2,
+                      bgcolor:
+                        selected
+                          ? "action.selected"
+                          : "background.paper",
+                    }}
+                  >
+                    <Stack spacing={1}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                      >
+                        <Radio
+                          checked={selected}
+                          size="small"
+                          sx={{
+                            p: 0,
+                            color: tone,
+                            "&.Mui-checked": {
+                              color: tone,
+                            },
+                          }}
+                        />
+                        <Typography
+                          fontWeight={800}
+                          sx={{ color: tone }}
+                        >
+                          {t(
+                            option.labelKey
+                          )}
+                        </Typography>
+                      </Stack>
+
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        {t(
+                          option.descriptionKey
+                        )}
+                      </Typography>
+                    </Stack>
+                  </ButtonBase>
+                </Grid>
+              );
+            }
+          )}
+        </Grid>
       </SectionCard>
+
+      <Typography
+        variant="h6"
+        fontWeight={800}
+      >
+        {t(
+          "intakeWizard.inspection.visualTitle"
+        )}
+      </Typography>
 
       <Grid
         container
-        spacing={3}
+        spacing={2}
       >
         {inspectionGroups.map(
           (group) => (
             <Grid
-              key={group.titleKey}
+              key={group.id}
               size={{
                 xs: 12,
-                md: 4,
+                sm: 6,
+                xl: 3,
               }}
             >
               <SectionCard
-                icon={<CheckIcon />}
+                icon={
+                  groupIcons[
+                    group.id
+                  ]
+                }
                 title={t(
                   group.titleKey
                 )}
               >
-                <Stack spacing={0.5}>
+                <Stack spacing={0.25}>
                   {group.optionKeys.map(
                     (optionKey) => (
                       <FormControlLabel
                         key={optionKey}
                         control={
-                          <Checkbox />
+                          <Checkbox size="small" />
                         }
                         label={t(
                           optionKey
@@ -689,12 +1027,13 @@ const DeviceInspectionStep = () => {
                     label={t(
                       "intakeWizard.inspection.note"
                     )}
+                    placeholder={t(
+                      "intakeWizard.inspection.notePlaceholder"
+                    )}
                     multiline
                     minRows={2}
                     fullWidth
-                    sx={{
-                      mt: 1,
-                    }}
+                    sx={{ mt: 1 }}
                   />
                 </Stack>
               </SectionCard>
@@ -705,34 +1044,42 @@ const DeviceInspectionStep = () => {
 
       <Grid
         container
-        spacing={3}
+        spacing={2}
       >
         <Grid
           size={{
             xs: 12,
-            md: 6,
+            lg: 4,
           }}
         >
           <SectionCard
-            icon={<BuildIcon />}
+            icon={<WarningIcon />}
             title={t(
-              "intakeWizard.inspection.findingsTitle"
+              "intakeWizard.inspection.additional.title"
             )}
           >
-            <Stack>
-              {findingKeys.map(
-                (findingKey) => (
+            <Stack spacing={0.25}>
+              {additionalIssueKeys.map(
+                (key) => (
                   <FormControlLabel
-                    key={findingKey}
+                    key={key}
                     control={
-                      <Checkbox />
+                      <Checkbox size="small" />
                     }
-                    label={t(
-                      findingKey
-                    )}
+                    label={t(key)}
                   />
                 )
               )}
+
+              <TextField
+                label={t(
+                  "intakeWizard.inspection.additional.note"
+                )}
+                multiline
+                minRows={2}
+                fullWidth
+                sx={{ mt: 1 }}
+              />
             </Stack>
           </SectionCard>
         </Grid>
@@ -740,26 +1087,81 @@ const DeviceInspectionStep = () => {
         <Grid
           size={{
             xs: 12,
-            md: 6,
+            lg: 4,
           }}
         >
           <SectionCard
-            icon={<CheckIcon />}
+            icon={<CleaningIcon />}
             title={t(
-              "intakeWizard.inspection.intakeNoteTitle"
+              "intakeWizard.inspection.contamination.title"
             )}
           >
-            <TextField
-              label={t(
-                "intakeWizard.inspection.generalNote"
+            <Stack spacing={0.25}>
+              {contaminationKeys.map(
+                (key) => (
+                  <FormControlLabel
+                    key={key}
+                    control={
+                      <Checkbox size="small" />
+                    }
+                    label={t(key)}
+                  />
+                )
               )}
-              placeholder={t(
-                "intakeWizard.inspection.generalNotePlaceholder"
+
+              <TextField
+                label={t(
+                  "intakeWizard.inspection.contamination.note"
+                )}
+                multiline
+                minRows={2}
+                fullWidth
+                sx={{ mt: 1 }}
+              />
+            </Stack>
+          </SectionCard>
+        </Grid>
+
+        <Grid
+          size={{
+            xs: 12,
+            lg: 4,
+          }}
+        >
+          <SectionCard
+            icon={<BatteryIcon />}
+            title={t(
+              "intakeWizard.inspection.battery.title"
+            )}
+          >
+            <RadioGroup
+              value={batteryCondition}
+              onChange={(event) => {
+                setBatteryCondition(
+                  event.target.value
+                );
+              }}
+            >
+              {batteryOptions.map(
+                (option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio size="small" />}
+                    label={t(
+                      option.labelKey
+                    )}
+                    sx={{
+                      mx: 0,
+                      mb: 0.5,
+                      px: 1,
+                      borderRadius: 2,
+                      bgcolor: "grey.50",
+                    }}
+                  />
+                )
               )}
-              multiline
-              minRows={6}
-              fullWidth
-            />
+            </RadioGroup>
           </SectionCard>
         </Grid>
       </Grid>
@@ -772,6 +1174,13 @@ const RepairPlanStep = () => {
     t,
   } = useTranslation();
 
+  const [
+    repairType,
+    setRepairType,
+  ] = useState(
+    "diagnostics"
+  );
+
   return (
     <Grid
       container
@@ -780,11 +1189,107 @@ const RepairPlanStep = () => {
       <Grid
         size={{
           xs: 12,
-          lg: 7,
+          lg: 4,
         }}
       >
         <SectionCard
           icon={<BuildIcon />}
+          title={t(
+            "intakeWizard.repair.typeTitle"
+          )}
+        >
+          <Stack spacing={1.5}>
+            <TextField
+              placeholder={t(
+                "intakeWizard.repair.typeSearch"
+              )}
+              fullWidth
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+
+            <Typography
+              variant="caption"
+              fontWeight={750}
+              color="text.secondary"
+            >
+              {t(
+                "intakeWizard.repair.frequentTypes"
+              )}
+            </Typography>
+
+            <List
+              dense
+              sx={{
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 2,
+              }}
+            >
+              {repairTypeOptions.map(
+                (option) => (
+                  <ListItemButton
+                    key={option.value}
+                    selected={
+                      repairType ===
+                      option.value
+                    }
+                    onClick={() => {
+                      setRepairType(
+                        option.value
+                      );
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 32,
+                      }}
+                    >
+                      <BuildIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={t(
+                        option.labelKey
+                      )}
+                      primaryTypographyProps={{
+                        variant: "body2",
+                      }}
+                    />
+                  </ListItemButton>
+                )
+              )}
+            </List>
+
+            <TextField
+              label={t(
+                "intakeWizard.repair.otherType"
+              )}
+              placeholder={t(
+                "intakeWizard.repair.otherPlaceholder"
+              )}
+              multiline
+              minRows={2}
+              fullWidth
+            />
+          </Stack>
+        </SectionCard>
+      </Grid>
+
+      <Grid
+        size={{
+          xs: 12,
+          lg: 4,
+        }}
+      >
+        <SectionCard
+          icon={<DeviceIcon />}
           title={t(
             "intakeWizard.repair.problemTitle"
           )}
@@ -795,48 +1300,18 @@ const RepairPlanStep = () => {
                 "intakeWizard.repair.customerProblem"
               )}
               multiline
-              minRows={4}
+              minRows={5}
               fullWidth
             />
 
             <TextField
               label={t(
-                "intakeWizard.repair.preliminaryDiagnosis"
+                "intakeWizard.repair.diagnosis"
               )}
               multiline
-              minRows={4}
+              minRows={5}
               fullWidth
             />
-
-            <TextField
-              select
-              label={t(
-                "intakeWizard.repair.type"
-              )}
-              defaultValue="diagnostics"
-              fullWidth
-            >
-              <MenuItem value="diagnostics">
-                {t(
-                  "intakeWizard.repair.types.diagnostics"
-                )}
-              </MenuItem>
-              <MenuItem value="display">
-                {t(
-                  "intakeWizard.repair.types.display"
-                )}
-              </MenuItem>
-              <MenuItem value="battery">
-                {t(
-                  "intakeWizard.repair.types.battery"
-                )}
-              </MenuItem>
-              <MenuItem value="board">
-                {t(
-                  "intakeWizard.repair.types.board"
-                )}
-              </MenuItem>
-            </TextField>
           </Stack>
         </SectionCard>
       </Grid>
@@ -844,11 +1319,11 @@ const RepairPlanStep = () => {
       <Grid
         size={{
           xs: 12,
-          lg: 5,
+          lg: 4,
         }}
       >
         <SectionCard
-          icon={<CheckIcon />}
+          icon={<WarningIcon />}
           title={t(
             "intakeWizard.repair.risksTitle"
           )}
@@ -856,31 +1331,35 @@ const RepairPlanStep = () => {
             "intakeWizard.repair.risksSubtitle"
           )}
         >
-          <Stack>
-            {riskKeys.map(
-              (riskKey) => (
+          <Stack spacing={0.25}>
+            {repairRiskKeys.map(
+              (key, index) => (
                 <FormControlLabel
-                  key={riskKey}
+                  key={key}
                   control={
-                    <Checkbox />
+                    <Checkbox
+                      size="small"
+                      defaultChecked={[
+                        0,
+                        2,
+                        4,
+                        6,
+                      ].includes(index)}
+                    />
                   }
-                  label={t(
-                    riskKey
-                  )}
+                  label={t(key)}
                 />
               )
             )}
 
             <TextField
               label={t(
-                "intakeWizard.repair.otherRisk"
+                "intakeWizard.repair.riskNote"
               )}
               multiline
               minRows={3}
               fullWidth
-              sx={{
-                mt: 1.5,
-              }}
+              sx={{ mt: 1 }}
             />
           </Stack>
         </SectionCard>
@@ -902,7 +1381,7 @@ const PricePartsStep = () => {
       <Grid
         size={{
           xs: 12,
-          lg: 7,
+          lg: 4,
         }}
       >
         <SectionCard
@@ -912,80 +1391,121 @@ const PricePartsStep = () => {
           )}
         >
           <Stack spacing={2}>
-            <Grid
-              container
-              spacing={2}
-            >
-              <Grid
-                size={{
-                  xs: 12,
-                  sm: 4,
-                }}
-              >
-                <TextField
-                  label={t(
-                    "intakeWizard.price.labor"
-                  )}
-                  type="number"
-                  defaultValue={0}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid
-                size={{
-                  xs: 12,
-                  sm: 4,
-                }}
-              >
-                <TextField
-                  label={t(
-                    "intakeWizard.price.parts"
-                  )}
-                  type="number"
-                  defaultValue={0}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid
-                size={{
-                  xs: 12,
-                  sm: 4,
-                }}
-              >
-                <TextField
-                  label={t(
-                    "intakeWizard.price.total"
-                  )}
-                  type="number"
-                  defaultValue={0}
-                  fullWidth
-                />
-              </Grid>
-            </Grid>
-
             <TextField
               label={t(
-                "intakeWizard.price.searchPart"
+                "intakeWizard.price.targetPrice"
               )}
-              placeholder={t(
-                "intakeWizard.price.searchPartPlaceholder"
-              )}
+              defaultValue="1500"
+              type="number"
               fullWidth
               slotProps={{
                 input: {
-                  startAdornment:
-                    <SearchAdornment />,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {t(
+                        "intakeWizard.price.currency"
+                      )}
+                    </InputAdornment>
+                  ),
                 },
               }}
             />
 
-            <Alert severity="info">
+            <Paper
+              variant="outlined"
+              sx={{
+                borderRadius: 2,
+                overflow: "hidden",
+              }}
+            >
+              <Typography
+                variant="caption"
+                fontWeight={750}
+                sx={{
+                  display: "block",
+                  px: 1.5,
+                  py: 1,
+                  bgcolor: "grey.50",
+                }}
+              >
+                {t(
+                  "intakeWizard.price.breakdown"
+                )}
+              </Typography>
+
+              {[
+                {
+                  label:
+                    t(
+                      "intakeWizard.price.partLine"
+                    ),
+                  value: "1 200 Kč",
+                },
+                {
+                  label:
+                    t(
+                      "intakeWizard.price.laborLine"
+                    ),
+                  value: "300 Kč",
+                },
+              ].map((line) => (
+                <Stack
+                  key={line.label}
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{
+                    px: 1.5,
+                    py: 1,
+                    borderTop: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Typography variant="body2">
+                    {line.label}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    fontWeight={700}
+                  >
+                    {line.value}
+                  </Typography>
+                </Stack>
+              ))}
+            </Paper>
+
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+            >
               {t(
-                "intakeWizard.price.partsHint"
+                "intakeWizard.actions.addLine"
               )}
-            </Alert>
+            </Button>
+
+            <Typography
+              variant="subtitle2"
+              fontWeight={800}
+            >
+              {t(
+                "intakeWizard.price.approvalTitle"
+              )}
+            </Typography>
+
+            <RadioGroup defaultValue="approved">
+              {approvalOptions.map(
+                (option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio size="small" />}
+                    label={t(
+                      option.labelKey
+                    )}
+                  />
+                )
+              )}
+            </RadioGroup>
           </Stack>
         </SectionCard>
       </Grid>
@@ -993,21 +1513,36 @@ const PricePartsStep = () => {
       <Grid
         size={{
           xs: 12,
-          lg: 5,
+          lg: 4,
         }}
       >
-        <SectionCard
-          icon={<CheckIcon />}
-          title={t(
-            "intakeWizard.price.scheduleTitle"
-          )}
-        >
-          <Stack spacing={2}>
+        <Stack spacing={3}>
+          <SectionCard
+            icon={<BatteryIcon />}
+            title={t(
+              "intakeWizard.schedule.title"
+            )}
+          >
+            <RadioGroup defaultValue="24h">
+              {durationOptions.map(
+                (option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio size="small" />}
+                    label={t(
+                      option.labelKey
+                    )}
+                  />
+                )
+              )}
+            </RadioGroup>
+
             <TextField
               label={t(
-                "intakeWizard.price.dueAt"
+                "intakeWizard.schedule.date"
               )}
-              type="datetime-local"
+              type="date"
               fullWidth
               slotProps={{
                 inputLabel: {
@@ -1015,60 +1550,183 @@ const PricePartsStep = () => {
                 },
               }}
             />
+          </SectionCard>
+
+          <SectionCard
+            icon={<InventoryIcon />}
+            title={t(
+              "intakeWizard.parts.title"
+            )}
+          >
+            <Stack spacing={1.5}>
+              <TextField
+                placeholder={t(
+                  "intakeWizard.parts.search"
+                )}
+                fullWidth
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+
+              <Typography
+                variant="caption"
+                fontWeight={750}
+                color="text.secondary"
+              >
+                {t(
+                  "intakeWizard.parts.selected"
+                )}
+              </Typography>
+
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 1.5,
+                  borderRadius: 2.5,
+                }}
+              >
+                <Stack
+                  direction="row"
+                  spacing={1.5}
+                  alignItems="center"
+                >
+                  <Avatar
+                    variant="rounded"
+                    sx={{
+                      bgcolor: "grey.100",
+                      color: "primary.main",
+                    }}
+                  >
+                    <PhoneIcon />
+                  </Avatar>
+
+                  <Box
+                    sx={{
+                      minWidth: 0,
+                      flexGrow: 1,
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                    >
+                      <Typography
+                        variant="body2"
+                        fontWeight={750}
+                        noWrap
+                      >
+                        {t(
+                          "intakeWizard.parts.sampleName"
+                        )}
+                      </Typography>
+                      <Chip
+                        size="small"
+                        color="success"
+                        label={t(
+                          "intakeWizard.parts.conditionNew"
+                        )}
+                      />
+                    </Stack>
+
+                    <Typography
+                      variant="caption"
+                      color="primary.main"
+                      display="block"
+                      noWrap
+                    >
+                      {t(
+                        "intakeWizard.parts.sampleSku"
+                      )}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      fontWeight={700}
+                    >
+                      {t(
+                        "intakeWizard.parts.samplePrice"
+                      )}
+                    </Typography>
+                  </Box>
+
+                  <IconButton size="small">
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Paper>
+
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+              >
+                {t(
+                  "intakeWizard.actions.addPart"
+                )}
+              </Button>
+
+              <Alert severity="info">
+                {t(
+                  "intakeWizard.parts.reservationHint"
+                )}
+              </Alert>
+            </Stack>
+          </SectionCard>
+        </Stack>
+      </Grid>
+
+      <Grid
+        size={{
+          xs: 12,
+          lg: 4,
+        }}
+      >
+        <SectionCard
+          icon={<PersonIcon />}
+          title={t(
+            "intakeWizard.communication.title"
+          )}
+          subtitle={t(
+            "intakeWizard.communication.subtitle"
+          )}
+        >
+          <Stack spacing={1}>
+            {communicationOptions.map(
+              (option, index) => (
+                <FormControlLabel
+                  key={option.value}
+                  control={
+                    <Checkbox
+                      defaultChecked={
+                        index !== 1
+                      }
+                    />
+                  }
+                  label={t(
+                    option.labelKey
+                  )}
+                />
+              )
+            )}
 
             <TextField
-              select
               label={t(
-                "intakeWizard.price.approval"
+                "intakeWizard.communication.note"
               )}
-              defaultValue="contact"
+              placeholder={t(
+                "intakeWizard.communication.notePlaceholder"
+              )}
+              multiline
+              minRows={8}
               fullWidth
-            >
-              <MenuItem value="approved">
-                {t(
-                  "intakeWizard.price.approvals.approved"
-                )}
-              </MenuItem>
-              <MenuItem value="contact">
-                {t(
-                  "intakeWizard.price.approvals.contact"
-                )}
-              </MenuItem>
-              <MenuItem value="limit">
-                {t(
-                  "intakeWizard.price.approvals.limit"
-                )}
-              </MenuItem>
-            </TextField>
-
-            <Stack>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                  />
-                }
-                label={t(
-                  "intakeWizard.price.communication.phone"
-                )}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox />
-                }
-                label={t(
-                  "intakeWizard.price.communication.sms"
-                )}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox />
-                }
-                label={t(
-                  "intakeWizard.price.communication.email"
-                )}
-              />
-            </Stack>
+              sx={{ mt: 1 }}
+            />
           </Stack>
         </SectionCard>
       </Grid>
@@ -1085,18 +1743,16 @@ const ReviewStep = () => {
     <Stack spacing={3}>
       <Alert
         severity="success"
-        sx={{
-          borderRadius: 3,
-        }}
+        sx={{ borderRadius: 3 }}
       >
         {t(
-          "intakeWizard.review.success"
+          "intakeWizard.review.hint"
         )}
       </Alert>
 
       <Grid
         container
-        spacing={3}
+        spacing={2}
       >
         {reviewSections.map(
           (section) => (
@@ -1105,20 +1761,21 @@ const ReviewStep = () => {
               size={{
                 xs: 12,
                 sm: 6,
+                lg: 4,
               }}
             >
               <Paper
                 variant="outlined"
                 sx={{
-                  p: 3,
+                  p: 2.5,
                   borderRadius: 3,
                   height: "100%",
                 }}
               >
-                <Stack spacing={1.5}>
+                <Stack spacing={1.25}>
                   <Typography
                     variant="h6"
-                    fontWeight={700}
+                    fontWeight={800}
                   >
                     {t(
                       section.titleKey
@@ -1141,9 +1798,7 @@ const ReviewStep = () => {
                           variant="body2"
                           color="text.secondary"
                         >
-                          {t(
-                            lineKey
-                          )}
+                          {t(lineKey)}
                         </Typography>
                       </Stack>
                     )
@@ -1170,9 +1825,9 @@ const RepairIntakeWizardPage = () => {
 
   const isLastStep =
     activeStep ===
-    stepKeys.length - 1;
+    intakeStepKeys.length - 1;
 
-  const renderStep = (): ReactNode => {
+  const renderStep = () => {
     switch (activeStep) {
       case 0:
         return <CustomerDeviceStep />;
@@ -1182,10 +1837,8 @@ const RepairIntakeWizardPage = () => {
         return <RepairPlanStep />;
       case 3:
         return <PricePartsStep />;
-      case 4:
-        return <ReviewStep />;
       default:
-        return null;
+        return <ReviewStep />;
     }
   };
 
@@ -1196,7 +1849,7 @@ const RepairIntakeWizardPage = () => {
         bgcolor: "grey.50",
         py: {
           xs: 2,
-          md: 4,
+          md: 3,
         },
       }}
     >
@@ -1208,7 +1861,6 @@ const RepairIntakeWizardPage = () => {
               p: {
                 xs: 2,
                 sm: 3,
-                md: 4,
               },
               borderRadius: 4,
               border: "1px solid",
@@ -1237,15 +1889,13 @@ const RepairIntakeWizardPage = () => {
                     )}
                     color="primary"
                     variant="outlined"
-                    sx={{
-                      mb: 1.5,
-                    }}
+                    sx={{ mb: 1.25 }}
                   />
 
                   <Typography
                     variant="h4"
                     component="h1"
-                    fontWeight={800}
+                    fontWeight={850}
                   >
                     {t(
                       "intakeWizard.title"
@@ -1254,9 +1904,7 @@ const RepairIntakeWizardPage = () => {
 
                   <Typography
                     color="text.secondary"
-                    sx={{
-                      mt: 0.75,
-                    }}
+                    sx={{ mt: 0.5 }}
                   >
                     {t(
                       "intakeWizard.subtitle"
@@ -1271,13 +1919,11 @@ const RepairIntakeWizardPage = () => {
                       current:
                         activeStep + 1,
                       total:
-                        stepKeys.length,
+                        intakeStepKeys.length,
                     }
                   )}
                   color="primary"
-                  sx={{
-                    fontWeight: 700,
-                  }}
+                  sx={{ fontWeight: 750 }}
                 />
               </Stack>
 
@@ -1293,23 +1939,20 @@ const RepairIntakeWizardPage = () => {
                   sx={{
                     minWidth: 760,
                     "& .MuiStepLabel-label": {
-                      fontWeight: 600,
-                    },
-                    "& .MuiStepIcon-root.Mui-active": {
-                      color: "primary.main",
+                      fontWeight: 650,
                     },
                     "& .MuiStepIcon-root.Mui-completed": {
                       color: "success.main",
                     },
                   }}
                 >
-                  {stepKeys.map(
+                  {intakeStepKeys.map(
                     (
-                      stepKey,
+                      key,
                       index
                     ) => (
                       <Step
-                        key={stepKey}
+                        key={key}
                         completed={
                           index <
                           activeStep
@@ -1318,14 +1961,10 @@ const RepairIntakeWizardPage = () => {
                         <StepButton
                           color="inherit"
                           onClick={() => {
-                            setActiveStep(
-                              index
-                            );
+                            setActiveStep(index);
                           }}
                         >
-                          {t(
-                            stepKey
-                          )}
+                          {t(key)}
                         </StepButton>
                       </Step>
                     )
@@ -1341,7 +1980,6 @@ const RepairIntakeWizardPage = () => {
               p: {
                 xs: 2,
                 sm: 3,
-                md: 4,
               },
               borderRadius: 4,
               border: "1px solid",
@@ -1370,12 +2008,8 @@ const RepairIntakeWizardPage = () => {
             >
               <Button
                 variant="outlined"
-                startIcon={
-                  <ArrowBackIcon />
-                }
-                disabled={
-                  activeStep === 0
-                }
+                startIcon={<ArrowBackIcon />}
+                disabled={activeStep === 0}
                 onClick={() => {
                   setActiveStep(
                     (current) =>
@@ -1404,16 +2038,18 @@ const RepairIntakeWizardPage = () => {
                     (current) =>
                       Math.min(
                         current + 1,
-                        stepKeys.length - 1
+                        intakeStepKeys.length - 1
                       )
                   );
                 }}
               >
-                {t(
-                  isLastStep
-                    ? "intakeWizard.actions.createLater"
-                    : "intakeWizard.actions.continue"
-                )}
+                {isLastStep
+                  ? t(
+                      "intakeWizard.actions.createLater"
+                    )
+                  : t(
+                      "intakeWizard.actions.continue"
+                    )}
               </Button>
             </Stack>
           </Paper>
