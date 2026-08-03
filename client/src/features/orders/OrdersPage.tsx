@@ -223,6 +223,9 @@ const OrdersPage = () => {
   const requestIdRef =
     useRef(0);
 
+  const clientsLoadedRef =
+    useRef(false);
+
   useEffect(() => {
     const timeout =
       window.setTimeout(
@@ -252,7 +255,16 @@ const OrdersPage = () => {
 
   const loadClients =
     useCallback(
-      async (): Promise<void> => {
+      async (
+        force = false
+      ): Promise<boolean> => {
+        if (
+          clientsLoadedRef.current &&
+          !force
+        ) {
+          return true;
+        }
+
         try {
           const clientsData =
             await getClients();
@@ -260,6 +272,11 @@ const OrdersPage = () => {
           setClients(
             clientsData
           );
+
+          clientsLoadedRef.current =
+            true;
+
+          return true;
         } catch (
           error: unknown
         ) {
@@ -273,14 +290,12 @@ const OrdersPage = () => {
               "ordersPage.errors.clientsLoadFailed"
             )
           );
+
+          return false;
         }
       },
       [t]
     );
-
-  useEffect(() => {
-    void loadClients();
-  }, [loadClients]);
 
   const loadOrders =
     useCallback(
@@ -384,6 +399,36 @@ const OrdersPage = () => {
           setOrders(
             response.items
           );
+
+          if (
+            !clientsLoadedRef.current
+          ) {
+            const pageClientsById =
+              new Map<number, Client>();
+
+            for (
+              const order of
+              response.items
+            ) {
+              const client =
+                order.client;
+
+              if (
+                client &&
+                typeof client.id ===
+                  "number"
+              ) {
+                pageClientsById.set(
+                  client.id,
+                  client
+                );
+              }
+            }
+
+            setClients([
+              ...pageClientsById.values(),
+            ]);
+          }
 
           setTotal(
             response.pagination
@@ -685,9 +730,17 @@ const OrdersPage = () => {
 
   const handleEditOrder =
     useCallback(
-      (
+      async (
         order: Order
-      ): void => {
+      ): Promise<void> => {
+        setActionError(null);
+
+        if (
+          !(await loadClients())
+        ) {
+          return;
+        }
+
         setSelectedOrder(
           order
         );
@@ -696,7 +749,7 @@ const OrdersPage = () => {
           true
         );
       },
-      []
+      [loadClients]
     );
 
   const handleCloseEditForm =
@@ -872,10 +925,20 @@ const OrdersPage = () => {
     );
 
   const handleOpenIntake =
-    useCallback((): void => {
-      setActionError(null);
-      setIntakeOpen(true);
-    }, []);
+    useCallback(
+      async (): Promise<void> => {
+        setActionError(null);
+
+        if (
+          !(await loadClients())
+        ) {
+          return;
+        }
+
+        setIntakeOpen(true);
+      },
+      [loadClients]
+    );
 
   const handleCreateIntake =
     useCallback(
@@ -898,7 +961,7 @@ const OrdersPage = () => {
           })
         );
 
-        await loadClients();
+        await loadClients(true);
         reloadOrders();
       },
       [
