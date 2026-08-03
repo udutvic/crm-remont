@@ -30,6 +30,7 @@ import {
   createRepairIntake,
   archiveOrder,
   getClients,
+  getDevices,
   getPagedOrders,
   markOrderDelivered,
   updateOrder,
@@ -38,6 +39,7 @@ import {
 import formatOrderNumber from "utils/formatOrderNumber";
 import type {
   Client,
+  Device,
   Order,
   OrderListDeliveryFilter,
   OrderListSortField,
@@ -86,6 +88,11 @@ const OrdersPage = () => {
     clients,
     setClients,
   ] = useState<Client[]>([]);
+
+  const [
+    devices,
+    setDevices,
+  ] = useState<Device[]>([]);
 
   const [
     total,
@@ -226,6 +233,9 @@ const OrdersPage = () => {
   const clientsLoadedRef =
     useRef(false);
 
+  const devicesLoadedRef =
+    useRef(false);
+
   useEffect(() => {
     const timeout =
       window.setTimeout(
@@ -295,6 +305,69 @@ const OrdersPage = () => {
         }
       },
       [t]
+    );
+
+  const loadDevices =
+    useCallback(
+      async (): Promise<boolean> => {
+        if (
+          devicesLoadedRef.current
+        ) {
+          return true;
+        }
+
+        try {
+          const devicesData =
+            await getDevices();
+
+          setDevices(
+            devicesData
+          );
+
+          devicesLoadedRef.current =
+            true;
+
+          return true;
+        } catch (
+          error: unknown
+        ) {
+          console.error(
+            "Error loading devices:",
+            error
+          );
+
+          setActionError(
+            t(
+              "orderForm.errors.loadDevices"
+            )
+          );
+
+          return false;
+        }
+      },
+      [t]
+    );
+
+  const loadFormReferences =
+    useCallback(
+      async (): Promise<boolean> => {
+        const [
+          clientsReady,
+          devicesReady,
+        ] = await Promise.all([
+          loadClients(),
+          loadDevices(),
+        ]);
+
+        return (
+          clientsReady &&
+          devicesReady
+        );
+      },
+      [
+        loadClients,
+        loadDevices,
+      ]
     );
 
   const loadOrders =
@@ -736,7 +809,7 @@ const OrdersPage = () => {
         setActionError(null);
 
         if (
-          !(await loadClients())
+          !(await loadFormReferences())
         ) {
           return;
         }
@@ -749,7 +822,7 @@ const OrdersPage = () => {
           true
         );
       },
-      [loadClients]
+      [loadFormReferences]
     );
 
   const handleCloseEditForm =
@@ -930,14 +1003,14 @@ const OrdersPage = () => {
         setActionError(null);
 
         if (
-          !(await loadClients())
+          !(await loadFormReferences())
         ) {
           return;
         }
 
         setIntakeOpen(true);
       },
-      [loadClients]
+      [loadFormReferences]
     );
 
   const handleCreateIntake =
@@ -961,11 +1034,15 @@ const OrdersPage = () => {
           })
         );
 
-        await loadClients(true);
+        clientsLoadedRef.current =
+          false;
+
+        devicesLoadedRef.current =
+          false;
+
         reloadOrders();
       },
       [
-        loadClients,
         reloadOrders,
       ]
     );
@@ -1136,6 +1213,9 @@ const OrdersPage = () => {
         clients={
           clients
         }
+        devices={
+          devices
+        }
         onSubmit={
           handleCreateIntake
         }
@@ -1155,6 +1235,9 @@ const OrdersPage = () => {
         }
         clients={
           clients
+        }
+        devices={
+          devices
         }
         onSubmit={
           handleOrderSubmit

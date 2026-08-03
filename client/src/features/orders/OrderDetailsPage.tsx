@@ -26,6 +26,7 @@ import {
 import LoadingIndicator from "components/ui/LoadingIndicator";
 import {
   getClients,
+  getDevices,
   getOrder,
   markOrderDelivered,
   updateOrder,
@@ -33,6 +34,7 @@ import {
 } from "index";
 import type {
   Client,
+  Device,
   Order,
   OrderPayload,
   OrderStatus,
@@ -106,6 +108,16 @@ const OrderDetailsPage = () => {
     clients,
     setClients,
   ] = useState<Client[]>([]);
+
+  const [
+    devices,
+    setDevices,
+  ] = useState<Device[]>([]);
+
+  const [
+    formReferencesLoaded,
+    setFormReferencesLoaded,
+  ] = useState(false);
 
   const [
     editFormOpen,
@@ -296,12 +308,29 @@ const OrderDetailsPage = () => {
 
           setActionError(null);
 
-          const clientsData =
-            await getClients();
+          if (
+            !formReferencesLoaded
+          ) {
+            const [
+              clientsData,
+              devicesData,
+            ] = await Promise.all([
+              getClients(),
+              getDevices(),
+            ]);
 
-          setClients(
-            clientsData
-          );
+            setClients(
+              clientsData
+            );
+
+            setDevices(
+              devicesData
+            );
+
+            setFormReferencesLoaded(
+              true
+            );
+          }
 
           setEditFormOpen(
             true
@@ -310,7 +339,7 @@ const OrderDetailsPage = () => {
           error: unknown
         ) {
           console.error(
-            "Error loading clients:",
+            "Error loading edit form references:",
             error
           );
 
@@ -330,7 +359,10 @@ const OrderDetailsPage = () => {
           );
         }
       },
-      [t]
+      [
+        formReferencesLoaded,
+        t,
+      ]
     );
 
   const handleUpdateOrder =
@@ -544,6 +576,7 @@ const OrderDetailsPage = () => {
         open={editFormOpen}
         order={order}
         clients={clients}
+        devices={devices}
         onSubmit={
           handleUpdateOrder
         }
