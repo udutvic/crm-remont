@@ -45,7 +45,7 @@ const OrderReceiptPage = lazy(
 );
 const OrdersPage = lazy(() => import("features/orders/OrdersPage"));
 const RepairIntakeWizardPage = lazy(
-  () => import("features/orders/intake/RepairIntakeWizardPageV2")
+  () => import("features/orders/intake/RepairIntakeWizardPage")
 );
 const StaffPage = lazy(() => import("features/staff/StaffPage"));
 
