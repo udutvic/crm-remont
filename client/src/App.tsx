@@ -44,6 +44,9 @@ const OrderReceiptPage = lazy(
   () => import("features/orders/OrderReceiptPage")
 );
 const OrdersPage = lazy(() => import("features/orders/OrdersPage"));
+const RepairIntakeWizardPage = lazy(
+  () => import("features/orders/intake/RepairIntakeWizardPage")
+);
 const StaffPage = lazy(() => import("features/staff/StaffPage"));
 
 interface AdminOnlyProps {
@@ -77,6 +80,10 @@ const MainApp = () => (
       <Route path="/devices/:id" element={<DeviceDetailsPage />} />
       <Route path="/devices" element={<DevicesPage />} />
       <Route path="/orders" element={<OrdersPage />} />
+      <Route
+        path="/orders/new-v2"
+        element={<RepairIntakeWizardPage />}
+      />
       <Route
         path="/orders/archive"
         element={
