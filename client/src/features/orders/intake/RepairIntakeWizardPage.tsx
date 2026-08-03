@@ -36,6 +36,9 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
+import {
+  useTranslation,
+} from "react-i18next";
 
 interface SectionCardProps {
   icon: ReactNode;
@@ -43,6 +46,105 @@ interface SectionCardProps {
   subtitle?: string;
   children: ReactNode;
 }
+
+type AccessType =
+  | "none"
+  | "pin"
+  | "password"
+  | "pattern"
+  | "unknown";
+
+const stepKeys = [
+  "intakeWizard.steps.customerDevice",
+  "intakeWizard.steps.inspection",
+  "intakeWizard.steps.repairPlan",
+  "intakeWizard.steps.priceParts",
+  "intakeWizard.steps.review",
+] as const;
+
+const inspectionGroups = [
+  {
+    titleKey:
+      "intakeWizard.inspection.groups.display.title",
+    optionKeys: [
+      "intakeWizard.inspection.groups.display.hairlineScratches",
+      "intakeWizard.inspection.groups.display.deepScratches",
+      "intakeWizard.inspection.groups.display.cracked",
+      "intakeWizard.inspection.groups.display.deadPixels",
+    ],
+  },
+  {
+    titleKey:
+      "intakeWizard.inspection.groups.rearCover.title",
+    optionKeys: [
+      "intakeWizard.inspection.groups.rearCover.scratches",
+      "intakeWizard.inspection.groups.rearCover.crackedGlass",
+      "intakeWizard.inspection.groups.rearCover.looseCover",
+      "intakeWizard.inspection.groups.rearCover.dents",
+    ],
+  },
+  {
+    titleKey:
+      "intakeWizard.inspection.groups.frameButtons.title",
+    optionKeys: [
+      "intakeWizard.inspection.groups.frameButtons.scuffs",
+      "intakeWizard.inspection.groups.frameButtons.bentFrame",
+      "intakeWizard.inspection.groups.frameButtons.damagedButtons",
+      "intakeWizard.inspection.groups.frameButtons.missingParts",
+    ],
+  },
+] as const;
+
+const findingKeys = [
+  "intakeWizard.inspection.findings.dirty",
+  "intakeWizard.inspection.findings.liquid",
+  "intakeWizard.inspection.findings.nonOriginal",
+  "intakeWizard.inspection.findings.noPower",
+  "intakeWizard.inspection.findings.swollenBattery",
+] as const;
+
+const riskKeys = [
+  "intakeWizard.repair.risks.dataLoss",
+  "intakeWizard.repair.risks.unrepairable",
+  "intakeWizard.repair.risks.noWarranty",
+  "intakeWizard.repair.risks.hiddenDefects",
+  "intakeWizard.repair.risks.waterResistance",
+] as const;
+
+const reviewSections = [
+  {
+    titleKey:
+      "intakeWizard.review.sections.customer.title",
+    lineKeys: [
+      "intakeWizard.review.sections.customer.contact",
+      "intakeWizard.review.sections.customer.billing",
+    ],
+  },
+  {
+    titleKey:
+      "intakeWizard.review.sections.device.title",
+    lineKeys: [
+      "intakeWizard.review.sections.device.identity",
+      "intakeWizard.review.sections.device.access",
+    ],
+  },
+  {
+    titleKey:
+      "intakeWizard.review.sections.inspection.title",
+    lineKeys: [
+      "intakeWizard.review.sections.inspection.visual",
+      "intakeWizard.review.sections.inspection.findings",
+    ],
+  },
+  {
+    titleKey:
+      "intakeWizard.review.sections.repair.title",
+    lineKeys: [
+      "intakeWizard.review.sections.repair.diagnosis",
+      "intakeWizard.review.sections.repair.price",
+    ],
+  },
+] as const;
 
 const SectionCard = ({
   icon,
@@ -56,7 +158,8 @@ const SectionCard = ({
       height: "100%",
       borderRadius: 3,
       borderColor: "divider",
-      boxShadow: "0 10px 32px rgba(15, 23, 42, 0.05)",
+      boxShadow:
+        "0 10px 32px rgba(15, 23, 42, 0.05)",
     }}
   >
     <CardContent
@@ -118,56 +221,29 @@ const SectionCard = ({
         </Stack>
 
         <Divider />
-
         {children}
       </Stack>
     </CardContent>
   </Card>
 );
 
-const steps = [
-  "Zákazník a zařízení",
-  "Stav zařízení",
-  "Diagnostika a plán",
-  "Cena a díly",
-  "Kontrola",
-];
-
-const inspectionGroups = [
-  {
-    title: "Displej",
-    options: [
-      "Vlasové škrábance",
-      "Hlubší škrábance",
-      "Prasklý displej",
-      "Mrtvé pixely",
-    ],
-  },
-  {
-    title: "Zadní kryt",
-    options: [
-      "Škrábance",
-      "Prasklé sklo",
-      "Uvolněný kryt",
-      "Promáčknutí",
-    ],
-  },
-  {
-    title: "Rám a tlačítka",
-    options: [
-      "Oděrky",
-      "Ohnutý rám",
-      "Poškozená tlačítka",
-      "Chybějící části",
-    ],
-  },
-];
+const SearchAdornment = () => (
+  <InputAdornment position="start">
+    <SearchIcon fontSize="small" />
+  </InputAdornment>
+);
 
 const CustomerDeviceStep = () => {
+  const {
+    t,
+  } = useTranslation();
+
   const [
     accessType,
     setAccessType,
-  ] = useState("none");
+  ] = useState<AccessType>(
+    "none"
+  );
 
   return (
     <Stack spacing={3}>
@@ -183,21 +259,26 @@ const CustomerDeviceStep = () => {
         >
           <SectionCard
             icon={<PersonIcon />}
-            title="Zákazník"
-            subtitle="Vyhledejte existujícího zákazníka nebo založte nového."
+            title={t(
+              "intakeWizard.customer.title"
+            )}
+            subtitle={t(
+              "intakeWizard.customer.subtitle"
+            )}
           >
             <Stack spacing={2}>
               <TextField
-                label="Telefon"
-                placeholder="+420 777 123 456"
+                label={t(
+                  "intakeWizard.customer.phone"
+                )}
+                placeholder={t(
+                  "intakeWizard.customer.phonePlaceholder"
+                )}
                 fullWidth
                 slotProps={{
                   input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon fontSize="small" />
-                      </InputAdornment>
-                    ),
+                    startAdornment:
+                      <SearchAdornment />,
                   },
                 }}
               />
@@ -208,7 +289,9 @@ const CustomerDeviceStep = () => {
                   borderRadius: 2,
                 }}
               >
-                Po zadání telefonu zde nabídneme nalezeného zákazníka a jeho zařízení.
+                {t(
+                  "intakeWizard.customer.lookupHint"
+                )}
               </Alert>
 
               <Grid
@@ -222,7 +305,9 @@ const CustomerDeviceStep = () => {
                   }}
                 >
                   <TextField
-                    label="Jméno a příjmení"
+                    label={t(
+                      "intakeWizard.customer.fullName"
+                    )}
                     fullWidth
                   />
                 </Grid>
@@ -234,15 +319,23 @@ const CustomerDeviceStep = () => {
                   }}
                 >
                   <TextField
-                    label="E-mail"
+                    label={t(
+                      "intakeWizard.customer.email"
+                    )}
                     type="email"
                     fullWidth
                   />
                 </Grid>
 
-                <Grid size={{ xs: 12 }}>
+                <Grid
+                  size={{
+                    xs: 12,
+                  }}
+                >
                   <TextField
-                    label="Adresa"
+                    label={t(
+                      "intakeWizard.customer.address"
+                    )}
                     fullWidth
                   />
                 </Grid>
@@ -259,21 +352,26 @@ const CustomerDeviceStep = () => {
         >
           <SectionCard
             icon={<DeviceIcon />}
-            title="Zařízení"
-            subtitle="Model bude možné vyhledat v katalogu a údaje se doplní automaticky."
+            title={t(
+              "intakeWizard.device.title"
+            )}
+            subtitle={t(
+              "intakeWizard.device.subtitle"
+            )}
           >
             <Stack spacing={2}>
               <TextField
-                label="Vyhledat model"
-                placeholder="Např. iPhone 15 Pro Max"
+                label={t(
+                  "intakeWizard.device.searchModel"
+                )}
+                placeholder={t(
+                  "intakeWizard.device.searchModelPlaceholder"
+                )}
                 fullWidth
                 slotProps={{
                   input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon fontSize="small" />
-                      </InputAdornment>
-                    ),
+                    startAdornment:
+                      <SearchAdornment />,
                   },
                 }}
               />
@@ -290,14 +388,32 @@ const CustomerDeviceStep = () => {
                 >
                   <TextField
                     select
-                    label="Typ zařízení"
+                    label={t(
+                      "intakeWizard.device.type"
+                    )}
                     defaultValue="phone"
                     fullWidth
                   >
-                    <MenuItem value="phone">Telefon</MenuItem>
-                    <MenuItem value="tablet">Tablet</MenuItem>
-                    <MenuItem value="laptop">Notebook</MenuItem>
-                    <MenuItem value="smartwatch">Chytré hodinky</MenuItem>
+                    <MenuItem value="phone">
+                      {t(
+                        "intakeWizard.device.types.phone"
+                      )}
+                    </MenuItem>
+                    <MenuItem value="tablet">
+                      {t(
+                        "intakeWizard.device.types.tablet"
+                      )}
+                    </MenuItem>
+                    <MenuItem value="laptop">
+                      {t(
+                        "intakeWizard.device.types.laptop"
+                      )}
+                    </MenuItem>
+                    <MenuItem value="smartwatch">
+                      {t(
+                        "intakeWizard.device.types.smartwatch"
+                      )}
+                    </MenuItem>
                   </TextField>
                 </Grid>
 
@@ -308,8 +424,12 @@ const CustomerDeviceStep = () => {
                   }}
                 >
                   <TextField
-                    label="Výrobce"
-                    placeholder="Apple"
+                    label={t(
+                      "intakeWizard.device.brand"
+                    )}
+                    placeholder={t(
+                      "intakeWizard.device.brandPlaceholder"
+                    )}
                     fullWidth
                   />
                 </Grid>
@@ -321,8 +441,12 @@ const CustomerDeviceStep = () => {
                   }}
                 >
                   <TextField
-                    label="Model"
-                    placeholder="iPhone 15 Pro Max"
+                    label={t(
+                      "intakeWizard.device.model"
+                    )}
+                    placeholder={t(
+                      "intakeWizard.device.modelPlaceholder"
+                    )}
                     fullWidth
                   />
                 </Grid>
@@ -334,7 +458,9 @@ const CustomerDeviceStep = () => {
                   }}
                 >
                   <TextField
-                    label="IMEI / sériové číslo"
+                    label={t(
+                      "intakeWizard.device.imeiSerial"
+                    )}
                     fullWidth
                   />
                 </Grid>
@@ -346,8 +472,12 @@ const CustomerDeviceStep = () => {
                   }}
                 >
                   <TextField
-                    label="Barva"
-                    placeholder="Natural Titanium"
+                    label={t(
+                      "intakeWizard.device.color"
+                    )}
+                    placeholder={t(
+                      "intakeWizard.device.colorPlaceholder"
+                    )}
                     fullWidth
                   />
                 </Grid>
@@ -359,8 +489,12 @@ const CustomerDeviceStep = () => {
 
       <SectionCard
         icon={<CheckIcon />}
-        title="Přístup do zařízení"
-        subtitle="Přístupový údaj se uloží šifrovaně."
+        title={t(
+          "intakeWizard.access.title"
+        )}
+        subtitle={t(
+          "intakeWizard.access.subtitle"
+        )}
       >
         <Stack spacing={2}>
           <ToggleButtonGroup
@@ -368,7 +502,7 @@ const CustomerDeviceStep = () => {
             exclusive
             onChange={(
               _,
-              value: string | null
+              value: AccessType | null
             ) => {
               if (value) {
                 setAccessType(value);
@@ -385,11 +519,31 @@ const CustomerDeviceStep = () => {
               },
             }}
           >
-            <ToggleButton value="none">Bez kódu</ToggleButton>
-            <ToggleButton value="pin">PIN</ToggleButton>
-            <ToggleButton value="password">Heslo</ToggleButton>
-            <ToggleButton value="pattern">Gesto</ToggleButton>
-            <ToggleButton value="unknown">Neznámé</ToggleButton>
+            <ToggleButton value="none">
+              {t(
+                "intakeWizard.access.none"
+              )}
+            </ToggleButton>
+            <ToggleButton value="pin">
+              {t(
+                "intakeWizard.access.pin"
+              )}
+            </ToggleButton>
+            <ToggleButton value="password">
+              {t(
+                "intakeWizard.access.password"
+              )}
+            </ToggleButton>
+            <ToggleButton value="pattern">
+              {t(
+                "intakeWizard.access.pattern"
+              )}
+            </ToggleButton>
+            <ToggleButton value="unknown">
+              {t(
+                "intakeWizard.access.unknown"
+              )}
+            </ToggleButton>
           </ToggleButtonGroup>
 
           {[
@@ -397,11 +551,11 @@ const CustomerDeviceStep = () => {
             "password",
           ].includes(accessType) && (
             <TextField
-              label={
+              label={t(
                 accessType === "pin"
-                  ? "PIN"
-                  : "Heslo"
-              }
+                  ? "intakeWizard.access.pin"
+                  : "intakeWizard.access.password"
+              )}
               type="password"
               sx={{
                 maxWidth: 420,
@@ -409,7 +563,8 @@ const CustomerDeviceStep = () => {
             />
           )}
 
-          {accessType === "pattern" && (
+          {accessType ===
+            "pattern" && (
             <Paper
               variant="outlined"
               sx={{
@@ -423,13 +578,17 @@ const CustomerDeviceStep = () => {
                 fontWeight={700}
                 gutterBottom
               >
-                Grafický klíč 3 × 3
+                {t(
+                  "intakeWizard.access.patternTitle"
+                )}
               </Typography>
               <Typography
                 variant="body2"
                 color="text.secondary"
               >
-                Interaktivní mřížku doplníme v dalším balíku.
+                {t(
+                  "intakeWizard.access.patternHint"
+                )}
               </Typography>
             </Paper>
           )}
@@ -439,78 +598,181 @@ const CustomerDeviceStep = () => {
   );
 };
 
-const DeviceInspectionStep = () => (
-  <Stack spacing={3}>
-    <SectionCard
-      icon={<DeviceIcon />}
-      title="Celkový stav zařízení"
-      subtitle="Rychlé hodnocení při převzetí zařízení."
-    >
-      <ToggleButtonGroup
-        exclusive
-        defaultValue="good"
-        sx={{
-          flexWrap: "wrap",
-          gap: 1,
-          "& .MuiToggleButtonGroup-grouped": {
-            borderRadius: 2,
-            border: "1px solid",
-            borderColor: "divider",
-            px: 3,
-          },
-        }}
+const DeviceInspectionStep = () => {
+  const {
+    t,
+  } = useTranslation();
+
+  return (
+    <Stack spacing={3}>
+      <SectionCard
+        icon={<DeviceIcon />}
+        title={t(
+          "intakeWizard.inspection.overallTitle"
+        )}
+        subtitle={t(
+          "intakeWizard.inspection.overallSubtitle"
+        )}
       >
-        <ToggleButton value="excellent">Výborný</ToggleButton>
-        <ToggleButton value="good">Dobrý</ToggleButton>
-        <ToggleButton value="used">Běžně opotřebený</ToggleButton>
-        <ToggleButton value="damaged">Poškozený</ToggleButton>
-      </ToggleButtonGroup>
-    </SectionCard>
+        <ToggleButtonGroup
+          exclusive
+          defaultValue="good"
+          sx={{
+            flexWrap: "wrap",
+            gap: 1,
+            "& .MuiToggleButtonGroup-grouped": {
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              px: 3,
+            },
+          }}
+        >
+          <ToggleButton value="excellent">
+            {t(
+              "intakeWizard.inspection.conditions.excellent"
+            )}
+          </ToggleButton>
+          <ToggleButton value="good">
+            {t(
+              "intakeWizard.inspection.conditions.good"
+            )}
+          </ToggleButton>
+          <ToggleButton value="used">
+            {t(
+              "intakeWizard.inspection.conditions.used"
+            )}
+          </ToggleButton>
+          <ToggleButton value="damaged">
+            {t(
+              "intakeWizard.inspection.conditions.damaged"
+            )}
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </SectionCard>
 
-    <Grid
-      container
-      spacing={3}
-    >
-      {inspectionGroups.map(
-        (group) => (
-          <Grid
-            key={group.title}
-            size={{
-              xs: 12,
-              md: 4,
-            }}
-          >
-            <SectionCard
-              icon={<CheckIcon />}
-              title={group.title}
+      <Grid
+        container
+        spacing={3}
+      >
+        {inspectionGroups.map(
+          (group) => (
+            <Grid
+              key={group.titleKey}
+              size={{
+                xs: 12,
+                md: 4,
+              }}
             >
-              <Stack spacing={0.5}>
-                {group.options.map(
-                  (option) => (
-                    <FormControlLabel
-                      key={option}
-                      control={<Checkbox />}
-                      label={option}
-                    />
-                  )
+              <SectionCard
+                icon={<CheckIcon />}
+                title={t(
+                  group.titleKey
                 )}
+              >
+                <Stack spacing={0.5}>
+                  {group.optionKeys.map(
+                    (optionKey) => (
+                      <FormControlLabel
+                        key={optionKey}
+                        control={
+                          <Checkbox />
+                        }
+                        label={t(
+                          optionKey
+                        )}
+                      />
+                    )
+                  )}
 
-                <TextField
-                  label="Poznámka"
-                  multiline
-                  minRows={2}
-                  fullWidth
-                  sx={{
-                    mt: 1,
-                  }}
-                />
-              </Stack>
-            </SectionCard>
-          </Grid>
-        )
-      )}
-    </Grid>
+                  <TextField
+                    label={t(
+                      "intakeWizard.inspection.note"
+                    )}
+                    multiline
+                    minRows={2}
+                    fullWidth
+                    sx={{
+                      mt: 1,
+                    }}
+                  />
+                </Stack>
+              </SectionCard>
+            </Grid>
+          )
+        )}
+      </Grid>
 
+      <Grid
+        container
+        spacing={3}
+      >
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+          }}
+        >
+          <SectionCard
+            icon={<BuildIcon />}
+            title={t(
+              "intakeWizard.inspection.findingsTitle"
+            )}
+          >
+            <Stack>
+              {findingKeys.map(
+                (findingKey) => (
+                  <FormControlLabel
+                    key={findingKey}
+                    control={
+                      <Checkbox />
+                    }
+                    label={t(
+                      findingKey
+                    )}
+                  />
+                )
+              )}
+            </Stack>
+          </SectionCard>
+        </Grid>
+
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+          }}
+        >
+          <SectionCard
+            icon={<CheckIcon />}
+            title={t(
+              "intakeWizard.inspection.intakeNoteTitle"
+            )}
+          >
+            <TextField
+              label={t(
+                "intakeWizard.inspection.generalNote"
+              )}
+              placeholder={t(
+                "intakeWizard.inspection.generalNotePlaceholder"
+              )}
+              multiline
+              minRows={6}
+              fullWidth
+            />
+          </SectionCard>
+        </Grid>
+      </Grid>
+    </Stack>
+  );
+};
+
+const RepairPlanStep = () => {
+  const {
+    t,
+  } = useTranslation();
+
+  return (
     <Grid
       container
       spacing={3}
@@ -518,27 +780,63 @@ const DeviceInspectionStep = () => (
       <Grid
         size={{
           xs: 12,
-          md: 6,
+          lg: 7,
         }}
       >
         <SectionCard
           icon={<BuildIcon />}
-          title="Další zjištění"
+          title={t(
+            "intakeWizard.repair.problemTitle"
+          )}
         >
-          <Stack>
-            {[
-              "Zařízení je znečištěné",
-              "Známky kontaktu s kapalinou",
-              "Neoriginální díly",
-              "Zařízení se nezapíná",
-              "Baterie je nafouklá",
-            ].map((label) => (
-              <FormControlLabel
-                key={label}
-                control={<Checkbox />}
-                label={label}
-              />
-            ))}
+          <Stack spacing={2}>
+            <TextField
+              label={t(
+                "intakeWizard.repair.customerProblem"
+              )}
+              multiline
+              minRows={4}
+              fullWidth
+            />
+
+            <TextField
+              label={t(
+                "intakeWizard.repair.preliminaryDiagnosis"
+              )}
+              multiline
+              minRows={4}
+              fullWidth
+            />
+
+            <TextField
+              select
+              label={t(
+                "intakeWizard.repair.type"
+              )}
+              defaultValue="diagnostics"
+              fullWidth
+            >
+              <MenuItem value="diagnostics">
+                {t(
+                  "intakeWizard.repair.types.diagnostics"
+                )}
+              </MenuItem>
+              <MenuItem value="display">
+                {t(
+                  "intakeWizard.repair.types.display"
+                )}
+              </MenuItem>
+              <MenuItem value="battery">
+                {t(
+                  "intakeWizard.repair.types.battery"
+                )}
+              </MenuItem>
+              <MenuItem value="board">
+                {t(
+                  "intakeWizard.repair.types.board"
+                )}
+              </MenuItem>
+            </TextField>
           </Stack>
         </SectionCard>
       </Grid>
@@ -546,356 +844,325 @@ const DeviceInspectionStep = () => (
       <Grid
         size={{
           xs: 12,
-          md: 6,
+          lg: 5,
         }}
       >
         <SectionCard
           icon={<CheckIcon />}
-          title="Poznámka k převzetí"
+          title={t(
+            "intakeWizard.repair.risksTitle"
+          )}
+          subtitle={t(
+            "intakeWizard.repair.risksSubtitle"
+          )}
         >
-          <TextField
-            label="Obecná poznámka"
-            placeholder="Doplňující informace o stavu zařízení..."
-            multiline
-            minRows={6}
-            fullWidth
-          />
+          <Stack>
+            {riskKeys.map(
+              (riskKey) => (
+                <FormControlLabel
+                  key={riskKey}
+                  control={
+                    <Checkbox />
+                  }
+                  label={t(
+                    riskKey
+                  )}
+                />
+              )
+            )}
+
+            <TextField
+              label={t(
+                "intakeWizard.repair.otherRisk"
+              )}
+              multiline
+              minRows={3}
+              fullWidth
+              sx={{
+                mt: 1.5,
+              }}
+            />
+          </Stack>
         </SectionCard>
       </Grid>
     </Grid>
-  </Stack>
-);
+  );
+};
 
-const RepairPlanStep = () => (
-  <Grid
-    container
-    spacing={3}
-  >
-    <Grid
-      size={{
-        xs: 12,
-        lg: 7,
-      }}
-    >
-      <SectionCard
-        icon={<BuildIcon />}
-        title="Problém a předběžná diagnostika"
-      >
-        <Stack spacing={2}>
-          <TextField
-            label="Popis problému zákazníkem"
-            multiline
-            minRows={4}
-            fullWidth
-          />
+const PricePartsStep = () => {
+  const {
+    t,
+  } = useTranslation();
 
-          <TextField
-            label="Předběžná diagnostika"
-            multiline
-            minRows={4}
-            fullWidth
-          />
-
-          <TextField
-            select
-            label="Typ opravy"
-            defaultValue="diagnostics"
-            fullWidth
-          >
-            <MenuItem value="diagnostics">Diagnostika</MenuItem>
-            <MenuItem value="display">Výměna displeje</MenuItem>
-            <MenuItem value="battery">Výměna baterie</MenuItem>
-            <MenuItem value="board">Oprava základní desky</MenuItem>
-          </TextField>
-        </Stack>
-      </SectionCard>
-    </Grid>
-
-    <Grid
-      size={{
-        xs: 12,
-        lg: 5,
-      }}
-    >
-      <SectionCard
-        icon={<CheckIcon />}
-        title="Rizika opravy"
-        subtitle="Rizika budou uvedena v přejímacím protokolu."
-      >
-        <Stack>
-          {[
-            "Možná ztráta dat",
-            "Zařízení může být neopravitelné",
-            "Oprava bez záruky",
-            "Možné skryté vady",
-            "Ztráta voděodolnosti",
-          ].map((label) => (
-            <FormControlLabel
-              key={label}
-              control={<Checkbox />}
-              label={label}
-            />
-          ))}
-
-          <TextField
-            label="Další riziko"
-            multiline
-            minRows={3}
-            fullWidth
-            sx={{
-              mt: 1.5,
-            }}
-          />
-        </Stack>
-      </SectionCard>
-    </Grid>
-  </Grid>
-);
-
-const PricePartsStep = () => (
-  <Grid
-    container
-    spacing={3}
-  >
-    <Grid
-      size={{
-        xs: 12,
-        lg: 7,
-      }}
-    >
-      <SectionCard
-        icon={<InventoryIcon />}
-        title="Cena a díly"
-      >
-        <Stack spacing={2}>
-          <Grid
-            container
-            spacing={2}
-          >
-            <Grid
-              size={{
-                xs: 12,
-                sm: 4,
-              }}
-            >
-              <TextField
-                label="Práce"
-                type="number"
-                defaultValue={0}
-                fullWidth
-              />
-            </Grid>
-
-            <Grid
-              size={{
-                xs: 12,
-                sm: 4,
-              }}
-            >
-              <TextField
-                label="Díly"
-                type="number"
-                defaultValue={0}
-                fullWidth
-              />
-            </Grid>
-
-            <Grid
-              size={{
-                xs: 12,
-                sm: 4,
-              }}
-            >
-              <TextField
-                label="Celkem"
-                type="number"
-                defaultValue={0}
-                fullWidth
-              />
-            </Grid>
-          </Grid>
-
-          <TextField
-            label="Vyhledat díl ve skladu"
-            placeholder="Název, SKU nebo čárový kód"
-            fullWidth
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <Alert severity="info">
-            V této fázi se díl pouze vybere. Rezervaci a skutečné odepsání doplníme později.
-          </Alert>
-        </Stack>
-      </SectionCard>
-    </Grid>
-
-    <Grid
-      size={{
-        xs: 12,
-        lg: 5,
-      }}
-    >
-      <SectionCard
-        icon={<CheckIcon />}
-        title="Termín a komunikace"
-      >
-        <Stack spacing={2}>
-          <TextField
-            label="Předpokládaný termín dokončení"
-            type="datetime-local"
-            fullWidth
-            slotProps={{
-              inputLabel: {
-                shrink: true,
-              },
-            }}
-          />
-
-          <TextField
-            select
-            label="Schválení opravy"
-            defaultValue="contact"
-            fullWidth
-          >
-            <MenuItem value="approved">Schváleno při převzetí</MenuItem>
-            <MenuItem value="contact">Kontaktovat před opravou</MenuItem>
-            <MenuItem value="limit">Schváleno do cenového limitu</MenuItem>
-          </TextField>
-
-          <Stack>
-            <FormControlLabel
-              control={<Checkbox defaultChecked />}
-              label="Telefon"
-            />
-            <FormControlLabel
-              control={<Checkbox />}
-              label="SMS"
-            />
-            <FormControlLabel
-              control={<Checkbox />}
-              label="E-mail"
-            />
-          </Stack>
-        </Stack>
-      </SectionCard>
-    </Grid>
-  </Grid>
-);
-
-const ReviewStep = () => (
-  <Stack spacing={3}>
-    <Alert
-      severity="success"
-      sx={{
-        borderRadius: 3,
-      }}
-    >
-      Zde bude před vytvořením zakázky kompletní kontrola všech vyplněných údajů.
-    </Alert>
-
+  return (
     <Grid
       container
       spacing={3}
     >
-      {[
-        {
-          title: "Zákazník",
-          lines: [
-            "Jméno a kontakt",
-            "Fakturační údaje",
-          ],
-        },
-        {
-          title: "Zařízení",
-          lines: [
-            "Model, IMEI a barva",
-            "Přístup do zařízení",
-          ],
-        },
-        {
-          title: "Stav při převzetí",
-          lines: [
-            "Vizuální kontrola",
-            "Další zjištění",
-          ],
-        },
-        {
-          title: "Oprava",
-          lines: [
-            "Diagnostika a rizika",
-            "Cena, termín a díly",
-          ],
-        },
-      ].map((item) => (
-        <Grid
-          key={item.title}
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
+      <Grid
+        size={{
+          xs: 12,
+          lg: 7,
+        }}
+      >
+        <SectionCard
+          icon={<InventoryIcon />}
+          title={t(
+            "intakeWizard.price.title"
+          )}
         >
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 3,
-              borderRadius: 3,
-              height: "100%",
-            }}
-          >
-            <Stack spacing={1.5}>
-              <Typography
-                variant="h6"
-                fontWeight={700}
+          <Stack spacing={2}>
+            <Grid
+              container
+              spacing={2}
+            >
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 4,
+                }}
               >
-                {item.title}
-              </Typography>
+                <TextField
+                  label={t(
+                    "intakeWizard.price.labor"
+                  )}
+                  type="number"
+                  defaultValue={0}
+                  fullWidth
+                />
+              </Grid>
 
-              {item.lines.map(
-                (line) => (
-                  <Stack
-                    key={line}
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                  >
-                    <CheckIcon
-                      color="success"
-                      fontSize="small"
-                    />
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                    >
-                      {line}
-                    </Typography>
-                  </Stack>
-                )
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 4,
+                }}
+              >
+                <TextField
+                  label={t(
+                    "intakeWizard.price.parts"
+                  )}
+                  type="number"
+                  defaultValue={0}
+                  fullWidth
+                />
+              </Grid>
+
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 4,
+                }}
+              >
+                <TextField
+                  label={t(
+                    "intakeWizard.price.total"
+                  )}
+                  type="number"
+                  defaultValue={0}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+
+            <TextField
+              label={t(
+                "intakeWizard.price.searchPart"
               )}
-            </Stack>
-          </Paper>
-        </Grid>
-      ))}
-    </Grid>
-  </Stack>
-);
+              placeholder={t(
+                "intakeWizard.price.searchPartPlaceholder"
+              )}
+              fullWidth
+              slotProps={{
+                input: {
+                  startAdornment:
+                    <SearchAdornment />,
+                },
+              }}
+            />
 
-const stepContent = [
-  <CustomerDeviceStep key="customer-device" />,
-  <DeviceInspectionStep key="inspection" />,
-  <RepairPlanStep key="repair-plan" />,
-  <PricePartsStep key="price-parts" />,
-  <ReviewStep key="review" />,
-];
+            <Alert severity="info">
+              {t(
+                "intakeWizard.price.partsHint"
+              )}
+            </Alert>
+          </Stack>
+        </SectionCard>
+      </Grid>
+
+      <Grid
+        size={{
+          xs: 12,
+          lg: 5,
+        }}
+      >
+        <SectionCard
+          icon={<CheckIcon />}
+          title={t(
+            "intakeWizard.price.scheduleTitle"
+          )}
+        >
+          <Stack spacing={2}>
+            <TextField
+              label={t(
+                "intakeWizard.price.dueAt"
+              )}
+              type="datetime-local"
+              fullWidth
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            />
+
+            <TextField
+              select
+              label={t(
+                "intakeWizard.price.approval"
+              )}
+              defaultValue="contact"
+              fullWidth
+            >
+              <MenuItem value="approved">
+                {t(
+                  "intakeWizard.price.approvals.approved"
+                )}
+              </MenuItem>
+              <MenuItem value="contact">
+                {t(
+                  "intakeWizard.price.approvals.contact"
+                )}
+              </MenuItem>
+              <MenuItem value="limit">
+                {t(
+                  "intakeWizard.price.approvals.limit"
+                )}
+              </MenuItem>
+            </TextField>
+
+            <Stack>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked
+                  />
+                }
+                label={t(
+                  "intakeWizard.price.communication.phone"
+                )}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox />
+                }
+                label={t(
+                  "intakeWizard.price.communication.sms"
+                )}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox />
+                }
+                label={t(
+                  "intakeWizard.price.communication.email"
+                )}
+              />
+            </Stack>
+          </Stack>
+        </SectionCard>
+      </Grid>
+    </Grid>
+  );
+};
+
+const ReviewStep = () => {
+  const {
+    t,
+  } = useTranslation();
+
+  return (
+    <Stack spacing={3}>
+      <Alert
+        severity="success"
+        sx={{
+          borderRadius: 3,
+        }}
+      >
+        {t(
+          "intakeWizard.review.success"
+        )}
+      </Alert>
+
+      <Grid
+        container
+        spacing={3}
+      >
+        {reviewSections.map(
+          (section) => (
+            <Grid
+              key={section.titleKey}
+              size={{
+                xs: 12,
+                sm: 6,
+              }}
+            >
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  height: "100%",
+                }}
+              >
+                <Stack spacing={1.5}>
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                  >
+                    {t(
+                      section.titleKey
+                    )}
+                  </Typography>
+
+                  {section.lineKeys.map(
+                    (lineKey) => (
+                      <Stack
+                        key={lineKey}
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                      >
+                        <CheckIcon
+                          color="success"
+                          fontSize="small"
+                        />
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                          {t(
+                            lineKey
+                          )}
+                        </Typography>
+                      </Stack>
+                    )
+                  )}
+                </Stack>
+              </Paper>
+            </Grid>
+          )
+        )}
+      </Grid>
+    </Stack>
+  );
+};
 
 const RepairIntakeWizardPage = () => {
+  const {
+    t,
+  } = useTranslation();
+
   const [
     activeStep,
     setActiveStep,
@@ -903,7 +1170,24 @@ const RepairIntakeWizardPage = () => {
 
   const isLastStep =
     activeStep ===
-    steps.length - 1;
+    stepKeys.length - 1;
+
+  const renderStep = (): ReactNode => {
+    switch (activeStep) {
+      case 0:
+        return <CustomerDeviceStep />;
+      case 1:
+        return <DeviceInspectionStep />;
+      case 2:
+        return <RepairPlanStep />;
+      case 3:
+        return <PricePartsStep />;
+      case 4:
+        return <ReviewStep />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <Box
@@ -948,7 +1232,9 @@ const RepairIntakeWizardPage = () => {
               >
                 <Box>
                   <Chip
-                    label="Nový příjem"
+                    label={t(
+                      "intakeWizard.badge"
+                    )}
                     color="primary"
                     variant="outlined"
                     sx={{
@@ -961,7 +1247,9 @@ const RepairIntakeWizardPage = () => {
                     component="h1"
                     fontWeight={800}
                   >
-                    Příjem zařízení do opravy
+                    {t(
+                      "intakeWizard.title"
+                    )}
                   </Typography>
 
                   <Typography
@@ -970,12 +1258,22 @@ const RepairIntakeWizardPage = () => {
                       mt: 0.75,
                     }}
                   >
-                    Přehledný průvodce od zákazníka až po finální kontrolu zakázky.
+                    {t(
+                      "intakeWizard.subtitle"
+                    )}
                   </Typography>
                 </Box>
 
                 <Chip
-                  label={`Krok ${activeStep + 1} z ${steps.length}`}
+                  label={t(
+                    "intakeWizard.stepCounter",
+                    {
+                      current:
+                        activeStep + 1,
+                      total:
+                        stepKeys.length,
+                    }
+                  )}
                   color="primary"
                   sx={{
                     fontWeight: 700,
@@ -1005,13 +1303,13 @@ const RepairIntakeWizardPage = () => {
                     },
                   }}
                 >
-                  {steps.map(
+                  {stepKeys.map(
                     (
-                      label,
+                      stepKey,
                       index
                     ) => (
                       <Step
-                        key={label}
+                        key={stepKey}
                         completed={
                           index <
                           activeStep
@@ -1020,10 +1318,14 @@ const RepairIntakeWizardPage = () => {
                         <StepButton
                           color="inherit"
                           onClick={() => {
-                            setActiveStep(index);
+                            setActiveStep(
+                              index
+                            );
                           }}
                         >
-                          {label}
+                          {t(
+                            stepKey
+                          )}
                         </StepButton>
                       </Step>
                     )
@@ -1046,7 +1348,7 @@ const RepairIntakeWizardPage = () => {
               borderColor: "divider",
             }}
           >
-            {stepContent[activeStep]}
+            {renderStep()}
           </Paper>
 
           <Paper
@@ -1068,8 +1370,12 @@ const RepairIntakeWizardPage = () => {
             >
               <Button
                 variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                disabled={activeStep === 0}
+                startIcon={
+                  <ArrowBackIcon />
+                }
+                disabled={
+                  activeStep === 0
+                }
                 onClick={() => {
                   setActiveStep(
                     (current) =>
@@ -1080,7 +1386,9 @@ const RepairIntakeWizardPage = () => {
                   );
                 }}
               >
-                Zpět
+                {t(
+                  "intakeWizard.actions.back"
+                )}
               </Button>
 
               <Button
@@ -1096,14 +1404,16 @@ const RepairIntakeWizardPage = () => {
                     (current) =>
                       Math.min(
                         current + 1,
-                        steps.length - 1
+                        stepKeys.length - 1
                       )
                   );
                 }}
               >
-                {isLastStep
-                  ? "Vytvoření zapojíme později"
-                  : "Pokračovat"}
+                {t(
+                  isLastStep
+                    ? "intakeWizard.actions.createLater"
+                    : "intakeWizard.actions.continue"
+                )}
               </Button>
             </Stack>
           </Paper>
