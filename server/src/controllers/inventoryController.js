@@ -110,6 +110,15 @@ const numberOrNull = (
     : null;
 };
 
+const isLowStock = (
+  currentQuantity,
+  minStock
+) =>
+  minStock > 0 &&
+  currentQuantity > 0 &&
+  currentQuantity <=
+    minStock;
+
 const serializeItem = (
   item
 ) => {
@@ -129,8 +138,10 @@ const serializeItem = (
     );
 
   plain.isLowStock =
-    plain.currentQuantity <=
-    plain.minStock;
+    isLowStock(
+      plain.currentQuantity,
+      plain.minStock
+    );
 
   return plain;
 };
@@ -424,6 +435,14 @@ exports.getItems = async (
     "true"
   ) {
     whereConditions.push(
+      {
+        currentQuantity: {
+          [Op.gt]: 0,
+        },
+        minStock: {
+          [Op.gt]: 0,
+        },
+      },
       where(
         col(
           "currentQuantity"
@@ -620,8 +639,10 @@ exports.getSummary = async (
             );
 
           if (
-            quantity <=
-            item.minStock
+            isLowStock(
+              quantity,
+              item.minStock
+            )
           ) {
             current.lowStockItems +=
               1;
