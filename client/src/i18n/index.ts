@@ -3,6 +3,7 @@ import {
   initReactI18next,
 } from "react-i18next";
 
+import intakeWizardRuntimeTranslations from "features/orders/intake/intakeWizardRuntimeTranslations";
 import intakeWizardTranslations from "features/orders/intake/intakeWizardTranslations";
 
 export const supportedLanguages = [
@@ -61,6 +62,9 @@ const loadTranslation = async (
   return {
     ...locale.default.translation,
     ...intakeWizardTranslations[
+      language
+    ],
+    ...intakeWizardRuntimeTranslations[
       language
     ],
   };
