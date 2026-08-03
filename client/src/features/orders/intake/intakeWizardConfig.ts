@@ -309,18 +309,3 @@ export const reviewSections = [
     ],
   },
 ] as const;
-
-export const sampleModelNames = [
-  "iPhone 15 Pro Max",
-  "iPhone 15 Pro",
-  "iPhone 15",
-  "iPhone 14 Pro Max",
-  "iPhone 14 Pro",
-  "iPhone 14",
-  "iPhone 13 Pro Max",
-  "iPhone 13 Pro",
-  "iPhone 13",
-  "iPhone 12 Pro Max",
-  "iPhone 12 Pro",
-  "iPhone 12",
-] as const;
