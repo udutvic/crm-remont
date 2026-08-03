@@ -3,6 +3,7 @@ import {
   initReactI18next,
 } from "react-i18next";
 
+import deviceModelTranslations from "features/orders/intake/deviceModelTranslations";
 import intakeWizardRuntimeTranslations from "features/orders/intake/intakeWizardRuntimeTranslations";
 import intakeWizardTranslations from "features/orders/intake/intakeWizardTranslations";
 
@@ -65,6 +66,9 @@ const loadTranslation = async (
       language
     ],
     ...intakeWizardRuntimeTranslations[
+      language
+    ],
+    ...deviceModelTranslations[
       language
     ],
   };
