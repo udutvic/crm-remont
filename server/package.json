@@ -16,6 +16,7 @@
     "db:backup": "node src/scripts/backupDatabase.js",
     "db:inspect": "node src/scripts/inspectDatabase.js",
     "auth:create-user": "node src/scripts/createUser.js",
+    "auth:revoke-sessions": "node src/scripts/revokeAllSessions.js",
     "test": "node --test",
     "test:watch": "node --test --watch"
   },

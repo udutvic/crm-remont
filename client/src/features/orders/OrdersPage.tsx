@@ -30,6 +30,7 @@ import {
   createRepairIntake,
   archiveOrder,
   getClients,
+  getDevices,
   getPagedOrders,
   markOrderDelivered,
   updateOrder,
@@ -38,6 +39,7 @@ import {
 import formatOrderNumber from "utils/formatOrderNumber";
 import type {
   Client,
+  Device,
   Order,
   OrderListDeliveryFilter,
   OrderListSortField,
@@ -86,6 +88,11 @@ const OrdersPage = () => {
     clients,
     setClients,
   ] = useState<Client[]>([]);
+
+  const [
+    devices,
+    setDevices,
+  ] = useState<Device[]>([]);
 
   const [
     total,
@@ -223,6 +230,12 @@ const OrdersPage = () => {
   const requestIdRef =
     useRef(0);
 
+  const clientsLoadedRef =
+    useRef(false);
+
+  const devicesLoadedRef =
+    useRef(false);
+
   useEffect(() => {
     const timeout =
       window.setTimeout(
@@ -252,7 +265,16 @@ const OrdersPage = () => {
 
   const loadClients =
     useCallback(
-      async (): Promise<void> => {
+      async (
+        force = false
+      ): Promise<boolean> => {
+        if (
+          clientsLoadedRef.current &&
+          !force
+        ) {
+          return true;
+        }
+
         try {
           const clientsData =
             await getClients();
@@ -260,6 +282,11 @@ const OrdersPage = () => {
           setClients(
             clientsData
           );
+
+          clientsLoadedRef.current =
+            true;
+
+          return true;
         } catch (
           error: unknown
         ) {
@@ -273,14 +300,75 @@ const OrdersPage = () => {
               "ordersPage.errors.clientsLoadFailed"
             )
           );
+
+          return false;
         }
       },
       [t]
     );
 
-  useEffect(() => {
-    void loadClients();
-  }, [loadClients]);
+  const loadDevices =
+    useCallback(
+      async (): Promise<boolean> => {
+        if (
+          devicesLoadedRef.current
+        ) {
+          return true;
+        }
+
+        try {
+          const devicesData =
+            await getDevices();
+
+          setDevices(
+            devicesData
+          );
+
+          devicesLoadedRef.current =
+            true;
+
+          return true;
+        } catch (
+          error: unknown
+        ) {
+          console.error(
+            "Error loading devices:",
+            error
+          );
+
+          setActionError(
+            t(
+              "orderForm.errors.loadDevices"
+            )
+          );
+
+          return false;
+        }
+      },
+      [t]
+    );
+
+  const loadFormReferences =
+    useCallback(
+      async (): Promise<boolean> => {
+        const [
+          clientsReady,
+          devicesReady,
+        ] = await Promise.all([
+          loadClients(),
+          loadDevices(),
+        ]);
+
+        return (
+          clientsReady &&
+          devicesReady
+        );
+      },
+      [
+        loadClients,
+        loadDevices,
+      ]
+    );
 
   const loadOrders =
     useCallback(
@@ -384,6 +472,36 @@ const OrdersPage = () => {
           setOrders(
             response.items
           );
+
+          if (
+            !clientsLoadedRef.current
+          ) {
+            const pageClientsById =
+              new Map<number, Client>();
+
+            for (
+              const order of
+              response.items
+            ) {
+              const client =
+                order.client;
+
+              if (
+                client &&
+                typeof client.id ===
+                  "number"
+              ) {
+                pageClientsById.set(
+                  client.id,
+                  client
+                );
+              }
+            }
+
+            setClients([
+              ...pageClientsById.values(),
+            ]);
+          }
 
           setTotal(
             response.pagination
@@ -685,9 +803,17 @@ const OrdersPage = () => {
 
   const handleEditOrder =
     useCallback(
-      (
+      async (
         order: Order
-      ): void => {
+      ): Promise<void> => {
+        setActionError(null);
+
+        if (
+          !(await loadFormReferences())
+        ) {
+          return;
+        }
+
         setSelectedOrder(
           order
         );
@@ -696,7 +822,7 @@ const OrdersPage = () => {
           true
         );
       },
-      []
+      [loadFormReferences]
     );
 
   const handleCloseEditForm =
@@ -872,10 +998,20 @@ const OrdersPage = () => {
     );
 
   const handleOpenIntake =
-    useCallback((): void => {
-      setActionError(null);
-      setIntakeOpen(true);
-    }, []);
+    useCallback(
+      async (): Promise<void> => {
+        setActionError(null);
+
+        if (
+          !(await loadFormReferences())
+        ) {
+          return;
+        }
+
+        setIntakeOpen(true);
+      },
+      [loadFormReferences]
+    );
 
   const handleCreateIntake =
     useCallback(
@@ -898,11 +1034,15 @@ const OrdersPage = () => {
           })
         );
 
-        await loadClients();
+        clientsLoadedRef.current =
+          false;
+
+        devicesLoadedRef.current =
+          false;
+
         reloadOrders();
       },
       [
-        loadClients,
         reloadOrders,
       ]
     );
@@ -1073,6 +1213,9 @@ const OrdersPage = () => {
         clients={
           clients
         }
+        devices={
+          devices
+        }
         onSubmit={
           handleCreateIntake
         }
@@ -1092,6 +1235,9 @@ const OrdersPage = () => {
         }
         clients={
           clients
+        }
+        devices={
+          devices
         }
         onSubmit={
           handleOrderSubmit

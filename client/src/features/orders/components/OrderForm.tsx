@@ -30,9 +30,6 @@ import {
 } from "react-i18next";
 
 import {
-  getDevices,
-} from "index";
-import {
   Client,
   Device,
   Order,
@@ -51,6 +48,7 @@ interface OrderFormProps {
 
   order?: Order;
   clients: Client[];
+  devices: Device[];
 }
 
 interface OrderFormValues {
@@ -253,15 +251,11 @@ const OrderForm = ({
   onSubmit,
   order,
   clients,
+  devices,
 }: OrderFormProps) => {
   const {
     t,
   } = useTranslation();
-
-  const [
-    devices,
-    setDevices,
-  ] = useState<Device[]>([]);
 
   const [
     serverError,
@@ -388,40 +382,6 @@ const OrderForm = ({
     open,
     order,
     reset,
-  ]);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const loadDevices =
-      async (): Promise<void> => {
-        try {
-          const data =
-            await getDevices();
-
-          setDevices(data);
-        } catch (
-          error: unknown
-        ) {
-          console.error(
-            "Error loading devices:",
-            error
-          );
-
-          setServerError(
-            t(
-              "orderForm.errors.loadDevices"
-            )
-          );
-        }
-      };
-
-    void loadDevices();
-  }, [
-    open,
-    t,
   ]);
 
   const handleFormSubmit =

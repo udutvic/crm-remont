@@ -34,7 +34,6 @@ import {
 } from "react-i18next";
 
 import {
-  getDevices,
   lookupClientByPhone,
 } from "index";
 import type {
@@ -52,6 +51,7 @@ import type {
 interface RepairIntakeFormProps {
   open: boolean;
   clients: Client[];
+  devices: Device[];
 
   onClose: () => void;
 
@@ -274,6 +274,7 @@ const priceFieldSx = {
 const RepairIntakeForm = ({
   open,
   clients,
+  devices,
   onClose,
   onSubmit,
 }: RepairIntakeFormProps) => {
@@ -287,11 +288,6 @@ const RepairIntakeForm = ({
   ] = useState<Client[]>(
     clients
   );
-
-  const [
-    devices,
-    setDevices,
-  ] = useState<Device[]>([]);
 
   const [
     serverError,
@@ -401,35 +397,9 @@ const RepairIntakeForm = ({
 
     setServerError(null);
     setLookupFeedback(null);
-
-    const loadDevices =
-      async (): Promise<void> => {
-        try {
-          const data =
-            await getDevices();
-
-          setDevices(data);
-        } catch (
-          error: unknown
-        ) {
-          console.error(
-            "Error loading devices for intake:",
-            error
-          );
-
-          setServerError(
-            t(
-              "repairIntake.errors.loadDevices"
-            )
-          );
-        }
-      };
-
-    void loadDevices();
   }, [
     open,
     reset,
-    t,
   ]);
 
   useEffect(() => {

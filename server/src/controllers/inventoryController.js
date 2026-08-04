@@ -1,5 +1,6 @@
 const {
   Op,
+  QueryTypes,
   col,
   where,
 } = require(
@@ -110,6 +111,15 @@ const numberOrNull = (
     : null;
 };
 
+const isLowStock = (
+  currentQuantity,
+  minStock
+) =>
+  minStock > 0 &&
+  currentQuantity > 0 &&
+  currentQuantity <=
+    minStock;
+
 const serializeItem = (
   item
 ) => {
@@ -129,8 +139,10 @@ const serializeItem = (
     );
 
   plain.isLowStock =
-    plain.currentQuantity <=
-    plain.minStock;
+    isLowStock(
+      plain.currentQuantity,
+      plain.minStock
+    );
 
   return plain;
 };
@@ -424,6 +436,14 @@ exports.getItems = async (
     "true"
   ) {
     whereConditions.push(
+      {
+        currentQuantity: {
+          [Op.gt]: 0,
+        },
+        minStock: {
+          [Op.gt]: 0,
+        },
+      },
       where(
         col(
           "currentQuantity"
@@ -585,78 +605,87 @@ exports.getSummary = async (
   res
 ) => {
   try {
-    const items =
-      await InventoryItem.findAll({
-        where: {
-          isActive: true,
-        },
-      });
+    const [row] =
+      await sequelize.query(
+        `
+          SELECT
+            COUNT(*)::integer AS "activeItems",
 
-    const summary =
-      items.reduce(
-        (
-          current,
-          item
-        ) => {
-          const quantity =
-            item.currentQuantity;
+            COALESCE(
+              SUM("currentQuantity"),
+              0
+            )::integer AS "totalUnits",
 
-          current.activeItems +=
-            1;
+            COUNT(*) FILTER (
+              WHERE "minStock" > 0
+                AND "currentQuantity" > 0
+                AND "currentQuantity" <= "minStock"
+            )::integer AS "lowStockItems",
 
-          current.totalUnits +=
-            quantity;
+            COUNT(*) FILTER (
+              WHERE "currentQuantity" = 0
+            )::integer AS "outOfStockItems",
 
-          current.purchaseValue +=
-            quantity *
-            numberOrZero(
-              item.purchasePrice
-            );
+            COALESCE(
+              SUM(
+                "currentQuantity" *
+                "purchasePrice"
+              ),
+              0
+            )::numeric AS "purchaseValue",
 
-          current.saleValue +=
-            quantity *
-            numberOrZero(
-              item.salePrice
-            );
+            COALESCE(
+              SUM(
+                "currentQuantity" *
+                "salePrice"
+              ),
+              0
+            )::numeric AS "saleValue"
 
-          if (
-            quantity <=
-            item.minStock
-          ) {
-            current.lowStockItems +=
-              1;
-          }
-
-          if (
-            quantity === 0
-          ) {
-            current.outOfStockItems +=
-              1;
-          }
-
-          return current;
-        },
+          FROM "inventory_items"
+          WHERE "isActive" = TRUE
+        `,
         {
-          activeItems: 0,
-          totalUnits: 0,
-          lowStockItems: 0,
-          outOfStockItems: 0,
-          purchaseValue: 0,
-          saleValue: 0,
+          type:
+            QueryTypes.SELECT,
         }
       );
 
-    summary.purchaseValue =
-      Math.round(
-        summary.purchaseValue *
-          100
-      ) / 100;
+    const summary = {
+      activeItems:
+        numberOrZero(
+          row?.activeItems
+        ),
 
-    summary.saleValue =
-      Math.round(
-        summary.saleValue *
-          100
-      ) / 100;
+      totalUnits:
+        numberOrZero(
+          row?.totalUnits
+        ),
+
+      lowStockItems:
+        numberOrZero(
+          row?.lowStockItems
+        ),
+
+      outOfStockItems:
+        numberOrZero(
+          row?.outOfStockItems
+        ),
+
+      purchaseValue:
+        Math.round(
+          numberOrZero(
+            row?.purchaseValue
+          ) * 100
+        ) / 100,
+
+      saleValue:
+        Math.round(
+          numberOrZero(
+            row?.saleValue
+          ) * 100
+        ) / 100,
+    };
 
     return res
       .status(200)
