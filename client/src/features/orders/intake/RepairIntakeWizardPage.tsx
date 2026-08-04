@@ -23,10 +23,12 @@ import CustomerDeviceStep, {
 } from "./CustomerDeviceStep";
 import {
   DeviceInspectionStep,
-  PricePartsStep,
   RepairPlanStep,
   ReviewStep,
 } from "./IntakeWizardSteps";
+import PricePartsStep, {
+  type PricePartsDraft,
+} from "./PricePartsStep";
 import { intakeStepKeys } from "./intakeWizardConfig";
 
 const initialCustomerDeviceDraft: CustomerDeviceDraft = {
@@ -56,11 +58,18 @@ const initialCustomerDeviceDraft: CustomerDeviceDraft = {
   accessVerified: false,
 };
 
+const initialPricePartsDraft: PricePartsDraft = {
+  selectedParts: [],
+  laborPrice: 0,
+};
+
 const RepairIntakeWizardPage = () => {
   const { t } = useTranslation();
   const [activeStep, setActiveStep] = useState(0);
   const [customerDeviceDraft, setCustomerDeviceDraft] =
     useState(initialCustomerDeviceDraft);
+  const [pricePartsDraft, setPricePartsDraft] =
+    useState(initialPricePartsDraft);
 
   const isLastStep = activeStep === intakeStepKeys.length - 1;
 
@@ -78,7 +87,12 @@ const RepairIntakeWizardPage = () => {
       case 2:
         return <RepairPlanStep />;
       case 3:
-        return <PricePartsStep />;
+        return (
+          <PricePartsStep
+            draft={pricePartsDraft}
+            onChange={setPricePartsDraft}
+          />
+        );
       default:
         return <ReviewStep />;
     }
