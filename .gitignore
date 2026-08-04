@@ -4,6 +4,12 @@
 *.cookie-jar.txt
 cookies.txt
 
+# Local authentication diagnostics
+auth-cookies.txt
+server/staff-cookies.txt
+server/login-response.json
+server/staff-response.json
+
 # Local PostgreSQL backups
 *.dump
 *.backup
