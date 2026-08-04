@@ -131,18 +131,34 @@ const Header = ({
   return (
     <AppBar
       position="fixed"
+      elevation={0}
       sx={{
         zIndex: (
           currentTheme
         ) =>
           currentTheme.zIndex
             .drawer + 1,
-
-        backgroundColor:
-          "#219EBC",
+        background:
+          "linear-gradient(90deg, #020f3a 0%, #03164f 48%, #00113f 100%)",
+        color: "#ffffff",
+        borderBottom:
+          "1px solid rgba(255, 255, 255, 0.12)",
+        boxShadow:
+          "0 4px 18px rgba(2, 15, 58, 0.16)",
       }}
     >
-      <Toolbar>
+      <Toolbar
+        sx={{
+          minHeight: {
+            xs: "56px !important",
+            sm: "58px !important",
+          },
+          px: {
+            xs: 1.25,
+            sm: 2.25,
+          },
+        }}
+      >
         {isMobile && (
           <IconButton
             color="inherit"
@@ -155,8 +171,14 @@ const Header = ({
             }
             sx={{
               mr: {
-                xs: 1,
-                sm: 2,
+                xs: 0.75,
+                sm: 1.5,
+              },
+              color:
+                "rgba(255, 255, 255, 0.95)",
+              "&:hover": {
+                bgcolor:
+                  "rgba(255, 255, 255, 0.10)",
               },
             }}
           >
@@ -172,28 +194,42 @@ const Header = ({
             minWidth: 0,
           }}
         >
-          <Construction
+          <Box
             sx={{
-              mr: 1,
-
-              fontSize: {
-                xs: 20,
-                sm: 24,
-              },
-
+              width: 32,
+              height: 32,
+              display: "grid",
+              placeItems: "center",
+              mr: 1.1,
+              borderRadius: 1.5,
+              bgcolor:
+                "rgba(255, 255, 255, 0.08)",
+              border:
+                "1px solid rgba(255, 255, 255, 0.14)",
               flexShrink: 0,
             }}
-          />
+          >
+            <Construction
+              sx={{
+                fontSize: 20,
+                color: "#ffffff",
+              }}
+            />
+          </Box>
 
           <Typography
-            variant="h5"
+            variant="h6"
             component="div"
             noWrap
             sx={{
               fontSize: {
-                xs: "1.05rem",
-                sm: "1.5rem",
+                xs: "0.98rem",
+                sm: "1.08rem",
               },
+              fontWeight: 850,
+              letterSpacing:
+                "0.01em",
+              color: "#ffffff",
             }}
           >
             CRM Remont
@@ -203,8 +239,8 @@ const Header = ({
         <Stack
           direction="row"
           spacing={{
-            xs: 0.25,
-            sm: 1,
+            xs: 0.15,
+            sm: 0.65,
           }}
           alignItems="center"
         >
@@ -234,15 +270,27 @@ const Header = ({
                   ? "true"
                   : undefined
               }
+              sx={{
+                p: 0.5,
+                "&:hover": {
+                  bgcolor:
+                    "rgba(255, 255, 255, 0.10)",
+                },
+              }}
             >
               <Avatar
                 sx={{
                   width: 32,
                   height: 32,
                   fontSize:
-                    "0.8rem",
-                  backgroundColor:
-                    "rgba(255, 255, 255, 0.2)",
+                    "0.78rem",
+                  fontWeight: 800,
+                  color: "#ffffff",
+                  bgcolor: "#075cff",
+                  border:
+                    "1px solid rgba(255, 255, 255, 0.28)",
+                  boxShadow:
+                    "0 3px 10px rgba(0, 0, 0, 0.18)",
                 }}
               >
                 {initials}
@@ -276,6 +324,11 @@ const Header = ({
               sx: {
                 mt: 1,
                 minWidth: 250,
+                borderRadius: 2,
+                border:
+                  "1px solid #d8e1ef",
+                boxShadow:
+                  "0 14px 36px rgba(3, 22, 79, 0.18)",
               },
             },
           }}
@@ -287,7 +340,8 @@ const Header = ({
             }}
           >
             <Typography
-              fontWeight={600}
+              fontWeight={700}
+              color="#07184a"
               noWrap
             >
               {user?.name}
