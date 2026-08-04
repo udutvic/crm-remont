@@ -6,6 +6,7 @@ import {
 import deviceModelTranslations from "features/orders/intake/deviceModelTranslations";
 import intakeWizardRuntimeTranslations from "features/orders/intake/intakeWizardRuntimeTranslations";
 import intakeWizardTranslations from "features/orders/intake/intakeWizardTranslations";
+import inventoryPartTranslations from "features/orders/intake/inventoryPartTranslations";
 
 export const supportedLanguages = [
   "en",
@@ -69,6 +70,9 @@ const loadTranslation = async (
       language
     ],
     ...deviceModelTranslations[
+      language
+    ],
+    ...inventoryPartTranslations[
       language
     ],
   };
